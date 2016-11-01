@@ -1,0 +1,14 @@
+/* Heartland Community College (hrt) instutition css */
+
+a {
+  color: #003399;
+}
+a:hover,a:focus {
+  color: #e60039;
+}
+h2, h4 {
+  color:#003399;
+}
+.list-group-item.title {
+  color:#003399; 
+}

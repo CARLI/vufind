@@ -1,0 +1,72 @@
+<? // get the 3 letter institution code //
+  $inst = getenv('VUFIND_LIBRARY');
+
+  // path to the individual institution customization variables//
+  $configInclude =  "/usr/local/vufind/themes/$inst/config.php";
+
+  // include individual institution customization file //
+  if (file_exists($configInclude)) {
+      include $configInclude;
+  }
+
+?>
+
+<h2>Footer</h2>
+<div class="row">
+  <div class="col-sm-3">
+    <p class='sm-text carlifoot'>I-Share includes the resources of 86 Illinois libraries that belong to the 
+    <a href='https://www.carli.illinois.edu'>Consortium of Academic and Research Libraries in Illinois</a></p>
+   
+  </div>
+  <div class="col-sm-3">
+    <h3><?=$this->transEsc('Search Options')?></h3>
+    <ul>
+      <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
+      <li><a href="<?=$this->url('search-advanced')?>"><?=$this->transEsc('Advanced Search')?></a></li>
+      <li>
+          <a href='https://i-share.carli.illinois.edu/<? echo $inst; ?>'>Classic Search</a>
+        </li>
+    </ul>
+<!--
+    <h3><?=$this->transEsc('Need Help?')?></h3>
+-->
+    <ul>
+      <li><a href="<?=$this->url('help-home')?>?topic=search" class="help-link"><?=$this->transEsc('Search Tips')?></a></li>
+<!--
+      <li><a href="#"><?=$this->transEsc('Ask a Librarian')?></a></li>
+      <li><a href="#"><?=$this->transEsc('FAQs')?></a></li>
+-->
+    </ul>
+  </div>
+  <div class="col-sm-3">
+    <h3><?=$this->transEsc('Find More')?></h3>
+    <ul>
+      <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
+      <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
+<!--
+      <li><a href="<?=$this->url('search-reserves')?>"><?=$this->transEsc('Course Reserves')?></a></li>
+      <li><a href="<?=$this->url('search-newitem')?>"><?=$this->transEsc('New Items')?></a></li>
+-->
+<!-- CARLI work arounds for CR and NI -->
+        <? if (!empty($courseReservesUrl)) { ?>
+        <li>
+          <a href='<? echo $courseReservesUrl; ?>'>Course Reserves</a>
+        </li>
+        <? } ?>
+        <? if (!empty($newItemsUrl)) { ?>
+        <li>
+          <a href='<? echo $newItemsUrl; ?>'>New Items</a>
+        </li>
+        <? } ?>
+<!-- end CARLI work arounds -->
+    </ul>
+  </div>
+  <div class="col-sm-3">
+    <h3>About CARLI</h3>
+    <ul>
+      <li><a href="https://www.carli.illinois.edu/products-services/i-share">About I-Share</a></li>
+      <li><a href="https://www.carli.illinois.edu/membership/i-share_part">List of I-Share Libraries</a></li>
+      <li><a href="https://www.carli.illinois.edu/membership/mem-libs/ishare-map">Map of I-Share Libraries</a></li>
+    </ul>
+  </div>
+</div>
