@@ -4,13 +4,6 @@ namespace CARLI\ILS\Driver;
 
 class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
 {
-
-    public function getStatus($id)
-    {
-        $result =  parent::getStatus($id);
-        return $result;
-    }
-
     public function getHolding($id, array $patron = null)
     {
         $results = array();
@@ -60,17 +53,6 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             }
             foreach ($sourceRecords as $sourceRecord) {
                 $sourceDB = $this->getSource($sourceRecord);
-// TODO: remove this line. gotta find a better way to detect an invalid driver! bhc hasn't been defined yet
-if (
-    $sourceDB != "HRTdb" 
-&&  $sourceDB != "JUDdb" 
-&&  $sourceDB != "JWCdb" 
-&&  $sourceDB != "KCCdb"
-)
-{ 
-continue;
-}
-if ($sourceDB == "BHCdb") { continue; }
                 $driver = $this->getDriver($sourceDB);
                 if ($driver) {
                     $holdings = $driver->getHolding(

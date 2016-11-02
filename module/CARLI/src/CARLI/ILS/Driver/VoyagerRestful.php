@@ -77,17 +77,6 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         return $results;
     }
 
-    public function getHolding($id, array $patron = null)
-    {
-        $ret = parent::getHolding($id, $patron);
-        return $ret;
-    }
-
-    public function getStatus($id)
-    {
-        return parent::getStatus($id);
-    }
-
     protected function isStorageRetrievalRequestAllowed($holdingsRow)
     {
         // Disallow Callslip requesting. We use ILL requesting for everything now.
