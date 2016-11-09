@@ -1,0 +1,25 @@
+import org.marc4j.marc.Record;
+import org.marc4j.marc.DataField;
+import org.marc4j.marc.*;
+
+import org.solrmarc.tools.Utils;
+
+//import org.apache.log4j.Logger;
+//protected static Logger logger = Logger.getLogger(Utils.class.getName());
+
+public List getLocation(Record record) {
+    List locations = new ArrayList();
+//logger.debug("Record r = " + record + "\n");
+    DataField ldf = (DataField) record.getVariableField("852");
+    if (ldf != null) {
+        List lfs = ldf.getSubfields('b');
+        for (Subfield lf : lfs) {
+            String location = lf.getData();
+            if (location.length() > 0) {
+//logger.debug("location = " + location + "\n");
+                locations.add(location);
+            }
+        }
+    }
+    return locations;
+}

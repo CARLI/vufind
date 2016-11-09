@@ -1,0 +1,377 @@
+import org.marc4j.marc.Record;
+import org.marc4j.marc.DataField;
+import org.marc4j.marc.*;
+import org.solrmarc.tools.Utils;
+import java.util.*;
+
+//import org.apache.log4j.Logger;
+//protected static Logger logger = Logger.getLogger(Utils.class.getName());
+
+// define the base level indexer so that its methods can be called from the script.
+// note that the SolrIndexer code will set this value before the script methods are called.
+org.solrmarc.index.SolrIndexer indexer = null;
+
+   /////////////////////////////////
+   interface Comparitor {
+      public boolean compare(String item, String pattern);
+   }
+
+   public class BeginsWithComparitor implements Comparitor {
+      public boolean compare(String item, String pattern) {
+          if (item.trim().toLowerCase(Locale.US).startsWith(pattern.toLowerCase(Locale.US))) {
+             return true;
+          }
+          return false;
+      }
+   };
+
+   public class EqualsComparitor implements Comparitor {
+      public boolean compare(String item, String pattern) {
+          if (item.trim().equalsIgnoreCase(pattern)) {
+             return true;
+          }
+          return false;
+      }
+   };
+
+   public class ContainsComparitor implements Comparitor {
+      public boolean compare(String item, String pattern) {
+        String itm = item.trim().toLowerCase(Locale.US);
+        String pat = pattern.toLowerCase(Locale.US);
+        String rep = itm.replaceFirst(pat, "###match###");
+        if (!rep.equals(itm)) {
+                return true;
+        }
+        return false;
+      }
+   };
+
+   public class TokenizedContainsComparitor extends ContainsComparitor {
+      public boolean compare(String item, String pattern) {
+         String[] tokens = item.split("\\s+");
+         for (String token : tokens) {
+            if (super.compare(token, pattern)) return true;
+         }
+         return false;
+      }
+   };
+
+
+TokenizedContainsComparitor tokenizedContainsComparitor = new TokenizedContainsComparitor();
+ContainsComparitor containsComparitor = new ContainsComparitor();
+EqualsComparitor equalsComparitor = new EqualsComparitor();
+BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
+
+    public Set getFormat(Record record)
+    {
+        Set result = new LinkedHashSet();
+
+        String tleaderChar1 = indexer.getFirstFieldVal(record, "000[6]");
+        if (tleaderChar1 != null) {
+            leaderChar1 = tleaderChar1.toLowerCase(Locale.US);
+        } else {
+            leaderChar1 = "";
+        }
+
+        String recType = leaderChar1; // synonym
+
+        String tleaderChar2 = indexer.getFirstFieldVal(record, "000[7]");
+        if (tleaderChar2 != null) {
+            leaderChar2 = tleaderChar2.toLowerCase(Locale.US);
+        } else {
+            leaderChar2 = "";
+        }
+
+        if(leaderChar1.equals("a")){
+           if(leaderChar2.equals("a")){
+              result.add("Book");
+           } else if (leaderChar2.equals("b")) {
+              result.add("Journal / Magazine");
+           } else if (leaderChar2.equals("c")) {
+              result.add("Archival Collection");
+           } else if (leaderChar2.equals("d")) {
+              result.add("Archive");
+           } else if (leaderChar2.equals("i")) {
+              result.add("Textual Material");
+           } else if (leaderChar2.equals("m")) {
+              result.add("Book");
+           } else if (leaderChar2.equals("s")) {
+              result.add("Journal / Magazine");
+           }
+        } else if (leaderChar1.equals("b")) {
+           result.add("Archive");
+        } else if (leaderChar1.equals("c")) {
+           result.add("Music Score");
+        } else if (leaderChar1.equals("d")) {
+           result.add("Music Manuscript");
+        } else if (leaderChar1.equals("e")) {
+           result.add("Map");
+        } else if (leaderChar1.equals("f")) {
+           result.add("Manuscript Map");
+        } else if (leaderChar1.equals("g")) {
+           result.add("Movie");
+        } else if (leaderChar1.equals("i")) {
+           result.add("Spoken Word Recording");
+        } else if (leaderChar1.equals("j")) {
+           result.add("Music Recording");
+        } else if (leaderChar1.equals("k")) {
+           result.add("2D Art");
+        } else if (leaderChar1.equals("m")) {
+           result.add("Software / Computer File");
+        } else if (leaderChar1.equals("o")) {
+           result.add("Kit");
+        } else if (leaderChar1.equals("p")) {
+           result.add("Mixed Material");
+        } else if (leaderChar1.equals("r")) {
+           result.add("3D Object");
+        } else if (leaderChar1.equals("t")) {
+           result.add("Manuscript");
+        }
+
+        String medium = "";
+
+        String t007Char1 = indexer.getFirstFieldVal(record, "007[0]");
+        if (t007Char1 != null)  {
+           t007Char1 = t007Char1.toLowerCase(Locale.US);
+           medium = t007Char1;
+        } else {
+           t007Char1 = "";
+        }
+
+        String t007Char2 = indexer.getFirstFieldVal(record, "007[1]");
+        if (t007Char2 != null) {
+           t007Char2 = t007Char2.toLowerCase(Locale.US);
+           medium += t007Char2;
+        } else {
+           t007Char2 = "";
+        }
+
+        // NOTE:
+        // Since set_medium2 is composed from the 338$a
+        // (controlled vocabulary); and the 300$a, 305$a, 538$a and
+        // 690$a (all free text), I guess we need to perform more
+        // forgiving substring matching, instead of stricter complete
+        // (or mostly complete) string matching. Therefore we will
+        // use setItemContains() to match on set_medium2 below.
+        Set set_medium2 = new LinkedHashSet();
+        addSubfieldDataToSet(record, set_medium2, "300", "a");
+        addSubfieldDataToSet(record, set_medium2, "300", "b");
+        addSubfieldDataToSet(record, set_medium2, "300", "e");
+        addSubfieldDataToSet(record, set_medium2, "305", "a");
+        addSubfieldDataToSet(record, set_medium2, "305", "b");
+        addSubfieldDataToSet(record, set_medium2, "305", "c");
+        addSubfieldDataToSet(record, set_medium2, "338", "a");
+        addSubfieldDataToSet(record, set_medium2, "538", "a");
+        addSubfieldDataToSet(record, set_medium2, "690", "a");
+
+        Set set_gmd = new LinkedHashSet();
+        addSubfieldDataToSet(record, set_gmd, "245", "h");
+
+        Set carrierTerm = new LinkedHashSet();
+        addSubfieldDataToSet(record, carrierTerm, "338", "a");
+
+        Set carrierCode = new LinkedHashSet();
+        addSubfieldDataToSet(record, carrierCode, "338", "b");
+
+        if (setItemContains(set_gmd, "electronic resource") ||
+            setItemEquals(carrierTerm, "online resource")||
+            setItemBeginsWith(carrierTerm, "computer") ||
+            setItemBeginsWith(carrierCode, "c")) {
+           result.add("Electronic");
+        }
+
+        if (setItemContains(set_gmd, "microform") ||
+            setItemBeginsWith(carrierTerm, "microf") ||
+            setItemBeginsWith(carrierTerm, "microo") ||
+            setItemBeginsWith(carrierTerm, "aperture") ||
+            setItemBeginsWith(carrierCode, "h") ||
+            (t007Char1.equals("h"))
+            ) {
+           result.add("Microform");
+        }
+
+        // Blu-ray:
+        // ((Medium=vd OR GMD=video*) AND (Medium2=bluray OR Medium2="blu ray" OR Medium2="blu-ray"))
+        // OR
+        // (RecType=g AND Medium=v* AND (Medium2=bluray OR Medium2="blu ray" OR Medium2="blu-ray"))
+        if (
+              ( ( itemEquals(medium, "vd") || setItemContains(set_gmd, "video") ) && ( setItemContains(set_medium2, "bluray") || setItemContains(set_medium2, "blu ray") || setItemContains(set_medium2, "blu-ray")) )
+              ||
+              ( itemEquals(recType, "g") && itemBeginsWith(medium, "v") && ( setItemContains(set_medium2, "bluray") || setItemContains(set_medium2, "blu ray") || setItemContains(set_medium2, "blu-ray")) )
+        ) {
+           result.add("Blu-ray");
+        }
+
+        // DVD:
+        // ((Medium=vd OR GMD=video*) AND Medium2=dvd*)
+        //  OR
+        // (RecType=g AND Medium=v* AND Medium2=dvd*)
+        if (
+             ((itemEquals(medium, "vd") || setItemContains(set_gmd, "video")) && setItemContains(set_medium2, "dvd"))
+             ||
+             (itemEquals(recType, "g") && itemBeginsWith(medium, "v") && setItemContains(set_medium2, "dvd"))
+        ) {
+           result.add("DVD");
+        }
+
+        // VHS:
+        // (Medium=vf OR GMD=video* OR RecType=g) AND (Medium2=vhs OR Medium2=videocassette)
+        if (
+              (itemEquals(medium, "vf") || setItemContains(set_gmd, "video") || itemEquals(recType, "g")) && (setItemContains(set_medium2, "vhs") || setItemContains(set_medium2, "videocassette"))
+        ) {
+           result.add("VHS");
+        }
+
+        // Slides:
+        // RecType=g AND (GMD="slide" OR Medium=gs OR Medium=gt)
+        if (
+              itemEquals(recType, "g") && ( setItemContains(set_gmd, "slide") || itemEquals(medium, "gs") ||  itemEquals(medium, "gt")  )
+        ) {
+           result.add("Slide");
+        }
+
+        // Film:
+        // (RecType=g AND (GMD="motion picture" or Medium=m*)) OR Medium2=”film reel”
+        if (
+              ( ( itemEquals(recType, "g") && ( setItemContains(set_gmd, "motion picture") || itemBeginsWith(medium, "m") ) ) || setItemContainsTokenized(set_medium2, "film reel")  )
+        ) {
+           result.add("Film");
+        }
+
+        // Audio CD:
+        // (RecType=j OR RecType=i OR GMD="sound*" OR Medium=sd)
+        // AND
+        // (Medium2="compact disc?" OR Medium2="CD" OR (Medium2 contains "sound disc?" AND also contains "digital") OR Medium2="audio disc")
+        if (
+              ( itemEquals(recType, "j") || itemEquals(recType, "i") || setItemContains(set_gmd, "sound") || itemEquals(medium, "sd") )
+              &&
+              ( setItemContains(set_medium2, "compact disc") || setItemContainsTokenized(set_medium2, "CD") || setItemContains(set_medium2, "audio disc") )
+              &&
+              !( setItemContains(set_medium2, "33 1/3") || setItemContains(set_medium2, "33 ⅓") || setItemContains(set_medium2, "33⅓"))
+        ) {
+           result.add("Audio CD");
+        }
+
+        // Audiocassette:
+        // (RecType=j OR RecType=i OR GMD="sound*")
+        // AND
+        // (Medium2=audiocassette OR Medium2=cassette? OR Medium=ss)
+        if (
+           ( itemEquals(recType, "j") || itemEquals(recType, "i") || setItemContains(set_gmd, "sound") )
+           &&
+           ( setItemContainsTokenized(set_medium2, "cassette") || itemEquals(medium, "ss") )
+        ) {
+           result.add("Audiocassette");
+        }
+
+        // Vinyl LP:
+        // (RecType=j OR RecType=i OR GMD="sound*" OR Medium=sd)
+        // AND
+        // (Medium2="33 1/3")
+        if (
+           ( itemEquals(recType, "j") || itemEquals(recType, "i") || setItemContains(set_gmd, "sound") || itemEquals(medium, "sd") )
+           &&
+           ( setItemContains(set_medium2, "33 1/3") || setItemContains(set_medium2, "33 ⅓") || setItemContains(set_medium2, "33⅓") )
+        ) {
+           result.add("Vinyl LP");
+        }
+
+//logger.debug("Formats results = " + result + "\n");
+        return result;
+    }
+
+
+
+
+
+    public void addSubfieldDataToSet(Record record, Set set, String field, String subfield)
+    {
+        if (field.equals("000"))
+        {
+            Leader leader = record.getLeader();
+            String val = leader.toString();
+            set.add(val);
+            return;
+        }
+        List fields = record.getVariableFields(field);
+        Iterator fldIter = fields.iterator();
+        while (fldIter.hasNext())
+        {
+            if (subfield != null)
+            {
+                DataField dfield = (DataField) fldIter.next();
+                List sub = dfield.getSubfields(subfield.charAt(0));
+                Iterator iter = sub.iterator();
+                while (iter.hasNext())
+                {
+                    Subfield s = (Subfield) (iter.next());
+                    String data = s.getData();
+                    data = Utils.cleanData(data);
+                    set.add(data);
+                }
+            }
+            else
+            {
+                ControlField cfield = (ControlField) fldIter.next();
+                set.add(cfield.getData());
+            }
+        }
+    }
+
+
+    ////////////
+    // String/pattern matching methods
+    ///////////
+
+    // for sets
+    public static boolean setItemMatches(Set set, String pattern, Comparitor c)
+    {
+        if (set.isEmpty()) {
+                return(false);
+        }
+
+        Iterator iter = set.iterator();
+
+        while (iter.hasNext())
+        {
+            String value = (String)iter.next();
+
+            if (c.compare(value, pattern)) {
+               return true;
+            }
+
+        }
+        return false;
+    }
+    public static boolean setItemEquals(Set set, String pattern)
+    {
+       return setItemMatches(set, pattern, equalsComparitor);
+    }
+    public static boolean setItemBeginsWith(Set set, String pattern)
+    {
+       return setItemMatches(set, pattern, beginsWithComparitor);
+    }
+    public static boolean setItemContains(Set set, String pattern)
+    {
+       return setItemMatches(set, pattern, containsComparitor);
+    }
+    public static boolean setItemContainsTokenized(Set set, String pattern)
+    {
+       return setItemMatches(set, pattern, tokenizedContainsComparitor);
+    }
+
+
+
+
+    // for individual items
+    public static boolean itemMatches(String item, String pattern, Comparitor c)
+    {
+       return c.compare(item, pattern);
+    }
+    public static boolean itemEquals(String item, String pattern) {
+       return itemMatches(item, pattern, equalsComparitor);
+    }
+    public static boolean itemBeginsWith(String item, String pattern) {
+       return itemMatches(item, pattern, beginsWithComparitor);
+    }
+

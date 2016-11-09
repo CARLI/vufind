@@ -1,0 +1,5 @@
+<?
+
+$headerimage = 'vufind-hrt.gif';
+
+?>
