@@ -43,16 +43,18 @@
     <ul>
       <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
       <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
-<!--
       <li><a href="<?=$this->url('search-reserves')?>"><?=$this->transEsc('Course Reserves')?></a></li>
+<!--
       <li><a href="<?=$this->url('search-newitem')?>"><?=$this->transEsc('New Items')?></a></li>
 -->
-<!-- CARLI work arounds for CR and NI -->
+<!--
         <? if (!empty($courseReservesUrl)) { ?>
         <li>
           <a href='<? echo $courseReservesUrl; ?>'>Course Reserves</a>
         </li>
         <? } ?>
+-->
+<!-- CARLI work arounds for NI -->
         <? if (!empty($newItemsUrl)) { ?>
         <li>
           <a href='<? echo $newItemsUrl; ?>'>New Items</a>
