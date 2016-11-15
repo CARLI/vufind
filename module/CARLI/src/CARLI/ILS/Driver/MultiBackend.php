@@ -8,9 +8,11 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
     {
         $results = array();
         $source = $this->getSource($id);
-        $driver = $this->getDriver($source);
+        if ($source) {
+            $driver = $this->getDriver($source);
+        }
         // If the ID is not prefixed with a library instances, e.g., UIUdb.123, then we can assume it's a deduped record (Universal Catalog)
-        if (! $driver) {
+        if (! $source || ! $driver) {
             // load our CARLIdb version of the NoILS driver, which provides access to the Solr Record Driver
             // which we'll use to parse 035a's in order to load the source records' holdings information
             $driver = $this->getDriver("CARLIdb");
