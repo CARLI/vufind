@@ -7,6 +7,11 @@
  */
 import org.marc4j.marc.Record;
 
+
+//import org.apache.log4j.Logger;
+//import org.solrmarc.tools.Utils;
+//protected static Logger logger = Logger.getLogger(Utils.class.getName());
+
 // define the base level indexer so that its methods can be called from the script.
 // note that the SolrIndexer code will set this value before the script methods are called.
 org.solrmarc.index.SolrIndexer indexer = null;
@@ -74,97 +79,8 @@ public Set create_institution(Record record) {
                 // quick elimination
                 if (the035a.length() == 5 && the035a.endsWith("db")) {
                    // keep only CARLI libraries
-/**********************************
-                   if (
-                      the035a.equals("ADLdb") ||
-                      the035a.equals("AUGdb") ||
-                      the035a.equals("ARUdb") ||
-                      the035a.equals("BENdb") ||
-                      the035a.equals("BRAdb") ||
-                      the035a.equals("CSCdb") ||
-                      the035a.equals("CTUdb") ||
-                      the035a.equals("CSUdb") ||
-                      the035a.equals("CODdb") ||
-                      the035a.equals("COLdb") ||
-                      the035a.equals("CONdb") ||
-                      the035a.equals("DACdb") ||
-                      the035a.equals("DPUdb") ||
-                      the035a.equals("DOMdb") ||
-                      the035a.equals("EIUdb") ||
-                      the035a.equals("ELMdb") ||
-                      the035a.equals("ERKdb") ||
-                      the035a.equals("GSUdb") ||
-                      the035a.equals("GRNdb") ||
-                      the035a.equals("WRHdb") ||
-                      the035a.equals("HCDdb") ||
-                      the035a.equals("HRTdb") ||
-                      the035a.equals("ICCdb") ||
-                      the035a.equals("ILCdb") ||
-                      the035a.equals("IECdb") ||
-                      the035a.equals("IITdb") ||
-                      the035a.equals("IMSdb") ||
-                      the035a.equals("ISLdb") ||
-                      the035a.equals("ISUdb") ||
-                      the035a.equals("IVCdb") ||
-                      the035a.equals("IWUdb") ||
-                      the035a.equals("JKMdb") ||
-                      the035a.equals("JWCdb") ||
-                      the035a.equals("JOLdb") ||
-                      the035a.equals("JUDdb") ||
-                      the035a.equals("KCCdb") ||
-                      the035a.equals("KENdb") ||
-                      the035a.equals("KISdb") ||
-                      the035a.equals("KNXdb") ||
-                      the035a.equals("LFCdb") ||
-                      the035a.equals("LACdb") ||
-                      the035a.equals("LEWdb") ||
-                      the035a.equals("LCCdb") ||
-                      the035a.equals("LNCdb") ||
-                      the035a.equals("LLCdb") ||
-                      the035a.equals("MMCdb") ||
-                      the035a.equals("MCKdb") ||
-                      the035a.equals("MILdb") ||
-                      the035a.equals("MONdb") ||
-                      the035a.equals("MRTdb") ||
-                      the035a.equals("NLUdb") ||
-                      the035a.equals("NBYdb") ||
-                      the035a.equals("NCCdb") ||
-                      the035a.equals("NPUdb") ||
-                      the035a.equals("NEIdb") ||
-                      the035a.equals("NIUdb") ||
-                      the035a.equals("NBTdb") ||
-                      the035a.equals("OAKdb") ||
-                      the035a.equals("ONUdb") ||
-                      the035a.equals("PRKdb") ||
-                      the035a.equals("PRCdb") ||
-                      the035a.equals("QCYdb") ||
-                      the035a.equals("RCCdb") ||
-                      the035a.equals("RMCdb") ||
-                      the035a.equals("ROUdb") ||
-                      the035a.equals("RSHdb") ||
-                      the035a.equals("SFMdb") ||
-                      the035a.equals("SXUdb") ||
-                      the035a.equals("SVCdb") ||
-                      the035a.equals("SAIdb") ||
-                      the035a.equals("SEIdb") ||
-                      the035a.equals("SICdb") ||
-                      the035a.equals("SIEdb") ||
-                      the035a.equals("SIMdb") ||
-                      the035a.equals("SWIdb") ||
-                      the035a.equals("TRNdb") ||
-                      the035a.equals("TIUdb") ||
-                      the035a.equals("TRTdb") ||
-                      the035a.equals("UICdb") ||
-                      the035a.equals("UISdb") ||
-                      the035a.equals("UIUdb") ||
-                      the035a.equals("USFdb") ||
-                      the035a.equals("SMLdb") ||
-                      the035a.equals("WIUdb") ||
-                      the035a.equals("WHEdb")
-                  ) {
+                   //logger.debug("the035a = " + the035a + "\n");
                       result.add(the035a);
-                  }
-********************************/
                }
             }
         }
