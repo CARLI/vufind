@@ -1007,6 +1007,19 @@ public class VuFindIndexer extends SolrIndexer
      * @return Call number label
      */
     public String getCallNumberLabel(final Record record, String fieldSpec) {
+//////////////////////////////
+// CARLI EDIT begin //////////
+// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
+DataField df = (DataField) record.getVariableField("852");
+if (df == null) {
+    return (null);
+}
+char ind1 = df.getIndicator1();
+if (ind1 == '1') {
+    return (null);
+}
+logger.info("LC call number");
+// CARLI EDIT end //////////
 
         String val = getFirstFieldVal(record, fieldSpec);
 
@@ -1043,7 +1056,19 @@ public class VuFindIndexer extends SolrIndexer
      * @return Call number subject letters
      */
     public String getCallNumberSubject(final Record record, String fieldSpec) {
-
+//////////////////////////////
+// CARLI EDIT begin //////////
+// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
+DataField df = (DataField) record.getVariableField("852");
+if (df == null) {
+    return (null);
+}
+char ind1 = df.getIndicator1();
+if (ind1 == '1') {
+    return (null);
+}
+logger.info("LC call number");
+// CARLI EDIT end //////////
         String val = getFirstFieldVal(record, fieldSpec);
 
         if (val != null) {
@@ -1166,6 +1191,19 @@ public class VuFindIndexer extends SolrIndexer
      *         otherwise shelf key of the first call number found.
      */
     public String getLCSortable(Record record, String fieldSpec) {
+//////////////////////////////
+// CARLI EDIT begin //////////
+// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
+DataField df = (DataField) record.getVariableField("852");
+if (df == null) {
+    return (null);
+}
+char ind1 = df.getIndicator1();
+if (ind1 == '1') {
+    return (null);
+}
+logger.info("LC call number");
+// CARLI EDIT end //////////
         // Loop through the specified MARC fields:
         Set<String> input = getFieldList(record, fieldSpec);
         String firstCall = "";
@@ -1247,6 +1285,19 @@ public class VuFindIndexer extends SolrIndexer
      * @return Set containing requested numeric portions of Dewey decimal call numbers
      */
     public Set<String> getDeweyNumber(Record record, String fieldSpec, String precisionStr) {
+//////////////////////////////
+// CARLI EDIT begin //////////
+// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
+DataField df = (DataField) record.getVariableField("852");
+if (df == null) {
+    return (null);
+}
+char ind1 = df.getIndicator1();
+if (ind1 != '1') {
+    return (null);
+}
+logger.info("Dewey call number");
+// CARLI EDIT end //////////
         // Initialize our return value:
         Set<String> result = new LinkedHashSet<String>();
 
@@ -1286,6 +1337,19 @@ public class VuFindIndexer extends SolrIndexer
      * @return Set containing normalized Dewey numbers extracted from specified fields.
      */
     public Set<String> getDeweySearchable(Record record, String fieldSpec) {
+//////////////////////////////
+// CARLI EDIT begin //////////
+// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
+DataField df = (DataField) record.getVariableField("852");
+if (df == null) {
+    return (null);
+}
+char ind1 = df.getIndicator1();
+if (ind1 != '1') {
+    return (null);
+}
+logger.info("Dewey call number");
+// CARLI EDIT end //////////
         // Initialize our return value:
         Set<String> result = new LinkedHashSet<String>();
 
@@ -1321,6 +1385,19 @@ public class VuFindIndexer extends SolrIndexer
      *         for sorting purposes.
      */
     public String getDeweySortable(Record record, String fieldSpec) {
+//////////////////////////////
+// CARLI EDIT begin //////////
+// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
+DataField df = (DataField) record.getVariableField("852");
+if (df == null) {
+    return (null);
+}
+char ind1 = df.getIndicator1();
+if (ind1 != '1') {
+    return (null);
+}
+logger.info("Dewey call number");
+// CARLI EDIT end //////////
         // Loop through the specified MARC fields:
         Set<String> input = getFieldList(record, fieldSpec);
         Iterator<String> iter = input.iterator();
