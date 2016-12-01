@@ -1015,7 +1015,7 @@ if (df == null) {
     return (null);
 }
 char ind1 = df.getIndicator1();
-if (ind1 == '1') {
+if (ind1 != '0') {
     return (null);
 }
 logger.info("LC call number");
@@ -1064,7 +1064,7 @@ if (df == null) {
     return (null);
 }
 char ind1 = df.getIndicator1();
-if (ind1 == '1') {
+if (ind1 != '0') {
     return (null);
 }
 logger.info("LC call number");
@@ -1179,6 +1179,27 @@ logger.info("LC call number");
         return "Not Illustrated";
     }
 
+//////////////////////////////
+// CARLI EDIT begin //////////
+// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
+    public String getLCandDeweySortable(Record record) {
+        DataField df = (DataField) record.getVariableField("852");
+        if (df == null) {
+            return (null);
+        }
+        char ind1 = df.getIndicator1();
+        // LC
+        if (ind1 == '0') {
+            return getLCSortable(record, "852hi");
+        }
+        // Dewey
+        if (ind1 == '1') {
+            return getDeweySortable(record, "852h");
+        }
+        return (null);
+    }
+// CARLI EDIT end //////////
+
 
     /**
      * Normalize LC numbers for sorting purposes (use only the first valid number!).
@@ -1199,7 +1220,7 @@ if (df == null) {
     return (null);
 }
 char ind1 = df.getIndicator1();
-if (ind1 == '1') {
+if (ind1 != '0') {
     return (null);
 }
 logger.info("LC call number");
