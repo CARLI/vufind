@@ -1,9 +1,11 @@
 <?
 
-$headerImage = "vufind-jwc.gif";
+$headerImage = 'vufind-jwc.gif';
 
-$headerUrl = "https://www.jwcc.edu/library/";
+$headerUrl = 'http://www.jwcc.edu/instruct/library/default.asp';
 
-$feedBackLink = 'reference@jwcc.edu';
+$headerMap = '';
+
+$feedBackLink = 'mailto:reference@jwcc.edu';
 
 ?>

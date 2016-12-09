@@ -8,6 +8,4 @@ $headerMap = '';
 
 $feedBackLink = 'mailto:library@kcc.edu';
 
-$courseReservesUrl = 'https://vufind.carli.illinois.edu/vf-kcc/Search/Reserves';
-
 ?>
