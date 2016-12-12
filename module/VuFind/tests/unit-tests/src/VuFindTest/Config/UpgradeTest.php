@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
  * @package  Tests
@@ -92,13 +92,13 @@ class UpgradeTest extends \VuFindTest\Unit\TestCase
         $expectedWarnings = [];
         if ((float)$version < 1.3) {
             $expectedWarnings[] = "WARNING: This version of VuFind does not support "
-                . "the default theme.  Your config.ini [Site] theme setting "
-                . "has been reset to the default: bootprint3.  You may need to "
+                . "the default theme. Your config.ini [Site] theme setting "
+                . "has been reset to the default: bootprint3. You may need to "
                 . "reimplement your custom theme.";
         } else if ((float)$version < 2.4) {
             $expectedWarnings[] = "WARNING: This version of VuFind does not support "
-                . "the blueprint theme.  Your config.ini [Site] theme setting "
-                . "has been reset to the default: bootprint3.  You may need to "
+                . "the blueprint theme. Your config.ini [Site] theme setting "
+                . "has been reset to the default: bootprint3. You may need to "
                 . "reimplement your custom theme.";
         }
         $this->assertEquals($expectedWarnings, $warnings);
