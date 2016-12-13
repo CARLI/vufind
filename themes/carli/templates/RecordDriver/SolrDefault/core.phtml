@@ -230,7 +230,7 @@
       </tr>
       <? endif; ?>
 
-<!-- CARLI: don't show open urls. The holdings records should display this information instead.
+<! CARLI BEGIN don't show open urls. The holdings records should display this information instead !>
 <!--
       <?
         $openUrl = $this->openUrl($this->driver, 'record');
@@ -252,6 +252,7 @@
       </tr>
       <? endif; ?>
 -->
+<! CARLI END don't show open urls. The holdings records should display this information instead !>
 
       <? $recordLinks = $this->driver->getAllRecordLinks(); ?>
       <? if(!empty($recordLinks)): ?>

@@ -28,7 +28,7 @@
     $hiddenFilterParams = $this->searchtabs()->getCurrentHiddenFilterParams($this->searchClassId, $ignoreHiddenFilterMemory, '?');
 ?>
 <? if ($this->searchType == 'advanced'): ?>
-  <div class="searchForm navbar-form navbar-left flip">
+  <div class="navbar-form navbar-left flip">
     <? $tabs = $this->context($this)->renderInContext('search/searchTabs', ['hiddenFilters' => $hiddenFilters]); ?>
     <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>
       <p class="adv_search_terms"><?=$this->transEsc("Your search terms")?> : "<strong><?=$this->escapeHtml($this->lookfor)?></strong>"</p>
@@ -40,11 +40,11 @@
     <? if (!empty($tabs)): ?></div><? endif; ?>
   </div>
 <? else: ?>
-  <form class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
+  <form id="searchForm" class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
     <?= $this->context($this)->renderInContext('search/searchTabs', ['hiddenFilters' => $hiddenFilters]); ?>
-    <input class="searchForm_lookfor form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>" type="text" name="lookfor" value="<?=$this->escapeHtmlAttr($this->lookfor)?>"/>
+    <input id="searchForm_lookfor" class="searchForm_lookfor form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>" type="text" name="lookfor" value="<?=$this->escapeHtmlAttr($this->lookfor)?>" autofocus />
     <? if ($handlerCount > 1): ?>
-      <select class="searchForm_type form-control" name="type" data-native-menu="false">
+      <select id="searchForm_type" class="searchForm_type form-control" name="type" data-native-menu="false">
         <? foreach ($handlers as $handler): ?>
           <option value="<?=$this->escapeHtmlAttr($handler['value'])?>"<?=$handler['selected'] ? ' selected="selected"' : ''?>><?=$handler['indent'] ? '-- ' : ''?><?=$this->transEsc($handler['label'])?></option>
         <? endforeach; ?>
@@ -52,9 +52,7 @@
     <? elseif ($handlerCount == 1): ?>
       <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
     <? endif; ?>
-
-
-<!--CARLI BEGIN-->
+<! CARLI BEGIN !>
           <? if (preg_match("/^\/all\/vf-/", $this->url($basicSearch))): ?>
               <label for="whichCatalog" class="sr-only">Choose search catalog</label>
               <select class="searchForm_type form-control" id="whichCatalog" data-native-menu="false" onChange="switchCatalog(this)">
@@ -68,19 +66,14 @@
               <option value="local" selected>Local Catalog Only</option>
               </select>
           <? endif; ?>
-<!--CARLI END-->
-
-
-
+<! CARLI END !>
     <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> <?=$this->transEsc("Find")?></button>
     <? if ($advSearch): ?>
       <a href="<?=$this->url($advSearch) . ((isset($this->searchId) && $this->searchId) ? '?edit=' . $this->escapeHtmlAttr($this->searchId) : $hiddenFilterParams) ?>" class="btn btn-link" rel="nofollow"><?=$this->transEsc("Advanced")?></a>
     <? endif; ?>
-
-
-
-
-
+    <? if ($geoUrl = $this->geocoords()->getSearchUrl($options)) : ?>
+        <a href="<?=$geoUrl ?>" class="btn btn-link"><?=$this->transEsc('Geographic Search')?></a>
+    <? endif; ?>
 
     <? $shards = $options->getShards(); if ($options->showShardCheckboxes() && !empty($shards)): ?>
       <?
@@ -138,9 +131,7 @@
       }
     ?>
   </form>
-  <script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>
-<!--CARLI BEGIN-->
-
+<! CARLI BEGIN !>
   <script type="text/javascript">
   function switchCatalog(choiceObj) {
       var theaction = choiceObj.form.action;
@@ -159,5 +150,5 @@
       }
   }
   </script>
-<!--CARLI END-->
+<! CARLI END !>
 <? endif; ?>

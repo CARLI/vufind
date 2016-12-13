@@ -124,28 +124,28 @@
               <br />
             <? endif; ?>
 
-<!-- CARLI edit -->
+<! CARLI BEGIN !>
             <? if (!empty($ilsDetails['institution_name']) && (empty($ilsDetails['borrowingLocation']) || $ilsDetails['institution_name'] != $ilsDetails['borrowingLocation'])): ?>
               <strong><?=$this->transEsc('location_' . $ilsDetails['institution_name'], array(), $ilsDetails['institution_name'])?></strong>
               <br />
             <? endif; ?>
-<!-- CARLI edit -->
+<! CARLI END !>
 
             <? if (!empty($ilsDetails['create'])): ?>
               <strong><?=$this->transEsc('Created') ?>:</strong> <?=$this->escapeHtml($ilsDetails['create']) ?>
-<!-- CARLI edit -->
+<! CARLI BEGIN !>
 <!--
               <? if (!empty($ilsDetails['expire'])): ?>|<? endif; ?>
 -->
-<!-- CARLI edit -->
+<! CARLI END !>
             <? endif; ?>
-<!-- CARLI edit -->
+<! CARLI BEGIN !>
 <!--
             <? if (!empty($ilsDetails['expire'])): ?>
               <strong><?=$this->transEsc('Expires') ?>:</strong> <?=$this->escapeHtml($ilsDetails['expire']) ?>
             <? endif; ?>
 -->
-<!-- CARLI edit -->
+<! CARLI END !>
             <br />
 
             <? if (isset($this->cancelResults['items'])): ?>

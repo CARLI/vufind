@@ -151,7 +151,7 @@
           <? endif; ?>
         </div>
 
-<!--CARLI BEGIN-->
+<! CARLI BEGIN !>
           <? if (preg_match("/^\/all\/vf-/", $this->url())): ?>
               <select class="form-control" id="whichCatalogAdvanced" onChange="switchCatalog(this)">
               <option value="ishare" selected>All I-Share Libraries</option>
@@ -163,7 +163,7 @@
               <option value="local" selected>Local Catalog Only</option>
               </select>
           <? endif; ?>
-<!--CARLI END-->
+<! CARLI END !>
 
 
         <div class="clearfix">
@@ -212,7 +212,7 @@
   </form>
 </div>
 
-<!--CARLI BEGIN-->
+<! CARLI BEGIN !>
   <script type="text/javascript">
   function switchCatalog(choiceObj) {
       var theaction = choiceObj.form.action;
@@ -231,4 +231,4 @@
       }
   }
   </script>
-<!--CARLI END-->
+<! CARLI END !>

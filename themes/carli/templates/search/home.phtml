@@ -1,3 +1,4 @@
+<! CARLI BEGIN Customization !>
 <? // CARLI customization information //
 
   // get the 3 letter institution code //
@@ -11,6 +12,7 @@
       include $configInclude;
   }
 ?>
+<! CARLI END Customization !>
 
 <?
   // Set page title.
@@ -54,11 +56,11 @@ JS;
   </div>
 </div>
 
-<!-- CARLI frontpage text -->
+<! CARLI BEGIN frontpage text !>
         <? if (!empty($introText)) { 
            echo $introText; 
          } ?>
-<!-- end CARLI frontpage text -->
+<! CARLI END frontpage text !>
 
 <? $facetList = is_object($this->results) ? $this->results->getFacetList() : []; ?>
 <? if (isset($facetList) && is_array($facetList)): ?>

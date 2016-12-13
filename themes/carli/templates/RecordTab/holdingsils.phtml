@@ -42,7 +42,7 @@
 <? $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); if (!empty($holdingTitleHold)): ?>
   <a class="placehold" data-lightbox title="<?=$this->transEsc('request_place_text')?>" href="<?=$this->recordLink()->getRequestUrl($holdingTitleHold)?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc('title_hold_place')?></a>
 <? endif; ?>
-<!-- CARLI comment out openUrlActive data -->
+<! CARLI BEGIN comment out openUrlActive data !>
 <!--
 <? if (!empty($urls) || $openUrlActive): ?>
   <h3><?=$this->transEsc("Internet")?></h3>
@@ -54,10 +54,10 @@
   <? if ($openUrlActive): ?><?=$openUrl->renderTemplate()?><? endif; ?>
 <? endif; ?>
 -->
-<!-- CARLI end comment out openUrlActive data -->
+<! CARLI END comment out openUrlActive data !>
 <? foreach ($holdings['holdings'] as $holding): ?>
 <h3>
-<!-- CARLI BEGIN libname-->
+<! CARLI BEGIN libname !>
 <?
 //if (preg_match('/^\/all\/vf-/', $this->url('home'))) {
     $this->libname = $holding['items'][0]['item_agency_id'];
@@ -65,7 +65,7 @@
 //}
 ?> 
 <br/>
-<!-- CARLI END libname-->
+<! CARLI END libname !>
   <? $locationText = $this->transEsc('location_' . $holding['location'], [], $holding['location']); ?>
   <? if (isset($holding['locationhref']) && $holding['locationhref']): ?>
     <a href="<?=$holding['locationhref']?>" target="_blank"><?=$locationText?></a>
