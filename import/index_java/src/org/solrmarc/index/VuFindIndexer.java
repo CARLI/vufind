@@ -1007,19 +1007,6 @@ public class VuFindIndexer extends SolrIndexer
      * @return Call number label
      */
     public String getCallNumberLabel(final Record record, String fieldSpec) {
-//////////////////////////////
-// CARLI EDIT begin //////////
-// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
-DataField df = (DataField) record.getVariableField("852");
-if (df == null) {
-    return (null);
-}
-char ind1 = df.getIndicator1();
-if (ind1 != '0') {
-    return (null);
-}
-logger.info("LC call number");
-// CARLI EDIT end //////////
 
         String val = getFirstFieldVal(record, fieldSpec);
 
@@ -1056,19 +1043,6 @@ logger.info("LC call number");
      * @return Call number subject letters
      */
     public String getCallNumberSubject(final Record record, String fieldSpec) {
-//////////////////////////////
-// CARLI EDIT begin //////////
-// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
-DataField df = (DataField) record.getVariableField("852");
-if (df == null) {
-    return (null);
-}
-char ind1 = df.getIndicator1();
-if (ind1 != '0') {
-    return (null);
-}
-logger.info("LC call number");
-// CARLI EDIT end //////////
         String val = getFirstFieldVal(record, fieldSpec);
 
         if (val != null) {
@@ -1179,27 +1153,6 @@ logger.info("LC call number");
         return "Not Illustrated";
     }
 
-//////////////////////////////
-// CARLI EDIT begin //////////
-// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
-    public String getLCandDeweySortable(Record record) {
-        DataField df = (DataField) record.getVariableField("852");
-        if (df == null) {
-            return (null);
-        }
-        char ind1 = df.getIndicator1();
-        // LC
-        if (ind1 == '0') {
-            return getLCSortable(record, "852hi");
-        }
-        // Dewey
-        if (ind1 == '1') {
-            return getDeweySortable(record, "852h");
-        }
-        return (null);
-    }
-// CARLI EDIT end //////////
-
 
     /**
      * Normalize LC numbers for sorting purposes (use only the first valid number!).
@@ -1212,19 +1165,6 @@ logger.info("LC call number");
      *         otherwise shelf key of the first call number found.
      */
     public String getLCSortable(Record record, String fieldSpec) {
-//////////////////////////////
-// CARLI EDIT begin //////////
-// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
-DataField df = (DataField) record.getVariableField("852");
-if (df == null) {
-    return (null);
-}
-char ind1 = df.getIndicator1();
-if (ind1 != '0') {
-    return (null);
-}
-logger.info("LC call number");
-// CARLI EDIT end //////////
         // Loop through the specified MARC fields:
         Set<String> input = getFieldList(record, fieldSpec);
         String firstCall = "";
@@ -1306,19 +1246,6 @@ logger.info("LC call number");
      * @return Set containing requested numeric portions of Dewey decimal call numbers
      */
     public Set<String> getDeweyNumber(Record record, String fieldSpec, String precisionStr) {
-//////////////////////////////
-// CARLI EDIT begin //////////
-// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
-DataField df = (DataField) record.getVariableField("852");
-if (df == null) {
-    return (null);
-}
-char ind1 = df.getIndicator1();
-if (ind1 != '1') {
-    return (null);
-}
-logger.info("Dewey call number");
-// CARLI EDIT end //////////
         // Initialize our return value:
         Set<String> result = new LinkedHashSet<String>();
 
@@ -1358,19 +1285,6 @@ logger.info("Dewey call number");
      * @return Set containing normalized Dewey numbers extracted from specified fields.
      */
     public Set<String> getDeweySearchable(Record record, String fieldSpec) {
-//////////////////////////////
-// CARLI EDIT begin //////////
-// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
-DataField df = (DataField) record.getVariableField("852");
-if (df == null) {
-    return (null);
-}
-char ind1 = df.getIndicator1();
-if (ind1 != '1') {
-    return (null);
-}
-logger.info("Dewey call number");
-// CARLI EDIT end //////////
         // Initialize our return value:
         Set<String> result = new LinkedHashSet<String>();
 
@@ -1406,19 +1320,6 @@ logger.info("Dewey call number");
      *         for sorting purposes.
      */
     public String getDeweySortable(Record record, String fieldSpec) {
-//////////////////////////////
-// CARLI EDIT begin //////////
-// Eventually, I want to subclass VuFindIndexer, but SolrMarc has bugs!!!
-DataField df = (DataField) record.getVariableField("852");
-if (df == null) {
-    return (null);
-}
-char ind1 = df.getIndicator1();
-if (ind1 != '1') {
-    return (null);
-}
-logger.info("Dewey call number");
-// CARLI EDIT end //////////
         // Loop through the specified MARC fields:
         Set<String> input = getFieldList(record, fieldSpec);
         Iterator<String> iter = input.iterator();
