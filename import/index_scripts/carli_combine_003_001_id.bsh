@@ -24,7 +24,6 @@ org.solrmarc.index.SolrIndexer indexer = null;
 public String combine_003_001_id(Record record) {
    String id = indexer.getFirstFieldVal(record, "001");
    String org = indexer.getFirstFieldVal(record, "003");
-   //return "(" + org + ")" + id;
    return org + "." + id;
 }
 
@@ -43,10 +42,10 @@ public Set create_local_ids_str_mv(Record record) {
         String current = iter.next();
         String _035a = current.toString();
 
-        // skip non-CARLI data
-        if (_035a.indexOf("(OCoLC)") != -1) continue; 
-
-        result.add(_035a);
+        // keep only CARLI libraries
+        if (is_carli_library(the035a)) {
+            result.add(_035a);
+        } 
     }
 
     // If we found no call numbers, return null; otherwise, return our results:
@@ -56,7 +55,7 @@ public Set create_local_ids_str_mv(Record record) {
     return result;
 }
 
-public Set create_institution(Record record) {
+public Set create_institutions(Record record) {
     // Initialize our return value:
     Set result = new LinkedHashSet();
 
@@ -76,9 +75,8 @@ public Set create_institution(Record record) {
             if ((inx2 = _035a.indexOf(")")) >= 0 && inx2 > inx1) {
                 String the035a = _035a.substring(inx1+1, inx2);
 
-                // quick elimination
-                if (the035a.length() == 5 && the035a.endsWith("db")) {
-                   // keep only CARLI libraries
+                // keep only CARLI libraries
+                if (is_carli_library(the035a)) {
                    //logger.debug("the035a = " + the035a + "\n");
                       result.add(the035a);
                }
@@ -92,4 +90,11 @@ public Set create_institution(Record record) {
         return null;
 
     return result;
+}
+
+public boolean is_carli_library(String inst) {
+    if (inst.length() == 5 && inst.endsWith("db")) {
+        return true;
+    }
+    return false;
 }
