@@ -43,7 +43,7 @@ public Set create_local_ids_str_mv(Record record) {
         String _035a = current.toString();
 
         // keep only CARLI libraries
-        if (is_carli_library(the035a)) {
+        if (is_carli_library(_035a)) {
             result.add(_035a);
         } 
     }
