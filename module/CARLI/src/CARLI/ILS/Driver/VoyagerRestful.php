@@ -2,10 +2,149 @@
 
 namespace CARLI\ILS\Driver;
 
-use File_MARC;
+use File_MARC, Yajra\Pdo\Oci8, PDO, PDOException;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+
+    public function getNewItems($page, $limit, $daysOld, $fundId = null)
+    {
+        $oracleInstance = getenv('VUFIND_LIBRARY_DB');
+
+        $items = [];
+
+        $bindParams = [
+            #':enddate' => date('d-m-Y', strtotime('now')),
+            #':startdate' => date('d-m-Y', strtotime('-' . $daysOld . ' day'))
+# hardcoded for now because devel server doesn't have any recent data!
+':startdate' => '01-03-2016',
+':enddate' => '01-01-2017'
+        ];
+
+        $sql = 
+"select count(distinct bib_id) as count from      "  .
+"(select distinct ${oracleInstance}.bib_master.bib_id, ${oracleInstance}.item.create_date as cdate      "  .
+"from      ${oracleInstance}.bib_master,     "  .
+"         ${oracleInstance}.bib_text,     "  .
+"         ${oracleInstance}.bib_mfhd,     "  .
+"         ${oracleInstance}.mfhd_item,     "  .
+"         ${oracleInstance}.mfhd_master,     "  .
+"         ${oracleInstance}.item     "  .
+"where     ${oracleInstance}.bib_master.bib_id=${oracleInstance}.bib_text.bib_id and     "  .
+"         ${oracleInstance}.bib_text.bib_id=${oracleInstance}.bib_mfhd.bib_id and     "  .
+"         ${oracleInstance}.bib_mfhd.mfhd_id=${oracleInstance}.mfhd_master.mfhd_id and     "  .
+"         ${oracleInstance}.mfhd_master.mfhd_id=${oracleInstance}.mfhd_item.mfhd_id and     "  .
+"         ${oracleInstance}.mfhd_item.item_id=${oracleInstance}.item.item_id and     "  .
+"         ${oracleInstance}.mfhd_master.suppress_in_opac not in ('Y') and     "  .
+"         ${oracleInstance}.bib_master.suppress_in_opac not in ('Y') and     "  .
+"         ${oracleInstance}.item.on_reserve not in ('Y') and     "  .
+"         substr(${oracleInstance}.bib_text.bib_format,-1,1) in ('a','c','m') and     "  .
+"         ${oracleInstance}.item.create_date between to_date(:startdate, 'dd-mm-yyyy') and     "  .
+"         to_date(:enddate, 'dd-mm-yyyy') and     "  .
+"         ((${oracleInstance}.mfhd_master.create_date between     "  .
+"            to_date(:startdate, 'dd-mm-yyyy') and     "  .
+"            to_date(:enddate, 'dd-mm-yyyy'))  or     "  .
+"          (${oracleInstance}.mfhd_master.update_date between     "  .
+"            to_date(:startdate, 'dd-mm-yyyy') and     "  .
+"            to_date(:enddate, 'dd-mm-yyyy')))     "  .
+"UNION     "  .
+"select distinct ${oracleInstance}.bib_master.bib_id, ${oracleInstance}.mfhd_master.create_date as cdate     "  .
+"from      ${oracleInstance}.bib_master,     "  .
+"         ${oracleInstance}.bib_mfhd,     "  .
+"         ${oracleInstance}.mfhd_item,     "  .
+"         ${oracleInstance}.mfhd_master,     "  .
+"         (select record_id, link     "  .
+"          from ${oracleInstance}.elink_index     "  .
+"          where record_type='M') elink     "  .
+"where     ${oracleInstance}.bib_master.bib_id=${oracleInstance}.bib_mfhd.bib_id and     "  .
+"         ${oracleInstance}.bib_mfhd.mfhd_id=${oracleInstance}.mfhd_master.mfhd_id and     "  .
+"         ${oracleInstance}.mfhd_master.mfhd_id=elink.record_id and     "  .
+"         ${oracleInstance}.mfhd_master.mfhd_id=${oracleInstance}.mfhd_item.mfhd_id(+) and     "  .
+"         ${oracleInstance}.mfhd_item.item_id is null and     "  .
+"         ${oracleInstance}.mfhd_master.suppress_in_opac not in ('Y') and     "  .
+"         ${oracleInstance}.bib_master.suppress_in_opac not in ('Y') and     "  .
+"         ${oracleInstance}.mfhd_master.create_date between to_date(:startdate, 'dd-mm-yyyy') and     "  .
+"         to_date(:enddate, 'dd-mm-yyyy') and     "  .
+"         elink.link is not null)     "  
+;
+
+        try {
+            $sqlStmt = $this->executeSQL($sql, $bindParams);
+            $row = $sqlStmt->fetch(PDO::FETCH_ASSOC);
+            $items['count'] = $row['COUNT'];
+file_put_contents("/usr/local/vufind/look.txt", "new items count:\n" . var_export($count, true) . "\n\nbindParmams:\n" . var_export($bindParams, true) . "\n\nsql:\n" . var_export($sql, true) . "\n\n", FILE_APPEND | LOCK_EX);
+        } catch (PDOException $e) {
+            throw new ILSException($e->getMessage());
+        }
+
+        $page = ($page) ? $page : 1;
+        $limit = ($limit) ? $limit : 20;
+        $bindParams[':startRow'] = (($page - 1) * $limit) + 1;
+        $bindParams[':endRow'] = ($page * $limit);
+        $sql = 
+"select * from                      "  .
+"(select a.*, rownum rnum from                      "  .
+"(select bib_id from                      "  .
+"(select distinct ${oracleInstance}.bib_master.bib_id, ${oracleInstance}.item.create_date as cdate                      "  .
+"from      ${oracleInstance}.bib_master,                      "  .
+"         ${oracleInstance}.bib_text,                      "  .
+"         ${oracleInstance}.bib_mfhd,                      "  .
+"         ${oracleInstance}.mfhd_item,                      "  .
+"         ${oracleInstance}.mfhd_master,                      "  .
+"         ${oracleInstance}.item                      "  .
+"where     ${oracleInstance}.bib_master.bib_id=${oracleInstance}.bib_text.bib_id and                      "  .
+"         ${oracleInstance}.bib_text.bib_id=${oracleInstance}.bib_mfhd.bib_id and                      "  .
+"         ${oracleInstance}.bib_mfhd.mfhd_id=${oracleInstance}.mfhd_master.mfhd_id and                      "  .
+"         ${oracleInstance}.mfhd_master.mfhd_id=${oracleInstance}.mfhd_item.mfhd_id and                      "  .
+"         ${oracleInstance}.mfhd_item.item_id=${oracleInstance}.item.item_id and                      "  .
+"         ${oracleInstance}.mfhd_master.suppress_in_opac not in ('Y') and                      "  .
+"         ${oracleInstance}.bib_master.suppress_in_opac not in ('Y') and                      "  .
+"         ${oracleInstance}.item.on_reserve not in ('Y') and                      "  .
+"         substr(${oracleInstance}.bib_text.bib_format,-1,1) in ('a','c','m') and                      "  .
+"        ${oracleInstance}.item.create_date between to_date(:startdate, 'dd-mm-yyyy') and                      "  .
+"         to_date(:enddate, 'dd-mm-yyyy') and                      "  .
+"         ((${oracleInstance}.mfhd_master.create_date between                      "  .
+"            to_date(:startdate, 'dd-mm-yyyy') and                      "  .
+"            to_date(:enddate, 'dd-mm-yyyy'))  or                      "  .
+"          (${oracleInstance}.mfhd_master.update_date between                      "  .
+"            to_date(:startdate, 'dd-mm-yyyy') and                      "  .
+"            to_date(:enddate, 'dd-mm-yyyy')))                      "  .
+"UNION                      "  .
+"select distinct ${oracleInstance}.bib_master.bib_id, ${oracleInstance}.mfhd_master.create_date as cdate                      "  .
+"from      ${oracleInstance}.bib_master,                      "  .
+"         ${oracleInstance}.bib_mfhd,                      "  .
+"         ${oracleInstance}.mfhd_item,                      "  .
+"         ${oracleInstance}.mfhd_master,                      "  .
+"         (select record_id, link                      "  .
+"          from ${oracleInstance}.elink_index                      "  .
+"          where record_type='M') elink                      "  .
+"where     ${oracleInstance}.bib_master.bib_id=${oracleInstance}.bib_mfhd.bib_id and                      "  .
+"         ${oracleInstance}.bib_mfhd.mfhd_id=${oracleInstance}.mfhd_master.mfhd_id and                      "  .
+"         ${oracleInstance}.mfhd_master.mfhd_id=elink.record_id and                      "  .
+"         ${oracleInstance}.mfhd_master.mfhd_id=${oracleInstance}.mfhd_item.mfhd_id(+) and                      "  .
+"         ${oracleInstance}.mfhd_item.item_id is null and                      "  .
+"         ${oracleInstance}.mfhd_master.suppress_in_opac not in ('Y') and                      "  .
+"         ${oracleInstance}.bib_master.suppress_in_opac not in ('Y') and                      "  .
+"         ${oracleInstance}.mfhd_master.create_date between to_date(:startdate, 'dd-mm-yyyy') and                      "  .
+"         to_date(:enddate, 'dd-mm-yyyy') and                      "  .
+"         elink.link is not null)                      "  .
+"group by bib_id                      "  .
+"order by max(cdate) desc) a                      "  .
+"where rownum <= :endRow)                      "  .
+"where rnum >= :startRow                      "  
+;
+
+        try {
+            $sqlStmt = $this->executeSQL($sql, $bindParams);
+            while ($row = $sqlStmt->fetch(PDO::FETCH_ASSOC)) {
+                $items['results'][]['id'] = $row['BIB_ID'];
+            }
+            return $items;
+        } catch (PDOException $e) {
+            throw new ILSException($e->getMessage());
+        }
+    }
+
 
 
      // We always want local "callslip" info from VXWS services too
@@ -124,6 +263,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
             );
         }
 
+file_put_contents("/usr/local/vufind/holdings.txt", "\n\n******************************HOLDING info\n" . var_export($row, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         return $row;
     }
 
