@@ -276,6 +276,8 @@ class Backend extends AbstractBackend
         $params->set('offset', ($page * $limit) + $offsetDelta);
         $params->set('rows', $limit);
         $params->set('source', $source);
+$params->set('prependFromField', "institution");
+$params->set('prependFromValue', getenv('VUFIND_LIBRARY_DB'));
 
         try {
             $response = $this->connector->query('browse', $params);
