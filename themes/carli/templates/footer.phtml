@@ -42,7 +42,12 @@
     <h3><?=$this->transEsc('Find More')?></h3>
     <ul>
       <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
+<! CARLI BEGIN !>
+          <? if (preg_match("/^\/vf-/", $this->url('alphabrowse-home'))): ?>
       <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
+          <? endif; ?>
+<! CARLI END !>
+
       <li><a href="<?=$this->url('search-reserves')?>"><?=$this->transEsc('Course Reserves')?></a></li>
       <li><a href="<?=$this->url('search-newitem')?>"><?=$this->transEsc('New Items')?></a></li>
 <!--
