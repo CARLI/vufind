@@ -42,10 +42,20 @@ public Set create_local_ids_str_mv(Record record) {
         String current = iter.next();
         String _035a = current.toString();
 
-        // keep only CARLI libraries
-        if (is_carli_library(_035a)) {
-            result.add(_035a);
-        } 
+        // parse out institution
+        int inx1 = -1;
+        int inx2 = -1;
+        if ((inx1 = _035a.indexOf("(")) >= 0) {
+            if ((inx2 = _035a.indexOf(")")) >= 0 && inx2 > inx1) {
+                String the035a = _035a.substring(inx1+1, inx2);
+
+                // keep only CARLI libraries
+                if (is_carli_library(the035a)) {
+                      result.add(_035a);
+               }
+            }
+        }
+
     }
 
     // If we found no call numbers, return null; otherwise, return our results:
