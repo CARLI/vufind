@@ -161,6 +161,7 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
         addSubfieldDataToSet(record, set_medium2, "305", "b");
         addSubfieldDataToSet(record, set_medium2, "305", "c");
         addSubfieldDataToSet(record, set_medium2, "338", "a");
+        addSubfieldDataToSet(record, set_medium2, "344", "c");
         addSubfieldDataToSet(record, set_medium2, "538", "a");
         addSubfieldDataToSet(record, set_medium2, "690", "a");
 
@@ -238,18 +239,67 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
            result.add("Film");
         }
 
-        // Audio CD:
-        // (RecType=j OR RecType=i OR GMD="sound*" OR Medium=sd)
-        // AND
-        // (Medium2="compact disc?" OR Medium2="CD" OR (Medium2 contains "sound disc?" AND also contains "digital") OR Medium2="audio disc")
-        if (
-              ( itemEquals(recType, "j") || itemEquals(recType, "i") || setItemContains(set_gmd, "sound") || itemEquals(medium, "sd") )
-              &&
-              ( setItemContains(set_medium2, "compact disc") || setItemContainsTokenized(set_medium2, "CD") || setItemContains(set_medium2, "audio disc") )
-              &&
-              !( setItemContains(set_medium2, "33 1/3") || setItemContains(set_medium2, "33 ⅓") || setItemContains(set_medium2, "33⅓"))
-        ) {
-           result.add("Audio CD");
+        /********
+        Audio CD:
+
+        (RecType="j" <musical sound recording> OR RecType="i" <non-musical sound recording> OR 245h="sound" OR 007ab="sd" <Sound recording, sound disc)
+ 
+        <Stanza 1 pulls anything that is a sound recording. This is necessary to establish before the other conditions can be met, especially the 007/byte 06="g">
+ 
+        AND any of the following options 1-3 are present:
+ 
+        option 1:
+
+        <finds anything with 4 3/4 in. or 12 cm. diameter in 007>
+        007 byte 06=“g”
+ 
+        OR
+ 
+        option 2:
+        <finds anything with 4 3/4 in. or 12 cm. diameter in 300c>
+        300c=“4 ¾ in” OR "12 cm"
+ 
+        OR
+ 
+        option 3:
+        <finds anything with "compact disc" OR "CD" OR "audio disc" listed in the specified fields; this has a nested AND statement only specific to option 3>
+ 
+        (the term "compact disc" OR "CD" OR "audio disc" appears in the 300a, 300b, 300e, 305a, 305b, 305c, 338a, 538a, or 690a)
+        AND
+        (the term "33 1/3" OR "33 ⅓" OR "33⅓" does NOT appear in the 300a, 300b, 300e, 305a, 305b, 305c, 338a, 538a, or 690a)
+ 
+        ********/
+        if ( itemEquals(recType, "j") || itemEquals(recType, "i") || setItemContains(set_gmd, "sound") || itemEquals(medium, "sd") ) {
+
+            String _007Char6 = "";
+            String temp_007Char6 = indexer.getFirstFieldVal(record, "007[6]");
+            if (temp_007Char6 != null)  {
+               _007Char6 = temp_007Char6;
+            }
+
+            if (itemEquals(_007Char6, "g")) {
+
+                result.add("Audio CD");
+
+            } else if (
+                    (setItemContains(set_medium2, "compact disc") || setItemContainsTokenized(set_medium2, "CD") || setItemContains(set_medium2, "audio disc") )
+                    &&
+                    !( setItemContains(set_medium2, "33 1/3") || setItemContains(set_medium2, "33 ⅓") || setItemContains(set_medium2, "33⅓") ||  setItemContains(set_medium2, "33 ¹/₃") || setItemContains(set_medium2, "33¹/₃"))
+            ) {
+
+                result.add("Audio CD");
+
+            } else {
+
+                Set set_300c = new LinkedHashSet();
+                addSubfieldDataToSet(record, set_300c, "300", "c");
+
+                if (
+                    setItemContains(set_300c, "12 cm") || setItemContains(set_300c, "4 3/4") || setItemContains(set_300c, "4 ¾") || setItemContains(set_300c, "4¾") ||  setItemContains(set_300c, "4 ³/₄") || setItemContains(set_300c, "4³/₄")
+                ) {
+                    result.add("Audio CD");
+                }
+            }
         }
 
         // Audiocassette:
@@ -271,7 +321,7 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
         if (
            ( itemEquals(recType, "j") || itemEquals(recType, "i") || setItemContains(set_gmd, "sound") || itemEquals(medium, "sd") )
            &&
-           ( setItemContains(set_medium2, "33 1/3") || setItemContains(set_medium2, "33 ⅓") || setItemContains(set_medium2, "33⅓") )
+           ( setItemContains(set_medium2, "33 1/3") || setItemContains(set_medium2, "33 ⅓") || setItemContains(set_medium2, "33⅓") ||  setItemContains(set_medium2, "33 ¹/₃") || setItemContains(set_medium2, "33¹/₃"))
         ) {
            result.add("Vinyl LP");
         }
