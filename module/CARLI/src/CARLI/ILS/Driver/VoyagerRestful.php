@@ -14,11 +14,11 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         $items = [];
 
         $bindParams = [
-            #':enddate' => date('d-m-Y', strtotime('now')),
-            #':startdate' => date('d-m-Y', strtotime('-' . $daysOld . ' day'))
+            ':enddate' => date('d-m-Y', strtotime('now')),
+            ':startdate' => date('d-m-Y', strtotime('-' . $daysOld . ' day'))
 # hardcoded for now because devel server doesn't have any recent data!
-':startdate' => '01-03-2016',
-':enddate' => '01-01-2017'
+#':startdate' => '01-03-2016',
+#':enddate' => '01-01-2017'
         ];
 
         $sql = 
