@@ -7,6 +7,10 @@ org.solrmarc.index.SolrIndexer indexer = null;
 public Set getCollection(Record record) {
 
     String org = indexer.getFirstFieldVal(record, "003");
+    if (org == null) {
+       // org is pretty important!
+       return null;
+    }
 
     // Initialize our return value:
     Set result = new LinkedHashSet();
