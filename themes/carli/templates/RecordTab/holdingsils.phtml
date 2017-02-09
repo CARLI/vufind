@@ -101,6 +101,27 @@
     </tr>
   <? endforeach; endif; ?>
   <? foreach ($holding['items'] as $row): ?>
+<! CARLI BEGIN debug row !>
+<?
+  //echo "<pre>";
+  //print_r($row);
+  //echo "</pre>";
+?>
+<! CARLI END debug row !>
+<! CARLI BEGIN eresource !>
+<?
+   $er_cnt = count($row['eresource']);
+   if ($er_cnt > 0) {
+      for($er_cnt = 0; $er_cnt < count($row['eresource']); ++$er_cnt) {
+          $er_label = $row['eresource'][$er_cnt];
+          if ($row['eresource_label'][$er_cnt]) {
+              $er_label = $row['eresource_label'][$er_cnt];
+          }
+          echo '<tr><td>E-Resource</td><td><a href="' . $row['eresource'][$er_cnt] . '">' . $er_label . "</td></tr>\n";
+      }
+   }
+?>
+<! CARLI END eresource !>
     <?
       // AJAX Check record?
       $check = isset($row['check']) && $row['check'];
