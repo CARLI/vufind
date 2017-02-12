@@ -15,7 +15,7 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
         if (! $source || ! $driver) {
             // load our CARLIdb version of the NoILS driver, which provides access to the Solr Record Driver
             // which we'll use to parse 035a's in order to load the source records' holdings information
-            $driver = $this->getDriver("CARLIdb");
+            $driver = $this->getDriver("DUMMY");
             $record = $driver->getSolrRecord($id);
 
             $ucHoldings = $driver->getFormattedMarcDetails($record, 'MarcHoldings');

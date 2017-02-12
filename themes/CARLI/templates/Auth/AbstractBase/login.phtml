@@ -1,0 +1,115 @@
+
+<div class="container">
+  <div class="carlidrop">
+
+<form method="post" class="form-horizontal" action="/all/vf/MyResearch/UserLogin" name="loginForm" id="loginForm">
+<div class="form-group">
+  <label class="control-label" for="login_home_library">Please choose your Institution:</label>
+  <div>
+<select name="home_library" onChange="loginCatalog(this)"> 
+<OPTION VALUE="">*Please select*
+<OPTION VALUE="adl">Adler University
+<OPTION VALUE="aug">Augustana College
+<OPTION VALUE="aru">Aurora University
+<OPTION VALUE="ben">Benedictine University
+<OPTION VALUE="bhc">Black Hawk College
+<OPTION VALUE="bra">Bradley University
+<OPTION VALUE="csc">Carl Sandburg College
+<OPTION VALUE="ctu">Catholic Theological Union
+<OPTION VALUE="csu">Chicago State University
+<OPTION VALUE="cod">College of DuPage
+<OPTION VALUE="col">Columbia College
+<OPTION VALUE="con">Concordia University Chicago
+<OPTION VALUE="dac">Danville Area Community College
+<OPTION VALUE="dpu">DePaul University
+<OPTION VALUE="dom">Dominican University 
+<OPTION VALUE="eiu">Eastern Illinois University
+<OPTION VALUE="elm">Elmhurst College
+<OPTION VALUE="erk">Eureka College
+<OPTION VALUE="gsu">Governors State University
+<OPTION VALUE="grn">Greenville College
+<OPTION VALUE="wrh">Harper College
+<OPTION VALUE="hrt">Heartland Community College
+<OPTION VALUE="icc">Illinois Central College
+<OPTION VALUE="ilc">Illinois College
+<OPTION VALUE="iec">Illinois Eastern Community Colleges
+<OPTION VALUE="iit">Illinois Institute of Technology 
+<OPTION VALUE="ims">Illinois Math and Science Academy 
+<OPTION VALUE="isl">Illinois State Library (Springfield)
+<OPTION VALUE="isu">Illinois State University
+<OPTION VALUE="ivc">Illinois Valley Community College
+<OPTION VALUE="iwu">Illinois Wesleyan University
+<OPTION VALUE="jkm">JKM Library Trust
+<OPTION VALUE="jwc">John Wood Community College
+<OPTION VALUE="jol">Joliet Junior College
+<OPTION VALUE="jud">Judson University
+<OPTION VALUE="kcc">Kankakee Community College
+<OPTION VALUE="kis">Kishwaukee College
+<OPTION VALUE="knx">Knox College
+<OPTION VALUE="lfc">Lake Forest College
+<OPTION VALUE="lac">Lewis &amp; Clark Community College
+<OPTION VALUE="lew">Lewis University
+<OPTION VALUE="lcc">Lincoln Christian University
+<OPTION VALUE="lnc">Lincoln College
+<OPTION VALUE="llc">Lincoln Land Community College
+<OPTION VALUE="mmc">MacMurray College
+<OPTION VALUE="mck">McKendree University
+<OPTION VALUE="mls">Meadville Lombard Theological School
+<OPTION VALUE="mil">Millikin University
+<OPTION VALUE="mon">Monmouth College
+<OPTION VALUE="mrt">Morton College
+<OPTION VALUE="nlu">National-Louis University
+<OPTION VALUE="nby">The Newberry Library
+<OPTION VALUE="ncc">North Central College
+<OPTION VALUE="npu">North Park University
+<OPTION VALUE="nei">Northeastern Illinois University
+<OPTION VALUE="niu">Northern Illinois University
+<OPTION VALUE="nbt">Northern Seminary
+<OPTION VALUE="oak">Oakton Community College
+<OPTION VALUE="onu">Olivet Nazarene University
+<OPTION VALUE="prk">Parkland College
+<OPTION VALUE="prc">Principia College
+<OPTION VALUE="qcy">Quincy University
+<OPTION VALUE="rcc">Richland Community College
+<OPTION VALUE="rmc">Robert Morris University
+<OPTION VALUE="rou">Roosevelt University
+<OPTION VALUE="rsh">Rush University
+<OPTION VALUE="sfm">Saint Francis Medical Center College of Nursing
+<OPTION VALUE="sxu">Saint Xavier University
+<OPTION VALUE="svc">Sauk Valley Community College
+<OPTION VALUE="sai">School of the Art Institute of Chicago
+<OPTION VALUE="ssc">South Suburban College
+<OPTION VALUE="sei">Southeastern Illinois College
+<OPTION VALUE="sic">Southern Illinois University Carbondale
+<OPTION VALUE="sie">Southern Illinois University Edwardsville
+<OPTION VALUE="sim">Southern Illinois University School of Medicine
+<OPTION VALUE="swi">Southwestern Illinois College
+<OPTION VALUE="trn">Trinity Christian College
+<OPTION VALUE="tiu">Trinity International University
+<OPTION VALUE="trt">Triton College
+<OPTION VALUE="uic">University of Illinois at Chicago
+<OPTION VALUE="uis">University of Illinois at Springfield
+<OPTION VALUE="uiu">University of Illinois at Urbana-Champaign
+<OPTION VALUE="usf">University of St Francis
+<OPTION VALUE="sml">University of St Mary of the Lake / Mundelein Seminary
+<OPTION VALUE="wiu">Western Illinois University
+<OPTION VALUE="whe">Wheaton College
+</select> 
+  </div>
+</div>
+
+  <script type="text/javascript">
+  function loginCatalog(choiceObj) {
+      var theaction = choiceObj.form.action;
+      var thiscatalog = choiceObj[choiceObj.selectedIndex].value;
+
+      if (theaction.search(/\/vf\//) < 0) {
+         choiceObj.form.action = theaction.replace(/\/vf\-...\//, "/vf-" + thiscatalog + "/");
+      } else {
+         choiceObj.form.action = theaction.replace(/\/vf\//, "/vf-" + thiscatalog + "/");
+      }
+      window.location.href = choiceObj.form.action;
+  }
+  </script>
+<!--CARLI END-->
+  </form>

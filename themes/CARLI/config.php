@@ -1,0 +1,11 @@
+<?
+
+$headerImage = '';
+
+$headerUrl = '';
+
+$headerMap = '';
+
+$feedBackLink = '';
+
+?>
