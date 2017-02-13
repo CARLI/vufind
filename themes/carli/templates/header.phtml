@@ -7,9 +7,14 @@
   // path to the individual institution customization variables//
   $configInclude =  "/usr/local/vufind/themes/$inst/config.php"; 
 
-  // include individual institution customization file //
-  if (file_exists($configInclude)) {
-      include $configInclude;
+  // Setenv VUFIND_LIBRARY_BASE_PATH /all/vf-uiu
+  $is_uc = substr(getenv('VUFIND_LIBRARY_BASE_PATH'), 0, 5) === "/all/";
+  if (! $is_uc) {
+
+      // include individual institution customization file //
+      if (file_exists($configInclude)) {
+          include $configInclude;
+      }
   }
 ?>
 <! CARLI END Customization !>
@@ -102,12 +107,14 @@
     echo '<a class="lang-' . $this->layout()->userLang . '" href="' . $this->url('home') . '"><img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '"></a>';
   }} else {
     echo '<a class="navbar-brand lang-' . $this->layout()->userLang . '" href="' . $this->url('home') . '">VuFind</a>';
-    echo '<h1>';
-      if (preg_match('/vf-(...)/', $this->url('home'), $matches)) {
-         $this->libname = $matches[1];
-      }
-    echo $this->translate($this->libname);
-    echo '</h1>';
+    if (! $is_uc) {
+       echo '<h1>';
+         if (preg_match('/vf-(...)/', $this->url('home'), $matches)) {
+            $this->libname = $matches[1];
+         }
+       echo $this->translate($this->libname);
+       echo '</h1>';
+    }
   }
 ?>
 <! CARLI END Customization !>
