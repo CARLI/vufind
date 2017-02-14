@@ -7,6 +7,55 @@ use File_MARC, Yajra\Pdo\Oci8, PDO, PDOException;
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
 
+    public function patronLogin($barcode, $lastname) 
+    {
+
+        $localUbId = $this->encodeXML($this->ws_patronHomeUbId);
+
+        $xml = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<ser:serviceParameters
+xmlns:ser="http://www.endinfosys.com/Voyager/serviceParameters">
+  <ser:patronIdentifier lastName="$lastname" patronHomeUbId="$localUbId">
+    <ser:authFactor type="B">$barcode</ser:authFactor>
+  </ser:patronIdentifier>
+</ser:serviceParameters>
+EOT;
+
+        // makeRequest2 includes a workaround libxml issue with Voyager API data
+        $response = $this->makeRequest2(
+            ['AuthenticatePatronService' => false], [], 'POST', $xml
+        );
+        if ($response === false) {
+            return null;
+        }
+
+        // We must enforce local patrons only! I.e., do not allow someone from aff2 to authenticate for aff1
+        if (!$response->serviceData || !$response->serviceData->isLocalPatron || $response->serviceData->isLocalPatron != "Y") {
+            return null;
+        }
+
+
+        // There's got to be a better way. But I only need the one attribute for now.
+        $patronIdentifier = $response->serviceData->patronIdentifier;
+        $atts_object = $patronIdentifier->attributes();
+        $atts_array = (array) $atts_object;
+        $atts_array = $atts_array['@attributes'];
+        $patronId = $atts_array['patronId'];
+
+        return [
+            'id' => utf8_encode($patronId),
+            'firstname' => utf8_encode($response->serviceData->fullName),
+            'lastname' => utf8_encode($response->serviceData->lastName),
+            'cat_username' => $barcode,
+            'cat_password' => $lastname,
+            'email' => null,
+            'major' => null,
+            'college' => null];
+
+       //return parent::patronLogin($barcode, $lastname);
+    }
+
     public function getNewItems($page, $limit, $daysOld, $fundId = null)
     {
         $oracleInstance = getenv('VUFIND_LIBRARY_DB');
@@ -265,6 +314,99 @@ file_put_contents("/usr/local/vufind/look.txt", "new items count:\n" . var_expor
 
 file_put_contents("/usr/local/vufind/holdings.txt", "\n\n******************************HOLDING info\n" . var_export($row, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         return $row;
+    }
+
+
+    // Overridden so that we can "fix" the response XML so that it can be loaded into XML
+    protected function makeRequest2($hierarchy, $params = false, $mode = 'GET',
+        $xml = false
+    ) {
+        // Build Url Base
+        $urlParams = "http://{$this->ws_host}:{$this->ws_port}/{$this->ws_app}";
+
+        // Add Hierarchy
+        foreach ($hierarchy as $key => $value) {
+            $hierarchyString[] = ($value !== false)
+                ? urlencode($key) . '/' . urlencode($value) : urlencode($key);
+        }
+
+        // Add Params
+        $queryString = [];
+        foreach ($params as $key => $param) {
+            $queryString[] = urlencode($key) . '=' . urlencode($param);
+        }
+
+        // Build Hierarchy
+        $urlParams .= '/' . implode('/', $hierarchyString);
+
+        // Build Params
+        $urlParams .= '?' . implode('&', $queryString);
+
+        // Create Proxy Request
+        $client = $this->httpService->createClient($urlParams);
+
+        // Add any cookies
+        if ($this->cookies) {
+            $client->addCookie($this->cookies);
+        }
+
+        // Set timeout value
+        $timeout = isset($this->config['Catalog']['http_timeout'])
+            ? $this->config['Catalog']['http_timeout'] : 30;
+        $client->setOptions(['timeout' => $timeout]);
+
+        // Attach XML if necessary
+        if ($xml !== false) {
+            $client->setEncType('text/xml');
+            $client->setRawBody($xml);
+        }
+
+        // Send Request and Retrieve Response
+        $startTime = microtime(true);
+        $result = $client->setMethod($mode)->send();
+        if (!$result->isSuccess()) {
+            $this->error(
+                "$mode request for '$urlParams' with contents '$xml' failed: "
+                . $result->getStatusCode() . ': ' . $result->getReasonPhrase()
+            );
+            throw new ILSException('Problem with RESTful API.');
+        }
+
+        // Store cookies
+        $cookie = $result->getCookie();
+        if ($cookie) {
+            $this->cookies = $cookie;
+        }
+
+        // Process response
+        $xmlResponse = $result->getBody();
+
+        ///////////////////////////////////////////////////////////////////////
+        // HACK: libxml will simply *NOT* load the XML returned by Voyager API
+        // Therefore, we strip the namespace defs and refs
+        // Gets rid of all namespace definitions 
+        $xmlResponse = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $xmlResponse);
+        $xmlResponse = preg_replace('/xsi[^=]*="[^"]*"/i', '', $xmlResponse);
+        // Gets rid of all namespace references
+        $xmlResponse = preg_replace('/(<\/*)[^>:]+:/', '$1', $xmlResponse);
+        ///////////////////////////////////////////////////////////////////////
+
+        $this->debug(
+            '[' . round(microtime(true) - $startTime, 4) . 's]'
+            . " $mode request $urlParams, contents:" . PHP_EOL . $xml
+            . PHP_EOL . 'response: ' . PHP_EOL
+            . $xmlResponse
+        );
+        $oldLibXML = libxml_use_internal_errors();
+        libxml_use_internal_errors(true);
+        $simpleXML = @simplexml_load_string($xmlResponse);
+        libxml_use_internal_errors($oldLibXML);
+
+        if ($simpleXML === false) {
+            return false;
+        }
+
+        return $simpleXML;
     }
 
 }
