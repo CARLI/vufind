@@ -384,10 +384,6 @@ file_put_contents("/usr/local/vufind/holdings.txt", "\n\n***********************
         ///////////////////////////////////////////////////////////////////////
         // HACK: libxml will simply *NOT* load the XML returned by Voyager API
         // Therefore, we strip the namespace defs and refs
-        // Gets rid of all namespace definitions 
-        $xmlResponse = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $xmlResponse);
-        $xmlResponse = preg_replace('/xsi[^=]*="[^"]*"/i', '', $xmlResponse);
-        // Gets rid of all namespace references
         $xmlResponse = preg_replace('/(<\/*)[^>:]+:/', '$1', $xmlResponse);
         ///////////////////////////////////////////////////////////////////////
 
