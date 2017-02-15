@@ -8,6 +8,6 @@ $headerMap = '';
 
 $feedBackLink = 'mailto:CONLibrary@osfhealthcare.org';
 
-$introText = ';
+$introText = '';
 
 ?>
