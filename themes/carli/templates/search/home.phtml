@@ -91,6 +91,8 @@ JS;
         </div>
         <noscript>
       <? endif; ?>
+<! CARLI BEGIN comment out Browse by XXX !>
+<!--
       <? $sortedList = $this->sortFacetList($this->results, $field, $details['list'], $basicSearch); ?>
       <div class="<?=$field=='callnumber-first' ? 'col-sm-6' : 'col-sm-3' ?>">
         <h2><?=$this->transEsc('home_browse') . ' ' . $this->transEsc($details['label'])?></h2>
@@ -131,6 +133,8 @@ JS;
           </ul>
         </div>
       </div>
+-->
+<! CARLI END comment out Browse by XXX !>
       <? if (isset($this->hierarchicalFacets) && in_array($field, $this->hierarchicalFacets)): ?>
         </noscript>
       <? endif; ?>
