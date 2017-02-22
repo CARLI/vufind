@@ -43,13 +43,36 @@ EOT;
         $atts_array = $atts_array['@attributes'];
         $patronId = $atts_array['patronId'];
 
+        //$firstName = $response->serviceData->fullName; // better info comes from PersonalInfoService
+        //$lastName = $response->serviceData->lastName; // better info comes from PersonalInfoService
+
+        // Acquire email address, firstname, lastname
+        $xml = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<ser:serviceParameters
+xmlns:ser="http://www.endinfosys.com/Voyager/serviceParameters">
+  <ser:parameters>
+  </ser:parameters>
+  <ser:patronIdentifier lastName="$lastname" patronHomeUbId="$localUbId"
+  patronId="$patronId">
+    <ser:authFactor type="B">$barcode</ser:authFactor>
+  </ser:patronIdentifier>
+</ser:serviceParameters>
+EOT;
+        $response = $this->makeRequest2(
+            ['PersonalInfoService' => false], [], 'POST', $xml
+        );
+        $emailAddress = $response->serviceData->emailAddress->address;
+        $firstName = $response->serviceData->name->firstName;
+        $firstName = $response->serviceData->name->lastName;
+
         return [
             'id' => utf8_encode($patronId),
-            'firstname' => utf8_encode($response->serviceData->fullName),
-            'lastname' => utf8_encode($response->serviceData->lastName),
-            'cat_username' => $barcode,
-            'cat_password' => $lastname,
-            'email' => null,
+            'firstname' => utf8_encode($firstName),
+            'lastname' => utf8_encode($lastName),
+            'cat_username' => utf8_encode($barcode),
+            'cat_password' => utf8_encode($lastname),
+            'email' => utf8_encode($emailAddress),
             'major' => null,
             'college' => null];
 
@@ -121,7 +144,7 @@ EOT;
             $sqlStmt = $this->executeSQL($sql, $bindParams);
             $row = $sqlStmt->fetch(PDO::FETCH_ASSOC);
             $items['count'] = $row['COUNT'];
-file_put_contents("/usr/local/vufind/look.txt", "new items count:\n" . var_export($count, true) . "\n\nbindParmams:\n" . var_export($bindParams, true) . "\n\nsql:\n" . var_export($sql, true) . "\n\n", FILE_APPEND | LOCK_EX);
+//file_put_contents("/usr/local/vufind/look.txt", "new items count:\n" . var_export($count, true) . "\n\nbindParmams:\n" . var_export($bindParams, true) . "\n\nsql:\n" . var_export($sql, true) . "\n\n", FILE_APPEND | LOCK_EX);
         } catch (PDOException $e) {
             throw new ILSException($e->getMessage());
         }
@@ -341,6 +364,7 @@ file_put_contents("/usr/local/vufind/holdings.txt", "\n\n***********************
 
         // Build Params
         $urlParams .= '?' . implode('&', $queryString);
+$debug .= "urlParams: $urlParams \n\n";
 
         // Create Proxy Request
         $client = $this->httpService->createClient($urlParams);
@@ -359,7 +383,9 @@ file_put_contents("/usr/local/vufind/holdings.txt", "\n\n***********************
         if ($xml !== false) {
             $client->setEncType('text/xml');
             $client->setRawBody($xml);
+$debug .= "xml: $xml \n\n";
         }
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
         // Send Request and Retrieve Response
         $startTime = microtime(true);
@@ -380,6 +406,8 @@ file_put_contents("/usr/local/vufind/holdings.txt", "\n\n***********************
 
         // Process response
         $xmlResponse = $result->getBody();
+$debug = "response to " . $urlParams . "\n\n" . $xmlResponse;
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
         ///////////////////////////////////////////////////////////////////////
         // HACK: libxml will simply *NOT* load the XML returned by Voyager API
@@ -401,6 +429,7 @@ file_put_contents("/usr/local/vufind/holdings.txt", "\n\n***********************
         if ($simpleXML === false) {
             return false;
         }
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\nsimpleXML:\n\n" . var_export($simpleXML, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
         return $simpleXML;
     }
