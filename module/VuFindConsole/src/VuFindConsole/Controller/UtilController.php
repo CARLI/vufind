@@ -376,7 +376,17 @@ class UtilController extends AbstractBase
             while ($record = $collection->next()) {
                 $idField = $record->getField('001');
                 if ($idField) {
+/************* CARLI BEGIN comment-out ************/
+/*
                     $ids[] = (string)$idField->getData();
+*/
+/************* CARLI END comment-out ************/
+/************* CARLI BEGIN add ************/
+                   $orgField = $record->getField('003');
+                   if ($orgField) {
+                      $ids[] = (string)$orgField->getData() . '.' . (string)$idField->getData();
+                   }
+/************* CARLI END add ************/
                 } else {
                     $missingIdCount++;
                 }
