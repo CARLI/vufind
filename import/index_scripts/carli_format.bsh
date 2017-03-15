@@ -326,6 +326,155 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
            result.add("Vinyl LP");
         }
 
+
+        /****
+          Braille materials:
+          (008/23=f OR 006/06=f) AND RecType=acdijopt
+          OR
+          (008/29=f OR 006/12=f) AND RecType=efgkr
+          OR
+          term "braille" appears in 245h, 250a, 300abe, 340n, 440a, 490a, 655a
+          OR
+          (336b="tcm" OR 336b="tcn" OR 336a="tactile text" OR 336a="tactile notated music") AND term "braille" appears in 650a
+
+          Large print materials:
+          (006/23=d OR 006 position 06=d) AND RecType=acdijopt
+          OR
+          (008/29=d or 006/12=d) AND RecType=efgkr
+          OR
+          terms "giant print" OR "large print" appear in 250a, 300abe, 340n, 440a, 490a
+         ****/
+        Set set_blp = new LinkedHashSet();
+        addSubfieldDataToSet(record, set_blp, "250", "a");
+        addSubfieldDataToSet(record, set_blp, "300", "a");
+        addSubfieldDataToSet(record, set_blp, "300", "b");
+        addSubfieldDataToSet(record, set_blp, "300", "e");
+        addSubfieldDataToSet(record, set_blp, "340", "n");
+        addSubfieldDataToSet(record, set_blp, "440", "a");
+        addSubfieldDataToSet(record, set_blp, "490", "a");
+
+        Set set_650a = new LinkedHashSet();
+        addSubfieldDataToSet(record, set_650a, "650", "a");
+
+        Set set_655a = new LinkedHashSet();
+        addSubfieldDataToSet(record, set_655a, "655", "a");
+
+        Set set_336a = new LinkedHashSet();
+        addSubfieldDataToSet(record, set_336a, "336", "a");
+
+        Set set_336b = new LinkedHashSet();
+        addSubfieldDataToSet(record, set_336b, "336", "b");
+
+        String _008_23 = "";
+        String t008_23 = indexer.getFirstFieldVal(record, "008[23]");
+        if (t008_23 != null) {
+            _008_23 = t008_23.toLowerCase(Locale.US);
+        } else {
+            _008_23 = "";
+        }
+
+        String _006_23 = "";
+        String t006_23 = indexer.getFirstFieldVal(record, "006[23]");
+        if (t006_23 != null) {
+            _006_23 = t006_23.toLowerCase(Locale.US);
+        } else {
+            _006_23 = "";
+        }
+
+        String _006_06 = "";
+        String t006_06 = indexer.getFirstFieldVal(record, "006[6]");
+        if (t006_06 != null) {
+            _006_06 = t006_06.toLowerCase(Locale.US);
+        } else {
+            _006_06 = "";
+        }
+
+        String _008_29 = "";
+        String t008_29 = indexer.getFirstFieldVal(record, "008[29]");
+        if (t008_29 != null) {
+            _008_29 = t008_29.toLowerCase(Locale.US);
+        } else {
+            _008_29 = "";
+        }
+
+        String _006_12 = "";
+        String t006_12 = indexer.getFirstFieldVal(record, "006[12]");
+        if (t006_12 != null) {
+            _006_12 = t006_12.toLowerCase(Locale.US);
+        } else {
+            _006_12 = "";
+        }
+
+
+        // Begin "Braille"
+        //  (008/23=f OR 006/06=f) AND RecType=acdijopt
+        if (
+           (_008_23.equals("f") || _006_06.equals("f"))
+              &&
+           (recType.equals("a") || recType.equals("c") || recType.equals("d") || recType.equals("i") || recType.equals("j") || recType.equals("o") || recType.equals("p") || recType.equals("t"))
+       ) {
+           result.add("Braille");
+       } else {
+            //   (008/29=f OR 006/12=f) AND RecType=efgkr
+           if (
+               (_008_29.equals("f") || _006_12.equals("f"))
+                  &&
+               (recType.equals("e") || recType.equals("f") || recType.equals("g") || recType.equals("k") || recType.equals("r"))
+           ) {
+               result.add("Braille");
+           } else {
+
+              // term "braille" appears in 245h, 250a, 300abe, 340n, 440a, 490a, 655a
+              //       note the following equivalents: set_gmd = 245h, set_blp = (250a, 300abe, 340n, 440a, 490a), set_655a = 655a
+              if (
+                  setItemContains(set_gmd, "braille") || setItemContains(set_blp, "braille") || setItemContains(set_655a, "braille")
+              ) {
+                   result.add("Braille");
+              } else {
+
+                  // (336b="tcm" OR 336b="tcn" OR 336a="tactile text" OR 336a="tactile notated music") AND term "braille" appears in 650a
+                  if (
+                      setItemContains(set_650a, "braille")
+                          &&
+                      (setItemEquals(set_336b, "tcm") || setItemEquals(set_336b, "tcn") ||
+                       setItemEquals(set_336a, "tactile text") || setItemEquals(set_336a, "tactile notated music"))
+                  ) {
+                       result.add("Braille");
+                  }
+
+              } 
+
+           }
+       } // End "Braille"
+
+        // Begin "Large Print"
+        //  (006/23=d OR 006 position 06=d) AND RecType=acdijopt
+        if (
+            (_006_23.equals("d") || _006_06.equals("d"))
+              &&
+           (recType.equals("a") || recType.equals("c") || recType.equals("d") || recType.equals("i") || recType.equals("j") || recType.equals("o") || recType.equals("p") || recType.equals("t"))
+       ) {
+           result.add("Large Print");
+       } else {
+            // (008/29=d or 006/12=d) AND RecType=efgkr
+            if (
+               (_008_29.equals("d") || _006_12.equals("d"))
+                  &&
+               (recType.equals("e") || recType.equals("f") || recType.equals("g") || recType.equals("k") || recType.equals("r"))
+           ) {
+               result.add("Large Print");
+           } else {
+              // terms "giant print" OR "large print" appear in 250a, 300abe, 340n, 440a, 490a
+              //       note the following equivalents: set_blp = (250a, 300abe, 340n, 440a, 490a)
+              if (
+                  setItemContains(set_blp, "giant print") || setItemContains(set_blp, "large print") 
+              ) {
+                   result.add("Large Print");
+              }
+           }
+       } // End "Large Print"
+
+
 //logger.debug("Formats results = " + result + "\n");
         return result;
     }
