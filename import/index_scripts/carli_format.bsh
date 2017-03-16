@@ -335,7 +335,7 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
           OR
           term "braille" appears in 245h, 250a, 300abe, 340n, 440a, 490a, 655a
           OR
-          (336b="tcm" OR 336b="tcn" OR 336a="tactile text" OR 336a="tactile notated music") AND term "braille" appears in 650a
+          (336b="tct" OR 336b="tcn" OR 336a="tactile text" OR 336a="tactile notated music") AND term "braille" appears in 650a
 
           Large print materials:
           (006/23=d OR 006 position 06=d) AND RecType=acdijopt
@@ -432,11 +432,11 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
                    result.add("Braille");
               } else {
 
-                  // (336b="tcm" OR 336b="tcn" OR 336a="tactile text" OR 336a="tactile notated music") AND term "braille" appears in 650a
+                  // (336b="tct" OR 336b="tcn" OR 336a="tactile text" OR 336a="tactile notated music") AND term "braille" appears in 650a
                   if (
                       setItemContains(set_650a, "braille")
                           &&
-                      (setItemEquals(set_336b, "tcm") || setItemEquals(set_336b, "tcn") ||
+                      (setItemEquals(set_336b, "tct") || setItemEquals(set_336b, "tcn") ||
                        setItemEquals(set_336a, "tactile text") || setItemEquals(set_336a, "tactile notated music"))
                   ) {
                        result.add("Braille");
