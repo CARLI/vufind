@@ -396,7 +396,7 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
               ||
            (setItemContains(set_gmd, "braille") || setItemContains(set_blp, "braille") || setItemContains(set_655a, "braille"))
               ||
-           (setItemContains(set_650a, "braille") && (setItemContains(set_336b, "tct") || setItemContains(set_336b, "tcn") || setItemContains(set_336a, "tactile text") || setItemContains(set_336a, "tactile notated music") | setItemContains(set_336a, "tactile text")))
+           (setItemContains(set_650a, "braille") && (setItemContains(set_336b, "tct") || setItemContains(set_336b, "tcn") || setItemContains(set_336a, "tactile text") || setItemContains(set_336a, "tactile notated music") || setItemContains(set_336a, "tactile text")))
        ) {
            result.add("Braille");
        } // End "Braille"
