@@ -16,39 +16,58 @@
   <? else: ?>
     <table class="table table-striped" summary="<?=$this->transEsc('Your Fines')?>">
     <tr>
+      <th>&nbsp;</th>
       <th><?=$this->transEsc('Title')?></th>
-      <th><?=$this->transEsc('Checked Out')?></th>
-      <th><?=$this->transEsc('Due Date')?></th>
+      <th><?=$this->transEsc('Date')?></th>
       <th><?=$this->transEsc('Fine')?></th>
-      <th><?=$this->transEsc('Fee')?></th>
       <th><?=$this->transEsc('Balance')?></th>
     </tr>
     <? $totalDue = 0; ?>
+    <? $lastInstitution = ''; ?>
+    <? $lastInstitutionTotal = 0; ?>
+    <? $fineCount = 0; ?>
     <? foreach ($this->fines as $record): ?>
 <?
 //echo "<pre>";
 //print_r($record);
 //echo "</pre>";
 ?>
+      <? 
+      if ($fineCount > 0) { 
+          if ($lastInstitution != $record['institution_name']) {
+              echo '<tr style="font-weight:bold"><td colspan="4">Total fines from ' . $lastInstitution . '</td><td>' . $this->safeMoneyFormat($lastInstitutionTotal) . '<br/><br/></td></tr>';
+              echo '<!-- <tr style="font-weight:bold"><td colspan="5">' . $record['institution_name'] . '</td></tr> -->';
+          }
+      }  else {
+          echo '<!-- <tr style="font-weight:bold"><td colspan="5">' . $record['institution_name'] . '</td></tr> -->';
+      }
+      ?>
+
       <tr>
-        <td>
-          <? if (empty($record['title'])): ?>
-            <?=$this->transEsc('not_applicable')?>
-          <? elseif (!isset($record['driver']) || !is_object($record['driver'])): ?>
-            <?=$this->escapeHtml(trim($record['title'], '/:'))?>
-          <? else: ?>
-            <a href="<?=$this->recordLink()->getUrl($record['driver'])?>"><?=$this->escapeHtml(trim($record['title'], '/:'))?></a>
-          <? endif; ?>
-        </td>
-        <td><?=isset($record['checkout']) ? $this->escapeHtml($record['checkout']) : ''?></td>
-        <td><?=isset($record['duedate']) ? $this->escapeHtml($record['duedate']) : ''?></td>
-        <td><?=isset($record['fine']) ? $this->escapeHtml($record['fine']) : ''?></td>
-        <td><?=isset($record['amount']) ? $this->safeMoneyFormat($record['amount']/100.00) : ''?></td>
-        <td><?=isset($record['balance']) ? $this->safeMoneyFormat($record['balance']/100.00) : ''?></td>
+        <td><?=isset($record['institution_name']) ? $this->escapeHtml($record['institution_name']) : ''?></td>
+        <td><?=isset($record['title']) ? $this->escapeHtml($record['title']) : ''?></td>
+        <td><?=isset($record['date']) ? $this->escapeHtml($record['date']) : ''?></td>
+        <td><?=isset($record['amount']) ? $this->escapeHtml($record['amount']) : ''?></td>
+        <td><?=isset($record['amount_balance']) ? $this->safeMoneyFormat($record['amount_balance']) : ''?></td>
       </tr>
-      <? $totalDue += $record['balance']; ?>
+
+      <? 
+      $fineCount++;
+      $totalDue += $record['amount'];
+      $lastInstitution = $record['institution_name'];
+      $lastInstitutionTotal = $record['amount_balance_total'];
+      ?>
+
     <? endforeach; ?>
-      <tr style="font-weight:bold"><td colspan="5"><?=$this->transEsc('Total Balance Due')?></td><td><?=$this->safeMoneyFormat($totalDue/100.00) ?></td></tr>
+      <? 
+      if ($fineCount > 0) { 
+          echo '<tr style="font-weight:bold"><td colspan="4">Total fines from ' . $lastInstitution . '</td><td>' . $this->safeMoneyFormat($lastInstitutionTotal) . '<br/><br/></td></tr>';
+      } 
+      ?>
+
+<!--
+      <tr style="font-weight:bold"><td colspan="4"><?=$this->transEsc('Total Balance Due')?></td><td><?=$this->safeMoneyFormat($totalDue) ?></td></tr>
+-->
     </table>
   <? endif; ?>
 </div>

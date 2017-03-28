@@ -2,10 +2,85 @@
 
 namespace CARLI\ILS\Driver;
 
-use File_MARC, Yajra\Pdo\Oci8, PDO, PDOException;
+use File_MARC, Yajra\Pdo\Oci8, PDO, PDOException, VuFind\Exception\ILS as ILSException;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+
+    /**
+     * Get Patron Fines
+     *
+     * This is responsible for retrieving all fines by a specific patron.
+     *
+     * @param array $patron The patron array from patronLogin
+     *
+     * @throws DateException
+     * @throws ILSException
+     * @return mixed        Array of the patron's fines on success.
+     */
+    public function getMyFines($patron)
+    {
+        $localUbId = $this->encodeXML($this->ws_patronHomeUbId);
+        $lastname = $patron['cat_password'];
+        $barcode = $patron['cat_username'];
+        $patronId = $patron['id'];
+
+        $xml = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<ser:serviceParameters
+xmlns:ser="http://www.endinfosys.com/Voyager/serviceParameters">
+  <ser:patronIdentifier lastName="$lastname" patronHomeUbId="$localUbId" patronId="$patronId">
+    <ser:authFactor type="B">$barcode</ser:authFactor>
+  </ser:patronIdentifier>
+</ser:serviceParameters>
+EOT;
+
+
+//file_put_contents("/usr/local/vufind/look.txt", "CARLI::VoyagerRestful::getMyFines() patron = " . var_export($patron, true) . "\n\nubid = " . $localUbId .  "\n\n", FILE_APPEND | LOCK_EX);
+
+        $response = $this->makeRequest(
+            ['MyAccountService' => false], [], 'POST', $xml
+        );
+        if ($response === false) {
+            return null;
+        }
+//file_put_contents("/usr/local/vufind/look.txt", "CARLI::VoyagerRestful::getMyFines() response = " . var_export($response, true) . "\n\n", FILE_APPEND | LOCK_EX);
+
+        // Process
+        $myac_ns = 'http://www.endinfosys.com/Voyager/myAccount';
+        $response->registerXPathNamespace(
+            'ser', 'http://www.endinfosys.com/Voyager/serviceParameters'
+        );
+        $response->registerXPathNamespace('myac', $myac_ns);
+
+        $fineList = [];
+
+        foreach ($response->xpath('//myac:clusterFinesFees') as $cluster) {
+            $cluster = $cluster->children($myac_ns);
+            $dbKey = (string)$cluster->cluster->ubSiteId;
+            $instName = (string)$cluster->cluster->clusterName;
+            foreach ($cluster->fineFee as $fineFee) {
+                $fineFee = $fineFee->children($myac_ns);
+
+                $result = [];
+                $result['id'] = (string)$fineFee->fineFeeId;
+                $result['institution_id'] = '';
+                $result['institution_name'] = $instName;
+                $result['institution_dbkey'] = $dbKey;
+                $result['date'] = (string)$fineFee->date;
+                $result['title'] = (string)$fineFee->title;
+                $result['fine'] = (string)$fineFee->postingType;
+                $result['amount'] = (string)$fineFee->amount->amount;
+                $result['amount_total'] = (string)$fineFee->amountTotal->amount;
+                $result['amount_balance'] = (string)$fineFee->balance->amount;
+                $result['amount_balance_total'] = (string)$fineFee->balanceTotal->amount;
+                $fineList[] = $result;
+            }
+        }
+
+        return $fineList;
+    }
+
 
     public function patronLogin($barcode, $lastname) 
     {
@@ -64,7 +139,7 @@ EOT;
         );
         $emailAddress = $response->serviceData->emailAddress->address;
         $firstName = $response->serviceData->name->firstName;
-        $firstName = $response->serviceData->name->lastName;
+        $lastName = $response->serviceData->name->lastName;
 
         return [
             'id' => utf8_encode($patronId),
@@ -240,7 +315,7 @@ EOT;
 
             // If it has a renewLimit property, then we know it's a local version of getMyTransactions; skip these.
             // We only want to display the VXWS data.
-            if ($result['renewLimit']) continue;
+            if (array_key_exists('renewLimit', $result) &&  $result['renewLimit']) continue;
 
             $filteredResults[] = $result;
         }
@@ -364,7 +439,7 @@ file_put_contents("/usr/local/vufind/holdings.txt", "\n\n***********************
 
         // Build Params
         $urlParams .= '?' . implode('&', $queryString);
-$debug .= "urlParams: $urlParams \n\n";
+$debug = "urlParams: $urlParams \n\n";
 
         // Create Proxy Request
         $client = $this->httpService->createClient($urlParams);
