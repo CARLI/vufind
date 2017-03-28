@@ -67,7 +67,18 @@ EOT;
                 $result['institution_id'] = '';
                 $result['institution_name'] = $instName;
                 $result['institution_dbkey'] = $dbKey;
-                $result['date'] = (string)$fineFee->date;
+
+                $date = '';
+                try {
+                    $date = $this->dateFormat->convertToDisplayDate(
+                        'Y-m-d H:i', (string)$fineFee->date
+                    );
+                } catch (DateException $e) {
+                    // If we can't parse out the date, use the raw string:
+                    $date = (string)$fineFee->date;
+                }
+                $result['date'] = $date;
+
                 $result['title'] = (string)$fineFee->title;
                 $result['fine'] = (string)$fineFee->postingType;
                 $result['amount'] = (string)$fineFee->amount->amount;
