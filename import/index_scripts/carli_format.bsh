@@ -62,89 +62,76 @@ ContainsComparitor containsComparitor = new ContainsComparitor();
 EqualsComparitor equalsComparitor = new EqualsComparitor();
 BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
 
+    // a safe way to get LC value (returns empty string instead of null when not found)
+    public String getFirstFieldValLowerCase(Record record, String pattern) {
+        String ret = indexer.getFirstFieldVal(record, pattern);
+        if (ret != null) {
+            ret = ret.toLowerCase(Locale.US);
+        } else {
+            ret = "";
+        }
+        return ret;
+    }
+
     public Set getFormat(Record record)
     {
         Set result = new LinkedHashSet();
 
-        String tleaderChar1 = indexer.getFirstFieldVal(record, "000[6]");
-        if (tleaderChar1 != null) {
-            leaderChar1 = tleaderChar1.toLowerCase(Locale.US);
-        } else {
-            leaderChar1 = "";
-        }
+        String LDR_06 = getFirstFieldValLowerCase(record, "000[6]");
+        String recType = LDR_06; // synonym
 
-        String recType = leaderChar1; // synonym
+        String LDR_07 = getFirstFieldValLowerCase(record, "000[7]");
+        String bibLvl = LDR_07; // synonym
 
-        String tleaderChar2 = indexer.getFirstFieldVal(record, "000[7]");
-        if (tleaderChar2 != null) {
-            leaderChar2 = tleaderChar2.toLowerCase(Locale.US);
-        } else {
-            leaderChar2 = "";
-        }
-
-        if(leaderChar1.equals("a")){
-           if(leaderChar2.equals("a")){
+        if(recType.equals("a")){
+           if(bibLvl.equals("a")){
               result.add("Book");
-           } else if (leaderChar2.equals("b")) {
+           } else if (bibLvl.equals("b")) {
               result.add("Journal / Magazine");
-           } else if (leaderChar2.equals("c")) {
+           } else if (bibLvl.equals("c")) {
               result.add("Archival Collection");
-           } else if (leaderChar2.equals("d")) {
+           } else if (bibLvl.equals("d")) {
               result.add("Archive");
-           } else if (leaderChar2.equals("i")) {
+           } else if (bibLvl.equals("i")) {
               result.add("Textual Material");
-           } else if (leaderChar2.equals("m")) {
+           } else if (bibLvl.equals("m")) {
               result.add("Book");
-           } else if (leaderChar2.equals("s")) {
+           } else if (bibLvl.equals("s")) {
               result.add("Journal / Magazine");
            }
-        } else if (leaderChar1.equals("b")) {
+        } else if (recType.equals("b")) {
            result.add("Archive");
-        } else if (leaderChar1.equals("c")) {
+        } else if (recType.equals("c")) {
            result.add("Music Score");
-        } else if (leaderChar1.equals("d")) {
+        } else if (recType.equals("d")) {
            result.add("Music Manuscript");
-        } else if (leaderChar1.equals("e")) {
+        } else if (recType.equals("e")) {
            result.add("Map");
-        } else if (leaderChar1.equals("f")) {
+        } else if (recType.equals("f")) {
            result.add("Manuscript Map");
-        } else if (leaderChar1.equals("g")) {
+        } else if (recType.equals("g")) {
            result.add("Movie");
-        } else if (leaderChar1.equals("i")) {
+        } else if (recType.equals("i")) {
            result.add("Spoken Word Recording");
-        } else if (leaderChar1.equals("j")) {
+        } else if (recType.equals("j")) {
            result.add("Music Recording");
-        } else if (leaderChar1.equals("k")) {
+        } else if (recType.equals("k")) {
            result.add("2D Art");
-        } else if (leaderChar1.equals("m")) {
+        } else if (recType.equals("m")) {
            result.add("Software / Computer File");
-        } else if (leaderChar1.equals("o")) {
+        } else if (recType.equals("o")) {
            result.add("Kit");
-        } else if (leaderChar1.equals("p")) {
+        } else if (recType.equals("p")) {
            result.add("Mixed Material");
-        } else if (leaderChar1.equals("r")) {
+        } else if (recType.equals("r")) {
            result.add("3D Object");
-        } else if (leaderChar1.equals("t")) {
+        } else if (recType.equals("t")) {
            result.add("Manuscript");
         }
 
-        String medium = "";
-
-        String t007Char1 = indexer.getFirstFieldVal(record, "007[0]");
-        if (t007Char1 != null)  {
-           t007Char1 = t007Char1.toLowerCase(Locale.US);
-           medium = t007Char1;
-        } else {
-           t007Char1 = "";
-        }
-
-        String t007Char2 = indexer.getFirstFieldVal(record, "007[1]");
-        if (t007Char2 != null) {
-           t007Char2 = t007Char2.toLowerCase(Locale.US);
-           medium += t007Char2;
-        } else {
-           t007Char2 = "";
-        }
+        String _007_00 = getFirstFieldValLowerCase(record, "007[0]");
+        String _007_01 = getFirstFieldValLowerCase(record, "007[1]");
+        String medium = _007_00 + _007_01;
 
         // NOTE:
         // Since set_medium2 is composed from the 338$a
@@ -186,7 +173,7 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
             setItemBeginsWith(carrierTerm, "microo") ||
             setItemBeginsWith(carrierTerm, "aperture") ||
             setItemBeginsWith(carrierCode, "h") ||
-            (t007Char1.equals("h"))
+            (_007_00.equals("h"))
             ) {
            result.add("Microform");
         }
@@ -271,13 +258,9 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
         ********/
         if ( itemEquals(recType, "j") || itemEquals(recType, "i") || setItemContains(set_gmd, "sound") || itemEquals(medium, "sd") ) {
 
-            String _007Char6 = "";
-            String temp_007Char6 = indexer.getFirstFieldVal(record, "007[6]");
-            if (temp_007Char6 != null)  {
-               _007Char6 = temp_007Char6;
-            }
+            String _007_06 = getFirstFieldValLowerCase(record, "007[6]");
 
-            if (itemEquals(_007Char6, "g")) {
+            if (itemEquals(_007_06, "g")) {
 
                 result.add("Audio CD");
 
@@ -328,21 +311,46 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
 
 
         /****
-          Braille materials:
-          (008/23=f OR 006/06=f) AND RecType=acdijopt
-          OR
-          (008/29=f OR 006/12=f) AND RecType=efgkr
-          OR
-          term "braille" appears in 245h, 250a, 300abe, 340n, 440a, 490a, 655a
-          OR
-          (336b="tcm" OR 336b="tcn" OR 336a="tactile text" OR 336a="tactile notated music") AND term "braille" appears in 650a
+            Braille:
 
-          Large print materials:
-          (006/23=d OR 006 position 06=d) AND RecType=acdijopt
-          OR
-          (008/29=d or 006/12=d) AND RecType=efgkr
-          OR
-          terms "giant print" OR "large print" appear in 250a, 300abe, 340n, 440a, 490a
+            (006/06=f AND 006/00=acdijpst)
+            OR
+            (006/12=f AND 006/00=efgkor)
+            OR
+            (008/23=f AND RecType=cdijp)                                 
+            OR
+            (008/23=f AND RecType=at AND BibLvl=acdm)   
+            OR                                       
+            (008/23=f AND RecType=a AND BibLvl=bis)    
+            OR
+            (008/29=f AND RecType=efgkor)                        
+            OR
+            term "braille" appears in 245h, 250a, 300abe, 340n, 440a, 490a, 655a
+            OR
+            (336b="tct" OR 336b="tcn" OR 336a="tactile text" OR 336a="tactile notated music") AND term "braille" appears in 650a
+ 
+            Large Print:
+
+            (006/06=d AND 006/00=acdijpst)
+            OR
+            (006/12=d AND 006/00=efgkor)
+            OR
+            (008/23=d AND RecType=cdijp)                                     
+            OR
+            (008/23=d AND RecType=at AND BibLvl=acdm) 
+            OR                                       
+            (008/23=d AND RecType=a AND BibLvl= bis)             
+            OR
+            (008/29=d AND RecType=efgkor)                   
+            OR
+            terms "giant print" OR "large print" appear in 250a, 300abe, 340n, 440a, 490a
+ 
+            Notes:
+            RecType is LDR/06
+            BibLvl is LDR/07
+            RecType, BibLvl, 006, and 008 letters represent single characters a, b, c, d, e…
+            
+            note the following equivalents: set_gmd = 245h, set_blp = (250a, 300abe, 340n, 440a, 490a), set_655a = 655a
          ****/
         Set set_blp = new LinkedHashSet();
         addSubfieldDataToSet(record, set_blp, "250", "a");
@@ -365,113 +373,51 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
         Set set_336b = new LinkedHashSet();
         addSubfieldDataToSet(record, set_336b, "336", "b");
 
-        String _008_23 = "";
-        String t008_23 = indexer.getFirstFieldVal(record, "008[23]");
-        if (t008_23 != null) {
-            _008_23 = t008_23.toLowerCase(Locale.US);
-        } else {
-            _008_23 = "";
-        }
-
-        String _006_23 = "";
-        String t006_23 = indexer.getFirstFieldVal(record, "006[23]");
-        if (t006_23 != null) {
-            _006_23 = t006_23.toLowerCase(Locale.US);
-        } else {
-            _006_23 = "";
-        }
-
-        String _006_06 = "";
-        String t006_06 = indexer.getFirstFieldVal(record, "006[6]");
-        if (t006_06 != null) {
-            _006_06 = t006_06.toLowerCase(Locale.US);
-        } else {
-            _006_06 = "";
-        }
-
-        String _008_29 = "";
-        String t008_29 = indexer.getFirstFieldVal(record, "008[29]");
-        if (t008_29 != null) {
-            _008_29 = t008_29.toLowerCase(Locale.US);
-        } else {
-            _008_29 = "";
-        }
-
-        String _006_12 = "";
-        String t006_12 = indexer.getFirstFieldVal(record, "006[12]");
-        if (t006_12 != null) {
-            _006_12 = t006_12.toLowerCase(Locale.US);
-        } else {
-            _006_12 = "";
-        }
-
+        String _008_23 = getFirstFieldValLowerCase(record, "008[23]");
+        String _006_23 = getFirstFieldValLowerCase(record, "006[23]");
+        String _006_00 = getFirstFieldValLowerCase(record, "006[0]");
+        String _006_06 = getFirstFieldValLowerCase(record, "006[6]");
+        String _008_29 = getFirstFieldValLowerCase(record, "008[29]");
+        String _006_12 = getFirstFieldValLowerCase(record, "006[12]");
 
         // Begin "Braille"
-        //  (008/23=f OR 006/06=f) AND RecType=acdijopt
-        if (
-           (_008_23.equals("f") || _006_06.equals("f"))
-              &&
-           (recType.equals("a") || recType.equals("c") || recType.equals("d") || recType.equals("i") || recType.equals("j") || recType.equals("o") || recType.equals("p") || recType.equals("t"))
+       if (
+           (itemEquals(_006_06,"f") && (itemEquals(_006_00,"a") || itemEquals(_006_00,"c") || itemEquals(_006_00,"d") || itemEquals(_006_00,"i") || itemEquals(_006_00,"j") || itemEquals(_006_00,"p") || itemEquals(_006_00,"s") || itemEquals(_006_00,"t")))
+              ||
+           (itemEquals(_006_12,"f") && (itemEquals(_006_00,"e") || itemEquals(_006_00,"f") || itemEquals(_006_00,"g") || itemEquals(_006_00,"k") || itemEquals(_006_00,"o") || itemEquals(_006_00,"r")))
+              ||
+           (itemEquals(_008_23,"f") && (itemEquals(recType,"c") || itemEquals(recType,"d") || itemEquals(recType,"i") || itemEquals(recType,"j") || itemEquals(recType,"p")))
+              ||
+           (itemEquals(_008_23,"f") && (itemEquals(recType,"a") || itemEquals(recType,"t")) && (itemEquals(bibLvl,"a") || itemEquals(bibLvl,"c") || itemEquals(bibLvl,"d") || itemEquals(bibLvl,"m")))
+              ||
+           (itemEquals(_008_23,"f") && itemEquals(recType,"a") && (itemEquals(bibLvl,"b") || itemEquals(bibLvl,"i") || itemEquals(bibLvl,"s")))
+              ||
+           (itemEquals(_008_29,"f") && (itemEquals(recType,"e") || itemEquals(recType,"f") || itemEquals(recType,"g") || itemEquals(recType,"k") || itemEquals(recType,"o") || itemEquals(recType,"r")))
+              ||
+           (setItemContains(set_gmd, "braille") || setItemContains(set_blp, "braille") || setItemContains(set_655a, "braille"))
+              ||
+           (setItemContains(set_650a, "braille") && (setItemContains(set_336b, "tct") || setItemContains(set_336b, "tcn") || setItemContains(set_336a, "tactile text") || setItemContains(set_336a, "tactile notated music") || setItemContains(set_336a, "tactile text")))
        ) {
            result.add("Braille");
-       } else {
-            //   (008/29=f OR 006/12=f) AND RecType=efgkr
-           if (
-               (_008_29.equals("f") || _006_12.equals("f"))
-                  &&
-               (recType.equals("e") || recType.equals("f") || recType.equals("g") || recType.equals("k") || recType.equals("r"))
-           ) {
-               result.add("Braille");
-           } else {
-
-              // term "braille" appears in 245h, 250a, 300abe, 340n, 440a, 490a, 655a
-              //       note the following equivalents: set_gmd = 245h, set_blp = (250a, 300abe, 340n, 440a, 490a), set_655a = 655a
-              if (
-                  setItemContains(set_gmd, "braille") || setItemContains(set_blp, "braille") || setItemContains(set_655a, "braille")
-              ) {
-                   result.add("Braille");
-              } else {
-
-                  // (336b="tcm" OR 336b="tcn" OR 336a="tactile text" OR 336a="tactile notated music") AND term "braille" appears in 650a
-                  if (
-                      setItemContains(set_650a, "braille")
-                          &&
-                      (setItemEquals(set_336b, "tcm") || setItemEquals(set_336b, "tcn") ||
-                       setItemEquals(set_336a, "tactile text") || setItemEquals(set_336a, "tactile notated music"))
-                  ) {
-                       result.add("Braille");
-                  }
-
-              } 
-
-           }
        } // End "Braille"
 
         // Begin "Large Print"
-        //  (006/23=d OR 006 position 06=d) AND RecType=acdijopt
-        if (
-            (_006_23.equals("d") || _006_06.equals("d"))
-              &&
-           (recType.equals("a") || recType.equals("c") || recType.equals("d") || recType.equals("i") || recType.equals("j") || recType.equals("o") || recType.equals("p") || recType.equals("t"))
+       if (
+           (itemEquals(_006_06,"d") && (itemEquals(_006_00,"a") || itemEquals(_006_00,"c") || itemEquals(_006_00,"d") || itemEquals(_006_00,"i") || itemEquals(_006_00,"j") || itemEquals(_006_00,"p") || itemEquals(_006_00,"s") || itemEquals(_006_00,"t")))
+              ||
+           (itemEquals(_006_12,"d") && (itemEquals(_006_00,"e") || itemEquals(_006_00,"f") || itemEquals(_006_00,"g") || itemEquals(_006_00,"k") || itemEquals(_006_00,"o") || itemEquals(_006_00,"r")))
+              ||
+           (itemEquals(_008_23,"d") && (itemEquals(recType,"c") || itemEquals(recType,"d") || itemEquals(recType,"i") || itemEquals(recType,"j") || itemEquals(recType,"p")))
+              ||
+           (itemEquals(_008_23,"d") && (itemEquals(recType,"a") || itemEquals(recType,"t")) && (itemEquals(bibLvl,"a") || itemEquals(bibLvl,"c") || itemEquals(bibLvl,"d") || itemEquals(bibLvl,"m")))
+              ||
+           (itemEquals(_008_23,"d") && itemEquals(recType,"a") && (itemEquals(bibLvl,"b") || itemEquals(bibLvl,"i") || itemEquals(bibLvl,"s")))
+              ||
+           (itemEquals(_008_29,"d") && (itemEquals(recType,"e") || itemEquals(recType,"f") || itemEquals(recType,"g") || itemEquals(recType,"k") || itemEquals(recType,"o") || itemEquals(recType,"r")))
+              ||
+           (setItemContains(set_blp, "giant print") || setItemContains(set_blp, "large print"))
        ) {
            result.add("Large Print");
-       } else {
-            // (008/29=d or 006/12=d) AND RecType=efgkr
-            if (
-               (_008_29.equals("d") || _006_12.equals("d"))
-                  &&
-               (recType.equals("e") || recType.equals("f") || recType.equals("g") || recType.equals("k") || recType.equals("r"))
-           ) {
-               result.add("Large Print");
-           } else {
-              // terms "giant print" OR "large print" appear in 250a, 300abe, 340n, 440a, 490a
-              //       note the following equivalents: set_blp = (250a, 300abe, 340n, 440a, 490a)
-              if (
-                  setItemContains(set_blp, "giant print") || setItemContains(set_blp, "large print") 
-              ) {
-                   result.add("Large Print");
-              }
-           }
        } // End "Large Print"
 
 
