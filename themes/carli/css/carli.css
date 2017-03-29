@@ -116,9 +116,6 @@ footer p.sm-text {
   font-size: 10px;
   text-align: left;
   text-justify: auto;
-  background-image: url('../images/ishare-footer-logo.png');
-  background-repeat: no-repeat;
-  padding-top: 60px
 }
 footer p.carlifoot a {
   color: #8a6593;

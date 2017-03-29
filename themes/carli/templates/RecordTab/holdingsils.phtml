@@ -114,7 +114,7 @@
    if ($er_cnt > 0) {
       for($er_cnt = 0; $er_cnt < count($row['eresource']); ++$er_cnt) {
           $er_label = $row['eresource'][$er_cnt];
-          if ($row['eresource_label'][$er_cnt]) {
+          if (array_key_exists('eresource_label', $row) && $row['eresource_label'][$er_cnt]) {
               $er_label = $row['eresource_label'][$er_cnt];
           }
           echo '<tr><td>E-Resource</td><td><a href="' . $row['eresource'][$er_cnt] . '">' . $er_label . "</td></tr>\n";
