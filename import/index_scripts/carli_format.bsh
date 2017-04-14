@@ -223,7 +223,7 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
         if (
               ( ( itemEquals(recType, "g") && ( setItemContains(set_gmd, "motion picture") || itemBeginsWith(medium, "m") ) ) || setItemContainsTokenized(set_medium2, "film reel")  )
         ) {
-           result.add("Film");
+           result.add("Reel-to-Reel");
         }
 
         /********
