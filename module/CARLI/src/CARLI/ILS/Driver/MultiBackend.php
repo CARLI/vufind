@@ -19,6 +19,10 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             $record = $driver->getSolrRecord($id);
 
             $ucHoldings = $driver->getFormattedMarcDetails($record, 'MarcHoldings');
+
+            // randomize the holdings!!!
+            shuffle($ucHoldings);
+
             //  0 => 
             //      array (
             //      'availability' => false,
