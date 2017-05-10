@@ -80,6 +80,7 @@ EOT;
                 $result['date'] = $date;
 
                 $result['title'] = (string)$fineFee->title;
+                $result['title2'] = (string)$fineFee->title;
                 $result['type'] = (string)$fineFee->postingType;
                 $result['amount'] = (string)$fineFee->amount->amount;
                 $result['amount_total'] = (string)$fineFee->amountTotal->amount;
