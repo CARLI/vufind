@@ -127,6 +127,10 @@
       $check = isset($row['check']) && $row['check'];
       $checkStorageRetrievalRequest = isset($row['checkStorageRetrievalRequest']) && $row['checkStorageRetrievalRequest'];
       $checkILLRequest = isset($row['checkILLRequest']) && $row['checkILLRequest'];
+// CARLI BEGIN force checkILLRequest = false
+      // Setting this to false will prevent the 'Check Requestability' Ajax calls, which are extremely resource intensive!!!
+      $checkILLRequest = false;
+// CARLI END force checkILLRequest = false
     ?>
     <? if (isset($row['barcode']) && $row['barcode'] != ""): ?>
       <tr vocab="http://schema.org/" typeof="Offer">
