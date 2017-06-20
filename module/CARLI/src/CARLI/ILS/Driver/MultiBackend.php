@@ -42,7 +42,7 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             foreach ($ucHoldings as $ucHolding) {
                 $sourceRecord = $ucHolding['location'];
                 // Need to parse out the 035$a format, e.g., "(Agency) 123"
-                if (preg_match('/\(([^\)]+db)\)\s*([0-9]+)/', $sourceRecord, $matches)) {
+                if (preg_match('/\(([^\)]+)\)\s*([0-9]+)/', $sourceRecord, $matches)) {
                     $matched_agency = $matches[1];
                     $matched_id = $matches[2];
                     $sourceRecord = $matched_agency . '.' . $matched_id;
