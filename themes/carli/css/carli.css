@@ -165,3 +165,8 @@ footer .carli-landing p {
 #whichCatalogAdvanced {
     margin: 3px 0 10px 0;
 }
+
+.dedupInformation {
+    font-size: 0px;
+    visibility: collapse;
+}
