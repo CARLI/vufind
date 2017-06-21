@@ -1067,6 +1067,7 @@ class VoyagerRestful extends Voyager implements \VuFindHttp\HttpServiceAwareInte
 
         // Build Params
         $urlParams .= '?' . implode('&', $queryString);
+$debug = "urlParams: $urlParams \n\n";
 
         // Create Proxy Request
         $client = $this->httpService->createClient($urlParams);
@@ -1085,12 +1086,17 @@ class VoyagerRestful extends Voyager implements \VuFindHttp\HttpServiceAwareInte
         if ($xml !== false) {
             $client->setEncType('text/xml');
             $client->setRawBody($xml);
+$debug .= "xml: $xml \n\n";
         }
+file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
         // Send Request and Retrieve Response
         $startTime = microtime(true);
         $result = $client->setMethod($mode)->send();
         if (!$result->isSuccess()) {
+$debug = "$mode request for '$urlParams' with contents '$xml' failed: "
+. $result->getStatusCode() . ': ' . $result->getReasonPhrase();
+file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
             $this->error(
                 "$mode request for '$urlParams' with contents '$xml' failed: "
                 . $result->getStatusCode() . ': ' . $result->getReasonPhrase()
@@ -1106,6 +1112,8 @@ class VoyagerRestful extends Voyager implements \VuFindHttp\HttpServiceAwareInte
 
         // Process response
         $xmlResponse = $result->getBody();
+$debug = "response to " . $urlParams . "\n\n" . $xmlResponse;
+file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         $this->debug(
             '[' . round(microtime(true) - $startTime, 4) . 's]'
             . " $mode request $urlParams, contents:" . PHP_EOL . $xml
@@ -1120,6 +1128,7 @@ class VoyagerRestful extends Voyager implements \VuFindHttp\HttpServiceAwareInte
         if ($simpleXML === false) {
             return false;
         }
+file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\nsimpleXML:\n\n" . var_export($simpleXML, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         return $simpleXML;
     }
 
