@@ -3,9 +3,246 @@
 namespace CARLI\ILS\Driver;
 
 use File_MARC, Yajra\Pdo\Oci8, PDO, PDOException, VuFind\Exception\ILS as ILSException;
+use VuFind\Config\Locator as ConfigLocator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+    /**
+     * UB Map
+     *
+     * @var array
+     */
+    protected $ubMap_libraryToKey = [];
+    protected $ubMap_keyToLibrary = [];
+
+    public function init()
+    {
+        parent::init();
+
+        $this->loadUbMap('ubMap.ini');
+    }
+
+    /**
+     * Loads UB information from configuration file.
+     *
+     * @param string $filename File to load from
+     *
+     * @throws ILSException
+     * @return void
+     */
+    protected function loadUbMap($filename)
+    {
+        // Load ubMap file:
+        $ubFile
+            = ConfigLocator::getConfigPath($filename, 'config/vufind');
+        if (!file_exists($ubFile)) {
+            throw new ILSException(
+                "Cannot load ub file: {$ubFile}."
+            );
+        }
+        if (($handle = fopen($ubFile, "r")) !== false) {
+            while (($data = fgetcsv($handle)) !== false) {
+                $this->ubMap_libraryToKey[$data[0]] = $data[1];
+                $this->ubMap_keyToLibrary[$data[1]] = $data[0];
+            }
+            fclose($handle);
+        }
+    }
+
+    protected function mapKeyToLibrary($key)
+    {
+       if (array_key_exists($key, $this->ubMap_keyToLibrary)) {
+           return $this->ubMap_keyToLibrary[$key];
+       }
+       return null;
+    }
+
+    /**
+     * Renew My Items
+     *
+     * Function for attempting to renew a patron's items.  The data in
+     * $renewDetails['details'] is determined by getRenewDetails().
+     *
+     * @param array $renewDetails An array of data required for renewing items
+     * including the Patron ID and an array of renewal IDS
+     *
+     * @return array              An array of renewal information keyed by item ID
+     */
+    /**
+     * Renew My Items
+     *
+     * Function for attempting to renew a patron's items.  The data in
+     * $renewDetails['details'] is determined by getRenewDetails().
+     *
+     * @param array $renewDetails An array of data required for renewing items
+     * including the Patron ID and an array of renewal IDS
+     *
+     * @return array              An array of renewal information keyed by item ID
+     */
+     // CARLI EDIT: The original function always uses the patron's web service. But this doesn't
+     // seem to work in our UB environment. Instead, we need to call the item's library's RenewService 
+     // for each item. For now, we will simply split each item up into individual calls; later, we might
+     // want to consider grouping by item library and making a batch call per library.
+    public function renewMyItems($renewDetails)
+    {
+//$debug = 'In CARLI::renewMyItems, renewDetails: ' . var_export($renewDetails, true);
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+        $patron = $renewDetails['patron'];
+        $finalResult = ['details' => []];
+
+        // Get Account Blocks
+        $finalResult['blocks'] = $this->checkAccountBlocks($patron['id']);
+
+        if (!$finalResult['blocks']) {
+            // Add Items and Attempt Renewal
+            $itemIdentifiers = '';
+
+          $wsAppOriginal = $this->ws_app; // probably not necessary, but just in case
+          foreach ($renewDetails['details'] as $renewID) {
+                list($dbKey, $loanId) = explode('|', $renewID);
+//$debug = 'In CARLI::renewMyItems, dbKey: ' . $dbKey . ' ; loanId: ' . $loanId;
+//$debug .= "\n" . '$this->ws_dbKey: ' . $this->ws_dbKey . ' $this->ws_app: ' . $this->ws_app;
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+                if (!$dbKey) {
+                    $dbKey = $this->ws_dbKey;
+                } else {
+                    // CARLI EDIT: set ws_app to item library's
+                    $itemLibrary = $this->mapKeyToLibrary($dbKey);
+                    if ($itemLibrary) {
+                       $this->ws_app = $itemLibrary . '/vxws';
+                    }
+                }
+
+                $loanId = $this->encodeXML($loanId);
+                $dbKey = $this->encodeXML($dbKey);
+
+                $itemIdentifiers = ''; // CARLI EDIT: we are calling the webservice each time per item
+                $itemIdentifiers .= <<<EOT
+      <myac:itemIdentifier>
+       <myac:itemId>$loanId</myac:itemId>
+       <myac:ubId>$dbKey</myac:ubId>
+      </myac:itemIdentifier>
+EOT;
+
+            $patronId = $this->encodeXML($patron['id']);
+            $lastname = $this->encodeXML($patron['lastname']);
+            $barcode = $this->encodeXML($patron['cat_username']);
+            $localUbId = $this->encodeXML($this->ws_patronHomeUbId);
+
+            // The RenewService has a weird prerequisite that
+            // AuthenticatePatronService must be called first and JSESSIONID header
+            // be preserved. There's no explanation why this is required, and a
+            // quick check implies that RenewService works without it at least in
+            // Voyager 8.1, but who knows if it fails with UB or something, so let's
+            // try to play along with the rules.
+            $xml = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<ser:serviceParameters
+xmlns:ser="http://www.endinfosys.com/Voyager/serviceParameters">
+  <ser:patronIdentifier lastName="$lastname" patronHomeUbId="$localUbId">
+    <ser:authFactor type="B">$barcode</ser:authFactor>
+  </ser:patronIdentifier>
+</ser:serviceParameters>
+EOT;
+
+            $response = $this->makeRequest(
+                ['AuthenticatePatronService' => false], [], 'POST', $xml
+            );
+            if ($response === false) {
+                throw new ILSException('renew_error');
+            }
+
+            $xml = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<ser:serviceParameters
+xmlns:ser="http://www.endinfosys.com/Voyager/serviceParameters">
+   <ser:parameters/>
+   <ser:definedParameters xsi:type="myac:myAccountServiceParametersType"
+   xmlns:myac="http://www.endinfosys.com/Voyager/myAccount"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+$itemIdentifiers
+   </ser:definedParameters>
+  <ser:patronIdentifier lastName="$lastname" patronHomeUbId="$localUbId"
+  patronId="$patronId">
+    <ser:authFactor type="B">$barcode</ser:authFactor>
+  </ser:patronIdentifier>
+</ser:serviceParameters>
+EOT;
+
+            $response = $this->makeRequest(
+                ['RenewService' => false], [], 'POST', $xml
+            );
+            if ($response === false) {
+                throw new ILSException('renew_error');
+            }
+
+            // Process
+            $myac_ns = 'http://www.endinfosys.com/Voyager/myAccount';
+            $response->registerXPathNamespace(
+                'ser', 'http://www.endinfosys.com/Voyager/serviceParameters'
+            );
+            $response->registerXPathNamespace('myac', $myac_ns);
+            // The service doesn't actually return messages (in Voyager 8.1),
+            // but maybe in the future...
+            foreach ($response->xpath('//ser:message') as $message) {
+                if ($message->attributes()->type == 'system'
+                    || $message->attributes()->type == 'error'
+                ) {
+                    return false;
+                }
+            }
+            foreach ($response->xpath('//myac:clusterChargedItems') as $cluster) {
+                $cluster = $cluster->children($myac_ns);
+                $dbKey = (string)$cluster->cluster->ubSiteId;
+                foreach ($cluster->chargedItem as $chargedItem) {
+                    $chargedItem = $chargedItem->children($myac_ns);
+                    $renewStatus = $chargedItem->renewStatus;
+                    if (!$renewStatus) {
+                        continue;
+                    }
+                    $renewed = false;
+                    foreach ($renewStatus->status as $status) {
+                        if ((string)$status == 'Renewed') {
+                            $renewed = true;
+                        }
+                    }
+
+                    $result = [];
+                    $result['item_id'] = (string)$chargedItem->itemId;
+                    $result['sysMessage'] = (string)$renewStatus->status;
+
+                    $dueDate = (string)$chargedItem->dueDate;
+                    try {
+                        $newDate = $this->dateFormat->convertToDisplayDate(
+                            'Y-m-d H:i', $dueDate
+                        );
+                        $response['new_date'] = $newDate;
+                    } catch (DateException $e) {
+                        // If we can't parse out the date, use the raw string:
+                        $response['new_date'] = $dueDate;
+                    }
+                    try {
+                        $newTime = $this->dateFormat->convertToDisplayTime(
+                            'Y-m-d H:i', $dueDate
+                        );
+                        $response['new_time'] = $newTime;
+                    } catch (DateException $e) {
+                        // If we can't parse out the time, just ignore it:
+                        $response['new_time'] = false;
+                    }
+                    $result['new_date'] = $newDate;
+                    $result['new_time'] = $newTime;
+                    $result['success'] = $renewed;
+
+                    $finalResult['details'][$result['item_id']] = $result;
+                }
+            }
+          } // for each item
+          $this->ws_app = $wsAppOriginal; // probably not necessary, but just in case
+        }
+        return $finalResult;
+    }
+
 
     /**
      * Get Patron Fines
@@ -96,6 +333,8 @@ EOT;
 
     public function patronLogin($barcode, $lastname) 
     {
+//$debug = 'In patronLogin... barcode: ' . $barcode . ' lastname: ' . $lastname;
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
         $localUbId = $this->encodeXML($this->ws_patronHomeUbId);
 
@@ -451,7 +690,7 @@ EOT;
 
         // Build Params
         $urlParams .= '?' . implode('&', $queryString);
-$debug = "urlParams: $urlParams \n\n";
+//$debug = "urlParams: $urlParams \n\n";
 
         // Create Proxy Request
         $client = $this->httpService->createClient($urlParams);
@@ -470,7 +709,7 @@ $debug = "urlParams: $urlParams \n\n";
         if ($xml !== false) {
             $client->setEncType('text/xml');
             $client->setRawBody($xml);
-$debug .= "xml: $xml \n\n";
+//$debug .= "xml: $xml \n\n";
         }
 //file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
@@ -493,7 +732,7 @@ $debug .= "xml: $xml \n\n";
 
         // Process response
         $xmlResponse = $result->getBody();
-$debug = "response to " . $urlParams . "\n\n" . $xmlResponse;
+//$debug = "response to " . $urlParams . "\n\n" . $xmlResponse;
 //file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
         ///////////////////////////////////////////////////////////////////////
