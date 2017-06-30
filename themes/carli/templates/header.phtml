@@ -95,7 +95,7 @@
 <! CARLI BEGIN Customization !>
 <?
   // if there is a custom header image show, otherwise show the defalt CARLI logo //
-  if (isset($headerImage)) {
+  if (isset($headerImage)) { 
     if (!empty($headerUrl)) {
     echo '<a class="lang-' . $this->layout()->userLang . '" href="' . $headerUrl . '"><img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '"></a>';
     } elseif (!empty($headerMap)) {
