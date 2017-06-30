@@ -1,3 +1,15 @@
 /* EIU custom css */
+a {
+  color: #1d3682;
+}
+a:hover,a:focus {
+  color: #cc0000;
+}
+h2, h3, h4 {
+  color:#3d566a;
+}
+.list-group-item.title {
+  color:#3d566a;
+}
 
 
