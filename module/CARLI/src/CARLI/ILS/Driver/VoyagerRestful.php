@@ -7,6 +7,75 @@ use VuFind\Config\Locator as ConfigLocator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+    protected function checkAccountBlocks($patronId)
+    {
+        $callingFunction = debug_backtrace()[1]['function'];
+        // We do NOT want to prevent Request/Renew capability; let the VXWS API sort this out.
+        // This is because we do NOT want a block from one institution preventing requests/renews from other institutions
+        // But we DO want to show block reasons on Checked Out Items (getAccountBlocks) page...
+        if ($callingFunction != "getAccountBlocks") {
+            return false;
+        }
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\nCALLING FUNCTION:" . var_export($callingFunction, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+
+        $cacheId = "blocks|$patronId";
+        $blockReasons = $this->getCachedData($cacheId);
+        if (null === $blockReasons) {
+            // Build Hierarchy
+            $hierarchy = [
+                'patron' =>  $patronId,
+                'patronStatus' => 'blocks'
+            ];
+
+            // Add Required Params
+            $params = [
+                'patron_homedb' => $this->ws_patronHomeUbId,
+                'view' => 'full'
+            ];
+
+            $blocks = $this->makeRequest($hierarchy, $params);
+            if ($blocks
+                && (string)$blocks->{'reply-text'} == 'ok'
+                && isset($blocks->blocks->institution->borrowingBlock)
+            ) {
+                $blockReasons = $this->extractBlockReasons(
+                    // CARLI edit: send all institutions' blocks, not just the first one!
+                    //$blocks->blocks->institution->borrowingBlock
+                    $blocks->blocks
+                );
+            } else {
+                $blockReasons = [];
+            }
+            $this->putCachedData($cacheId, $blockReasons);
+        }
+//$debug = 'In CARLI::VoyagerRestful::checkAccountBlocks, blockReasons: ' . var_export($blockReasons, true);
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+        return $blockReasons;
+    }
+
+    // CARLI edit: parse each inst blocks, instead of assuming just one inst
+    protected function extractBlockReasons($borrowBlocks)
+    {
+        $whitelistConfig = isset($this->config['Patron']['ignoredBlockCodes'])
+            ? $this->config['Patron']['ignoredBlockCodes'] : '';
+        $whitelist = array_map('trim', explode(',', $whitelistConfig));
+
+        $blockReason = [];
+        // CARLI added foreach inst:
+        foreach ($borrowBlocks->institution as $inst) {
+            $instName = $inst->instName;
+            // CARLI edit:
+            //foreach ($borrowBlocks as $borrowBlock) {
+            foreach ($inst->borrowingBlock as $borrowBlock) {
+                if (!in_array((string)$borrowBlock->blockCode, $whitelist)) {
+                    $blockReason[] = $instName . ': ' . (string)$borrowBlock->blockReason;
+                }
+            }
+        }
+        return $blockReason;
+    }
+
+
     /**
      * UB Map
      *
