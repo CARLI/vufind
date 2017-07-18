@@ -4,8 +4,39 @@ namespace CARLI\ILS\Driver;
 
 class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
 {
+    /**
+     * Get list of libraries that do not support Callslip
+     *
+     * @return string[] list of libraries that do not support Callslip
+     */
+    public function getNonCallslipLibraries()
+    {
+        return isset($this->config['CARLI']['NonCallslipLibraries'])
+            ? $this->config['CARLI']['NonCallslipLibraries']
+            : [];
+    }
+
     public function getHolding($id, array $patron = null)
     {
+        // we need to disable Request/Available links for libraries that prohibit "Call slip"
+        // Call slip = Patron Requesting Item belonging to their Home (logged-in) library account
+        $disable_callslip = false;
+        $patron_agency_id = '';
+        if ($patron) {
+            if (preg_match('/([^\.)]+)\.([0-9]+)/', $patron['id'], $matches)) {
+                $patron_agency_id = $matches[1];
+            }
+         }
+         if ($patron_agency_id != '') {
+            $noCallslipLibraries = $this->getNonCallslipLibraries();
+            foreach ($noCallslipLibraries as $noCallslipLibrary) {
+                if ($patron_agency_id == $noCallslipLibrary) {
+                    $disable_callslip = true;
+                    break;
+                }
+            }
+         }
+
         $results = array();
         $source = $this->getSource($id);
         if ($source) {
@@ -66,6 +97,9 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
                         $this->stripIdPrefixes($patron, $sourceDB)
                     );
                     if (preg_match('/^(...)db/', $sourceDB, $matches)) {
+                        if ($disable_callslip) {
+                            $holdings[0]['availability'] = false;
+                        }
                         $holdings[0]['item_agency_id'] = strtolower($matches[1]);
                     }
                     $result = $this->addIdPrefixes($holdings, $sourceDB);
@@ -85,6 +119,9 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
            $result = parent::getHolding($id, $patron);
            $agency =  $this->getSource($result[0]['id']);
            if (preg_match('/^(...)db/', $agency, $matches)) {
+               if ($disable_callslip) {
+                   $result[0]['availability'] = false;
+               }
                $result[0]['item_agency_id'] = strtolower($matches[1]);
            }
            return $result;
