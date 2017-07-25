@@ -62,8 +62,10 @@
 <! CARLI BEGIN libname !>
 <?
 //if (preg_match('/^\/all\/vf-/', $this->url('home'))) {
-    $this->libname = $holding['items'][0]['item_agency_id'];
-    echo $this->translate($this->libname);
+    if (array_key_exists('item_agency_id', $holding['items'][0])) {
+       $this->libname = $holding['items'][0]['item_agency_id'];
+       echo $this->translate($this->libname);
+    }
 //}
 ?> 
 <br/>
