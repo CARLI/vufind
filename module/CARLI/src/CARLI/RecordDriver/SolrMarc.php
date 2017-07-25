@@ -33,8 +33,6 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
        # we do not want bib-related URLs to show up in the union catalog
        if (strpos($basePath, '/all/vf') === 0) {
-$debug = 'basePath = '  . $basePath . "\n";
-file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\nCARLI::RecordDriver::SolrMarc::getURLs:" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
           return null;
        }
 
