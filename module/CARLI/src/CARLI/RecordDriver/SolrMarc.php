@@ -26,5 +26,20 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         return 'UnknownFormat';
     }
 
+    public function getURLs()
+    {
+       # the base path of the URL, e.g., /all/vf-xxx, /vf-xxx
+       $basePath = getenv('VUFIND_LIBRARY_BASE_PATH');
+
+       # we do not want bib-related URLs to show up in the union catalog
+       if (strpos($basePath, '/all/vf') === 0) {
+$debug = 'basePath = '  . $basePath . "\n";
+file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\nCARLI::RecordDriver::SolrMarc::getURLs:" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+          return null;
+       }
+
+       return parent::getURLs();
+    }
+
 }
 
