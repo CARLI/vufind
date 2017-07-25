@@ -97,10 +97,14 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
                         $this->stripIdPrefixes($patron, $sourceDB)
                     );
                     if (preg_match('/^(...)db/', $sourceDB, $matches)) {
-                        if ($disable_callslip) {
-                            $holdings[0]['availability'] = false;
-                        }
                         $holdings[0]['item_agency_id'] = strtolower($matches[1]);
+                        $item_agency_id = strtoupper($matches[1]) . 'db';
+
+                        for ($i=0 ; $i<count($holdings); $i++) {
+                            if ($disable_callslip && $item_agency_id == $patron_agency_id) {
+                                $holdings[$i]['availability'] = false;
+                            }
+                        }
                     }
                     $result = $this->addIdPrefixes($holdings, $sourceDB);
                     $results[] = $result;
@@ -119,10 +123,14 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
            $result = parent::getHolding($id, $patron);
            $agency =  $this->getSource($result[0]['id']);
            if (preg_match('/^(...)db/', $agency, $matches)) {
-               if ($disable_callslip) {
-                   $result[0]['availability'] = false;
-               }
                $result[0]['item_agency_id'] = strtolower($matches[1]);
+               $item_agency_id = strtoupper($matches[1]) . 'db';
+
+               for ($i=0 ; $i<count($result); $i++) {
+                   if ($disable_callslip && $item_agency_id == $patron_agency_id) {
+                       $result[$i]['availability'] = false;
+                   }
+               }
            }
            return $result;
         }
