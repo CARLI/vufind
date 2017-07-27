@@ -1,3 +1,23 @@
+<!-- CARLI BEGIN Customization --!>
+<?php // CARLI customization information //
+ 
+  // get the 3 letter institution code //
+  $inst = getenv('VUFIND_LIBRARY');
+
+  // path to the individual institution customization variables//
+  $configInclude =  "/usr/local/vufind/themes/$inst/config.php"; 
+
+  // Setenv VUFIND_LIBRARY_BASE_PATH /all/vf-uiu
+  $is_uc = substr(getenv('VUFIND_LIBRARY_BASE_PATH'), 0, 5) === "/all/";
+  if (! $is_uc) {
+
+      // include individual institution customization file //
+      if (file_exists($configInclude)) {
+          include $configInclude;
+      }
+  }
+?>
+<!-- CARLI END Customization --!>
 <!-- CARLI: comment out library selection control
 <div class="form-group">
   <label class="col-sm-3 control-label" for="login_target"><?=$this->transEsc('login_target')?>:</label>
@@ -12,6 +32,14 @@
 </div>
 -->
 <input type="hidden" name="target" value="<?=getenv('VUFIND_LIBRARY_DB')?>"/>
+<!-- CARLI BEGIN Customization --!>
+<?php
+  // if there is a custom login text for an institution //
+  if (isset($loginText)) {
+    echo $loginText;
+  }
+?>
+<!-- CARLI END Customization --!>  
 <div class="form-group">
   <label class="col-sm-3 control-label" for="login_<?=$this->escapeHtmlAttr($topClass)?>_username"><?=$this->transEsc('Username')?>:</label>
   <div class="col-sm-9">
