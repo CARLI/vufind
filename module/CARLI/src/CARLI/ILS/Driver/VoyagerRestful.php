@@ -838,25 +838,26 @@ EOT;
                         $sfValues[$code] = $subfield->getData();
                     }
                 }
-            }
-            if (! array_key_exists('u', $sfValues)) {
-                continue;
-            }
 
-            $the856 = array();
-            $the856['link'] = $sfValues['u'];
-            $the856['label'] = $sfValues['u'];
-            if (array_key_exists('y', $sfValues)) {
-                $the856['label'] = $sfValues['y'];
-            } else if (array_key_exists('3', $sfValues)) {
-                $the856['label'] = $sfValues['3'];
-            } 
+                if (! array_key_exists('u', $sfValues)) {
+                    continue;
+                }
 
-            if (array_key_exists('z', $sfValues)) {
-                $the856['label'] .= ' ' . $sfValues['z'];
+                $the856 = array();
+                $the856['link'] = $sfValues['u'];
+                $the856['label'] = $sfValues['u'];
+                if (array_key_exists('y', $sfValues)) {
+                    $the856['label'] = $sfValues['y'];
+                } else if (array_key_exists('3', $sfValues)) {
+                    $the856['label'] = $sfValues['3'];
+                } 
+
+                if (array_key_exists('z', $sfValues)) {
+                    $the856['label'] .= ' ' . $sfValues['z'];
+                }
+
+                $results[] = $the856;
             }
-
-            $results[] = $the856;
         }
         return $results;
     }

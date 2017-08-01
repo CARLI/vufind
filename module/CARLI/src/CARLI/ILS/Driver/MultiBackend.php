@@ -97,10 +97,11 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
                         $this->stripIdPrefixes($patron, $sourceDB)
                     );
                     if (preg_match('/^(...)db/', $sourceDB, $matches)) {
-                        $holdings[0]['item_agency_id'] = strtolower($matches[1]);
-                        $item_agency_id = strtoupper($matches[1]) . 'db';
+                        $item_agency_id_lc3 = strtolower($matches[1]);
+                        $item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
 
                         for ($i=0 ; $i<count($holdings); $i++) {
+                            $holdings[$i]['item_agency_id'] = $item_agency_id_lc3;
                             if ($disable_callslip && $item_agency_id == $patron_agency_id) {
                                 $holdings[$i]['availability'] = false;
                             }
@@ -123,10 +124,11 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
            $result = parent::getHolding($id, $patron);
            $agency =  $this->getSource($result[0]['id']);
            if (preg_match('/^(...)db/', $agency, $matches)) {
-               $result[0]['item_agency_id'] = strtolower($matches[1]);
+               $item_agency_id_lc3 = strtolower($matches[1]);
                $item_agency_id = strtoupper($matches[1]) . 'db';
 
                for ($i=0 ; $i<count($result); $i++) {
+                   $result[$i]['item_agency_id'] = $item_agency_id_lc3;
                    if ($disable_callslip && $item_agency_id == $patron_agency_id) {
                        $result[$i]['availability'] = false;
                    }
