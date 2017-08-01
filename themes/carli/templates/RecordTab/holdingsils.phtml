@@ -122,7 +122,11 @@
               if (array_key_exists('eresource_label', $row) && $row['eresource_label'][$er_cnt]) {
                   $er_label = $row['eresource_label'][$er_cnt];
               }
-              echo '<tr><td>E-Resource</td><td><a href="' . $row['eresource'][$er_cnt] . '">' . $er_label . "</td></tr>\n";
+              $er_text = '';
+              if (array_key_exists('eresource_text', $row) && $row['eresource_text'][$er_cnt]) {
+                  $er_text = ' ' . $row['eresource_text'][$er_cnt];
+              }
+              echo '<tr><td>E-Resource</td><td><a href="' . $row['eresource'][$er_cnt] . '">' . $er_label . "</a>" . $er_text . "</td></tr>\n";
           }
        }
    }

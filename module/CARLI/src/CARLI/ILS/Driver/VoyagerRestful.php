@@ -701,11 +701,14 @@ EOT;
             if ($record = $marc->next()) {
                 $labels = array();
                 $links = array();
+                $texts = array();
                 $the856s = $this->getMFHD856s($record);
                 foreach ($the856s as $the856) {
                    $labels[] = $the856['label'];
                    $links[] = $the856['link'];
+                   $texts[] = $the856['text'];
                 }
+                $row['eresource_text'] = $texts;
                 $row['eresource_label'] = $labels;
                 $row['eresource'] = $links;
 
@@ -817,12 +820,12 @@ EOT;
 
     // https://github.com/CARLI/vufind/issues/192
     //
-    // The linking text should be taken from the $y.
+    // The 'label' should be taken from the $y.
     // In the absence of the $y, use the $3.
     // In the absence of the $y or $3, use the $u.
     //
-    // The target of the hyperlink is always the URL in the 856 $u.
-    // After the linking text, insert a space and display the text of the 856 $z (which is free text note field).
+    // The 'link' is always the URL in the 856 $u.
+    // After the 'link', insert a space and display the 'text' of the 856 $z (which is free text note field).
     //
     protected function getMFHD856s($record)
     {
@@ -844,7 +847,9 @@ EOT;
                 }
 
                 $the856 = array();
+
                 $the856['link'] = $sfValues['u'];
+
                 $the856['label'] = $sfValues['u'];
                 if (array_key_exists('y', $sfValues)) {
                     $the856['label'] = $sfValues['y'];
@@ -852,8 +857,9 @@ EOT;
                     $the856['label'] = $sfValues['3'];
                 } 
 
+                $the856['text'] = '';
                 if (array_key_exists('z', $sfValues)) {
-                    $the856['label'] .= ' ' . $sfValues['z'];
+                    $the856['text'] = $sfValues['z'];
                 }
 
                 $results[] = $the856;
