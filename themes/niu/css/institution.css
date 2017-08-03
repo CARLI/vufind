@@ -1,0 +1,17 @@
+/* CSS for NIU */
+
+a { /* Link color */
+  color: #cc0000;
+}
+a:hover,a:focus { /* Link hover & visited */
+  color: #cc0000;
+}
+h2, h4 { /* Side Bar header #2 */
+  color: #000000;
+}
+h3 { /* Title #4 */
+  color: #000000;
+}
+.list-group-item.title { /* Facet Label #3 */
+  color: #333333;
+}

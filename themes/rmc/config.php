@@ -10,10 +10,10 @@ title="" coords="71,51,46" href="http://www.robertmorris.edu/" target="_self" />
 <area shape="rect" alt="ITL New Titles" title="" coords="471,57,557,72" href="https://i-share.carli.illinois.edu/newbooks/newbooks.cgi?library=RMCdb" target="_blank" />
 <area shape="rect" alt="ITL Homepage" title="" coords="741,8,862,30" href="http://www.robertmorris.edu/library/" target="_self" />
 <area shape="rect" alt="ITL Database List" title="" coords="750,41,863,55" href="http://www.robertmorris.edu/library/databases/" target="_self" />
-<area shape="rect" alt="email pgujilde@robertmorris.edu" title="" coords="744,67,863,83" href="mailto: pgujilde@robertmorris.edu" target="_blank" />
+<area shape="rect" alt="email chlibrary@robertmorris.edu" title="" coords="744,67,863,83" href="mailto:chlibrary@robertmorris.edu" target="_blank" />
 ';
 
-$feedBackLink = 'mailto:sdutler@robertmorris.edu';
+$feedBackLink = 'mailto:chlibrary@robertmorris.edu';
 
 $introText = ' 
 <p>Welcome to the RMU Library Catalog. Search for and request library materials from RMU or I-Share libraries, or check your account.</p>
