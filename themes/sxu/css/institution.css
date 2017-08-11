@@ -1,0 +1,17 @@
+/* CSS for SXU */
+
+a { /* Link color */
+
+}
+a:hover,a:focus { /* Link hover & visited */
+
+}
+h2, h4 { /* Side Bar header #2 */
+  color: #5342f4;
+}
+h3 { /* Title #4 */
+
+}
+.list-group-item.title { /* Facet Label #3 */
+  color: #f4424b;
+}
