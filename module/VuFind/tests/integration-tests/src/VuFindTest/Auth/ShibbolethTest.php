@@ -76,10 +76,7 @@ class ShibbolethTest extends \VuFindTest\Unit\DbTestCase
         if (null === $config) {
             $config = $this->getAuthConfig();
         }
-        $obj = new Shibboleth($this->getMock('Zend\Session\ManagerInterface'));
-        \VuFind\ServiceManager\Initializer::initInstance(
-            $obj, $this->getServiceManager()
-        );
+        $obj = clone($this->getAuthManager()->get('Shibboleth'));
         $obj->setConfig($config);
         return $obj;
     }

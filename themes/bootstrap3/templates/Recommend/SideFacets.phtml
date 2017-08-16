@@ -25,7 +25,7 @@
 ?>
   <div class="checkboxFilter<?if($shown == 0):?> hidden<? endif; ?>"><?=$html ?></div>
 <? endif; ?>
-<? $extraFilters = isset($this->extraSideFacetFilters) ? $this->extraSideFacetFilters : []; ?>
+<? $extraFilters = isset($this->extraSideFacetFilters) ? $this->extraSideFacetFilters : array(); ?>
 <? $collapsedFacets = $this->recommend->getCollapsedFacets() ?>
 <? $hierarchicalFacetSortOptions = $this->recommend->getHierarchicalFacetSortOptions() ?>
 <? $hierarchicalFacets = $this->recommend->getHierarchicalFacets() ?>
@@ -71,7 +71,7 @@
         <? if (isset($rangeFacets[$title])): ?>
           <div class="list-group-item">
             <form name="<?=$this->escapeHtmlAttr($title)?>Filter" id="<?=$this->escapeHtmlAttr($title)?>Filter">
-              <?=$results->getUrlQuery()->asHiddenFields(['page' => "/./", 'filter' => "/^{$title}:.*/"])?>
+              <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$title}:.*/"))?>
               <input type="hidden" name="<?=$this->escapeHtmlAttr($rangeFacets[$title]['type'])?>range[]" value="<?=$this->escapeHtmlAttr($title)?>"/>
               <div class="row">
                 <? $extraInputAttribs = ($rangeFacets[$title]['type'] == 'date') ? 'maxlength="4" ' : ''; ?>
@@ -122,19 +122,6 @@ $(document).ready(function() {
   })
   .on('change', fillTexts)
   .data('slider');
-});
-
-$('#{$this->escapeHtmlAttr($title)}from, #{$this->escapeHtmlAttr($title)}to').change(function () {
-  var fromValue = Number($('#{$this->escapeHtmlAttr($title)}from').val());
-  var toValue = Number($('#{$this->escapeHtmlAttr($title)}to').val());
-  $('#{$this->escapeHtmlAttr($title)}dateSlider').slider(
-    'setValue',
-    [
-      isNaN(fromValue) || fromValue <= 0 ? {$min} : fromValue,
-      isNaN(toValue) || toValue <= 0 ? {$max} : toValue
-    ],
-    true
-  );
 });
 JS;
             ?>

@@ -136,18 +136,6 @@ class AccountCapabilities
     }
 
     /**
-     * Get SMS setting ('enabled' or 'disabled').
-     *
-     * @return string
-     */
-    public function getSmsSetting()
-    {
-        return isset($this->config->Mail->sms)
-            && $this->config->Mail->sms === 'disabled'
-            ? 'disabled' : 'enabled';
-    }
-
-    /**
      * Is a user account capable of saving data currently available?
      *
      * @return bool

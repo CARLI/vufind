@@ -200,32 +200,22 @@ class Holds
                 $result = $this->catalog->getHolding($id, $patron ? $patron : null);
             }
 
-            $grb = 'getRequestBlocks'; // use variable to shorten line below:
-            $blocks
-                = $patron && $this->catalog->checkCapability($grb, compact($patron))
-                ? $this->catalog->getRequestBlocks($patron) : false;
-
             $mode = $this->catalog->getHoldsMode();
 
             if ($mode == "disabled") {
                 $holdings = $this->standardHoldings($result);
             } else if ($mode == "driver") {
-                $holdings = $this->driverHoldings($result, $config, !empty($blocks));
+                $holdings = $this->driverHoldings($result, $config);
             } else {
                 $holdings = $this->generateHoldings($result, $mode, $config);
             }
 
             $holdings = $this->processStorageRetrievalRequests(
-                $holdings, $id, $patron, !empty($blocks)
+                $holdings, $id, $patron
             );
-            $holdings = $this->processILLRequests(
-                $holdings, $id, $patron, !empty($blocks)
-            );
+            $holdings = $this->processILLRequests($holdings, $id, $patron);
         }
-        return [
-            'blocks' => $blocks,
-            'holdings' => $this->formatHoldings($holdings)
-        ];
+        return $this->formatHoldings($holdings);
     }
 
     /**
@@ -253,13 +243,12 @@ class Holds
     /**
      * Protected method for driver defined holdings
      *
-     * @param array $result          A result set returned from a driver
-     * @param array $holdConfig      Hold configuration from driver
-     * @param bool  $requestsBlocked Are user requests blocked?
+     * @param array $result     A result set returned from a driver
+     * @param array $holdConfig Hold configuration from driver
      *
      * @return array A sorted results set
      */
-    protected function driverHoldings($result, $holdConfig, $requestsBlocked)
+    protected function driverHoldings($result, $holdConfig)
     {
         $holdings = [];
 
@@ -269,15 +258,17 @@ class Holds
                 if ($show) {
                     if ($holdConfig) {
                         // Is this copy holdable / linkable
-                        if (!$requestsBlocked
-                            && isset($copy['addLink']) && $copy['addLink']
-                        ) {
-                            $copy['link'] = $this->getRequestDetails(
-                                $copy, $holdConfig['HMACKeys'], 'Hold'
-                            );
+                        if (isset($copy['addLink']) && $copy['addLink']) {
+                            // If the hold is blocked, link to an error page
+                            // instead of the hold form:
+                            $copy['link'] = $copy['addLink'] === 'block'
+                                ? $this->getBlockedDetails($copy)
+                                : $this->getRequestDetails(
+                                    $copy, $holdConfig['HMACKeys'], 'Hold'
+                                );
                             // If we are unsure whether hold options are available,
                             // set a flag so we can check later via AJAX:
-                            $copy['check'] = $copy['addLink'] === 'check';
+                            $copy['check'] = $copy['addLink'] == 'check';
                         }
                     }
 
@@ -380,16 +371,14 @@ class Holds
      * Process storage retrieval request information in holdings and set the links
      * accordingly.
      *
-     * @param array  $holdings        Holdings
-     * @param string $id              Record ID
-     * @param array  $patron          Patron
-     * @param bool   $requestsBlocked Are user requests blocked?
+     * @param array  $holdings Holdings
+     * @param string $id       Record ID
+     * @param array  $patron   Patron
      *
      * @return array Modified holdings
      */
-    protected function processStorageRetrievalRequests($holdings, $id, $patron,
-        $requestsBlocked
-    ) {
+    protected function processStorageRetrievalRequests($holdings, $id, $patron)
+    {
         if (!is_array($holdings)) {
             return $holdings;
         }
@@ -408,15 +397,22 @@ class Holds
         foreach ($holdings as &$location) {
             foreach ($location as &$copy) {
                 // Is this copy requestable
-                if (!$requestsBlocked
-                    && isset($copy['addStorageRetrievalRequestLink'])
+                if (isset($copy['addStorageRetrievalRequestLink'])
                     && $copy['addStorageRetrievalRequestLink']
                 ) {
-                    $copy['storageRetrievalRequestLink'] = $this->getRequestDetails(
-                        $copy,
-                        $requestConfig['HMACKeys'],
-                        'StorageRetrievalRequest'
-                    );
+                    // If the request is blocked, link to an error page
+                    // instead of the form:
+                    if ($copy['addStorageRetrievalRequestLink'] === 'block') {
+                        $copy['storageRetrievalRequestLink']
+                            = $this->getBlockedStorageRetrievalRequestDetails($copy);
+                    } else {
+                        $copy['storageRetrievalRequestLink']
+                            = $this->getRequestDetails(
+                                $copy,
+                                $requestConfig['HMACKeys'],
+                                'StorageRetrievalRequest'
+                            );
+                    }
                     // If we are unsure whether request options are
                     // available, set a flag so we can check later via AJAX:
                     $copy['checkStorageRetrievalRequest']
@@ -430,14 +426,13 @@ class Holds
     /**
      * Process ILL request information in holdings and set the links accordingly.
      *
-     * @param array  $holdings        Holdings
-     * @param string $id              Record ID
-     * @param array  $patron          Patron
-     * @param bool   $requestsBlocked Are user requests blocked?
+     * @param array  $holdings Holdings
+     * @param string $id       Record ID
+     * @param array  $patron   Patron
      *
      * @return array Modified holdings
      */
-    protected function processILLRequests($holdings, $id, $patron, $requestsBlocked)
+    protected function processILLRequests($holdings, $id, $patron)
     {
         if (!is_array($holdings)) {
             return $holdings;
@@ -457,14 +452,22 @@ class Holds
         foreach ($holdings as &$location) {
             foreach ($location as &$copy) {
                 // Is this copy requestable
-                if (!$requestsBlocked && isset($copy['addILLRequestLink'])
+                if (isset($copy['addILLRequestLink'])
                     && $copy['addILLRequestLink']
                 ) {
-                    $copy['ILLRequestLink'] = $this->getRequestDetails(
-                        $copy,
-                        $requestConfig['HMACKeys'],
-                        'ILLRequest'
-                    );
+                    // If the request is blocked, link to an error page
+                    // instead of the form:
+                    if ($copy['addILLRequestLink'] === 'block') {
+                        $copy['ILLRequestLink']
+                            = $this->getBlockedILLRequestDetails($copy);
+                    } else {
+                        $copy['ILLRequestLink']
+                            = $this->getRequestDetails(
+                                $copy,
+                                $requestConfig['HMACKeys'],
+                                'ILLRequest'
+                            );
+                    }
                     // If we are unsure whether request options are
                     // available, set a flag so we can check later via AJAX:
                     $copy['checkILLRequest']
@@ -488,9 +491,6 @@ class Holds
      */
     protected function getRequestDetails($details, $HMACKeys, $action)
     {
-        // Include request type in the details
-        $details['requestType'] = $action;
-
         // Generate HMAC
         $HMACkey = $this->hmac->generate($HMACKeys, $details);
 
@@ -512,6 +512,53 @@ class Holds
             'source' => isset($details['source'])
                 ? $details['source'] : DEFAULT_SEARCH_BACKEND,
             'query' => $queryString, 'anchor' => "#tabnav"
+        ];
+    }
+
+    /**
+     * Returns a URL to display a "blocked hold" message.
+     *
+     * @param array $holdDetails An array of item data
+     *
+     * @return array             Details for generating URL
+     */
+    protected function getBlockedDetails($holdDetails)
+    {
+        // Build Params
+        return [
+            'action' => 'BlockedHold', 'record' => $holdDetails['id']
+        ];
+    }
+
+    /**
+     * Returns a URL to display a "blocked storage retrieval request" message.
+     *
+     * @param array $details An array of item data
+     *
+     * @return array         Details for generating URL
+     */
+    protected function getBlockedStorageRetrievalRequestDetails($details)
+    {
+        // Build Params
+        return [
+            'action' => 'BlockedStorageRetrievalRequest',
+            'record' => $details['id']
+        ];
+    }
+
+    /**
+     * Returns a URL to display a "blocked ILL request" message.
+     *
+     * @param array $details An array of item data
+     *
+     * @return array         Details for generating URL
+     */
+    protected function getBlockedILLRequestDetails($details)
+    {
+        // Build Params
+        return [
+            'action' => 'BlockedILLRequest',
+            'record' => $details['id']
         ];
     }
 

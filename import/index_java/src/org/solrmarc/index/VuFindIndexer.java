@@ -1043,6 +1043,7 @@ public class VuFindIndexer extends SolrIndexer
      * @return Call number subject letters
      */
     public String getCallNumberSubject(final Record record, String fieldSpec) {
+
         String val = getFirstFieldVal(record, fieldSpec);
 
         if (val != null) {

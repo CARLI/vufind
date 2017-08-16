@@ -92,10 +92,8 @@ trait HoldsTrait
 
         // Send various values to the view so we can build the form:
         $requestGroups = $catalog->checkCapability(
-            'getRequestGroups', [$driver->getUniqueID(), $patron, $gatheredDetails]
-        ) ? $catalog->getRequestGroups(
-            $driver->getUniqueID(), $patron, $gatheredDetails
-        ) : [];
+            'getRequestGroups', [$driver->getUniqueID(), $patron]
+        ) ? $catalog->getRequestGroups($driver->getUniqueID(), $patron) : [];
         $extraHoldFields = isset($checkHolds['extraHoldFields'])
             ? explode(":", $checkHolds['extraHoldFields']) : [];
 

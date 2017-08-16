@@ -646,7 +646,7 @@ EOT;
     {
         return array_merge(
                        $this->getHoldsFromApi($patron, false),
-                       $this->getCallSlips($patron, true) // local callslips too
+                       $this->getRemoteCallSlips($patron) // local callslips too
         );
     }
 

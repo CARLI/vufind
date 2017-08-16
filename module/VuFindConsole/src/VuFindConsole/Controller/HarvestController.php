@@ -101,12 +101,10 @@ class HarvestController extends AbstractBase
     {
         $this->checkLocalSetting();
 
-        $dir = rtrim($this->getRequest()->getParam('dir', ''), '/');
+        $argv = $this->consoleOpts->getRemainingArgs();
+        $dir = isset($argv[0]) ? rtrim($argv[0], '/') : '';
         if (empty($dir)) {
             $scriptName = $this->getRequest()->getScriptName();
-            if (substr($scriptName, -9) === 'index.php') {
-                $scriptName .= ' harvest merge-marc';
-            }
             Console::writeLine('Merge MARC XML files into a single <collection>;');
             Console::writeLine('writes to stdout.');
             Console::writeLine('');

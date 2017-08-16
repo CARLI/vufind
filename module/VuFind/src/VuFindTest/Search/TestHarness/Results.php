@@ -56,26 +56,17 @@ class Results extends \VuFind\Search\Base\Results
     protected $driverCache = [];
 
     /**
-     * Fake facet response
-     *
-     * @var array
-     */
-    protected $facets;
-
-    /**
      * Constructor
      *
      * @param \VuFind\Search\Base\Params $params Object representing user search
      * parameters.
      * @param int                        $total  Total result set size to simulate
-     * @param array                      $facets Facet response (optional)
      */
-    public function __construct(Params $params, $total = 100, $facets = [])
+    public function __construct(Params $params, $total = 100)
     {
         parent::__construct($params);
         $this->fakeExpectedTotal = $total;
         $this->searchId = 'fake';   // fill a fake value here so we don't hit the DB
-        $this->facets = $facets;
     }
 
     /**
@@ -88,7 +79,8 @@ class Results extends \VuFind\Search\Base\Results
      */
     public function getFacetList($filter = null)
     {
-        return $this->facets;
+        // not supported
+        return [];
     }
 
     /**

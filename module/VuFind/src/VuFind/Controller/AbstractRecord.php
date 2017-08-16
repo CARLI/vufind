@@ -450,28 +450,12 @@ class AbstractRecord extends AbstractBase
     }
 
     /**
-     * Is SMS enabled?
-     *
-     * @return bool
-     */
-    protected function smsEnabled()
-    {
-        $check = $this->getServiceLocator()->get('VuFind\AccountCapabilities');
-        return $check->getSmsSetting() !== 'disabled';
-    }
-
-    /**
      * SMS action - Allows the SMS form to appear.
      *
      * @return \Zend\View\Model\ViewModel
      */
     public function smsAction()
     {
-        // Make sure comments are enabled:
-        if (!$this->smsEnabled()) {
-            throw new ForbiddenException('SMS disabled');
-        }
-
         // Retrieve the record driver:
         $driver = $this->loadRecord();
 
@@ -616,6 +600,15 @@ class AbstractRecord extends AbstractBase
         $details = $this->getRecordRouter()
             ->getTabRouteDetails($this->loadRecord(), $tab);
         $target = $this->url()->fromRoute($details['route'], $details['params']);
+
+        // Special case: don't use anchors in jquerymobile theme, since they
+        // mess things up!
+        if (strlen($params) && substr($params, 0, 1) == '#') {
+            $themeInfo = $this->getServiceLocator()->get('VuFindTheme\ThemeInfo');
+            if ($themeInfo->getTheme() == 'jquerymobile') {
+                $params = '';
+            }
+        }
 
         return $this->redirect()->toUrl($target . $params);
     }

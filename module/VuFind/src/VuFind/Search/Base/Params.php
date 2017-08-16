@@ -127,13 +127,6 @@ class Params implements ServiceLocatorAwareInterface
     protected $facetConfig = [];
 
     /**
-     * Extra facet labels
-     *
-     * @var array
-     */
-    protected $extraFacetLabels = [];
-
-    /**
      * Checkbox facet configuration
      *
      * @var array
@@ -935,16 +928,12 @@ class Params implements ServiceLocatorAwareInterface
     public function getFacetLabel($field, $value = null)
     {
         if (!isset($this->facetConfig[$field])
-            && !isset($this->extraFacetLabels[$field])
             && isset($this->facetAliases[$field])
         ) {
             $field = $this->facetAliases[$field];
         }
-        if (isset($this->facetConfig[$field])) {
-            return $this->facetConfig[$field];
-        }
-        return isset($this->extraFacetLabels[$field])
-            ? $this->extraFacetLabels[$field] : 'unrecognized_facet_label';
+        return isset($this->facetConfig[$field])
+            ? $this->facetConfig[$field] : 'unrecognized_facet_label';
     }
 
     /**

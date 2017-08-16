@@ -15,7 +15,7 @@ return array(
         'vendor/bootstrap.min.js',
         'vendor/bootstrap-accessibility.min.js',
         'vendor/validator.min.js',
-        'lib/autocomplete.js',
+        'autocomplete.js',
         'common.js',
         'lightbox.js',
     ),

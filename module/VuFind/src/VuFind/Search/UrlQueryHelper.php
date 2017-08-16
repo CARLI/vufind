@@ -26,9 +26,6 @@
  * @link     https://vufind.org Main Site
  */
 namespace VuFind\Search;
-use VuFind\Search\Base\Options;
-use VuFindSearch\Query\AbstractQuery;
-use VuFindSearch\Query\Query;
 use VuFindSearch\Query\QueryGroup;
 
 /**
@@ -43,134 +40,61 @@ use VuFindSearch\Query\QueryGroup;
 class UrlQueryHelper
 {
     /**
-     * Configuration for this helper.
+     * Options object
+     *
+     * @var \VuFind\Search\Base\Options
+     */
+    protected $options;
+
+    /**
+     * Params object
+     *
+     * @var \VuFind\Search\Base\Params
+     */
+    protected $params;
+
+    /**
+     * URL search param
+     *
+     * @var string
+     */
+    protected $basicSearchParam = 'lookfor';
+
+    /**
+     * Base parameters for every search
      *
      * @var array
      */
-    protected $config;
+    protected $defaultParams = [];
 
     /**
-     * URL query parameters
+     * Should we suppress the standard query parameter?
      *
-     * @var array
+     * @var bool
      */
-    protected $urlParams = [];
-
-    /**
-     * Current query object
-     *
-     * @var AbstractQuery
-     */
-    protected $queryObject;
+    protected $suppressQuery = false;
 
     /**
      * Constructor
      *
-     * @param array         $urlParams             Array of URL query parameters.
-     * @param AbstractQuery $query                 Query object to use to update
-     * URL query.
-     * @param array         $options               Configuration options for the
-     * object.
-     * @param bool          $regenerateQueryParams Should we add parameters based
-     * on the contents of $query to $urlParams (true) or are they already there
-     * (false)?
+     * @param \VuFind\Search\Base\Params $params VuFind search results object.
      */
-    public function __construct(array $urlParams, AbstractQuery $query,
-        array $options = [], $regenerateQueryParams = true
-    ) {
-        $this->config = $options;
-        $this->urlParams = $urlParams;
-        $this->queryObject = $query;
-        if ($regenerateQueryParams) {
-            $this->regenerateSearchQueryParams();
-        }
-    }
-
-    /**
-     * Get the name of the basic search param.
-     *
-     * @return string
-     */
-    protected function getBasicSearchParam()
+    public function __construct(\VuFind\Search\Base\Params $params)
     {
-        return isset($this->config['basicSearchParam'])
-            ? $this->config['basicSearchParam'] : 'lookfor';
+        $this->params = $params;
+        $this->options = $params->getOptions();
     }
 
     /**
-     * Reset search-related parameters in the internal array.
+     * Set the name of the parameter used for basic search terms.
+     *
+     * @param string $param Parameter name to set.
      *
      * @return void
      */
-    protected function clearSearchQueryParams()
+    public function setBasicSearchParam($param)
     {
-        unset($this->urlParams[$this->getBasicSearchParam()]);
-        unset($this->urlParams['join']);
-        unset($this->urlParams['type']);
-        $searchParams = ['bool', 'lookfor', 'type', 'op'];
-        foreach (array_keys($this->urlParams) as $key) {
-            if (preg_match('/(' . implode('|', $searchParams) . ')[0-9]+/', $key)) {
-                unset($this->urlParams[$key]);
-            }
-        }
-    }
-
-    /**
-     * Adjust the internal query array based on the query object.
-     *
-     * @return void
-     */
-    protected function regenerateSearchQueryParams()
-    {
-        $this->clearSearchQueryParams();
-        if ($this->isQuerySuppressed()) {
-            return;
-        }
-        if ($this->queryObject instanceof QueryGroup) {
-            $this->urlParams['join'] = $this->queryObject->getOperator();
-            foreach ($this->queryObject->getQueries() as $i => $current) {
-                if ($current instanceof QueryGroup) {
-                    $operator = $current->isNegated()
-                        ? 'NOT' : $current->getOperator();
-                    $this->urlParams['bool' . $i] = [$operator];
-                    foreach ($current->getQueries() as $inner) {
-                        if (!isset($this->urlParams['lookfor' . $i])) {
-                            $this->urlParams['lookfor' . $i] = [];
-                        }
-                        if (!isset($this->urlParams['type' . $i])) {
-                            $this->urlParams['type' . $i] = [];
-                        }
-                        $this->urlParams['lookfor' . $i][] = $inner->getString();
-                        $this->urlParams['type' . $i][] = $inner->getHandler();
-                        if (null !== ($op = $inner->getOperator())) {
-                            $this->urlParams['op' . $i][] = $op;
-                        }
-                    }
-                }
-            }
-        } else if ($this->queryObject instanceof Query) {
-            $search = $this->queryObject->getString();
-            if (!empty($search)) {
-                $this->urlParams[$this->getBasicSearchParam()] = $search;
-            }
-            $type = $this->queryObject->getHandler();
-            if (!empty($type)) {
-                $this->urlParams['type'] = $type;
-            }
-        }
-    }
-
-    /**
-     * Look up a default value in the internal configuration array.
-     *
-     * @param string $key Name of default to load
-     *
-     * @return mixed
-     */
-    protected function getDefault($key)
-    {
-        return isset($this->config['defaults'][$key])
-            ? $this->config['defaults'][$key] : null;
+        $this->basicSearchParam = $param;
     }
 
     /**
@@ -179,12 +103,11 @@ class UrlQueryHelper
      * @param string $name  Name of parameter
      * @param string $value Value of parameter
      *
-     * @return UrlQueryHelper
+     * @return void
      */
     public function setDefaultParameter($name, $value)
     {
-        $this->urlParams[$name] = $value;
-        return $this;
+        $this->defaultParams[$name] = $value;
     }
 
     /**
@@ -192,13 +115,11 @@ class UrlQueryHelper
      *
      * @param bool $suppress Should we suppress queries?
      *
-     * @return UrlQueryHelper
+     * @return void
      */
     public function setSuppressQuery($suppress)
     {
-        $this->config['suppressQuery'] = $suppress;
-        $this->regenerateSearchQueryParams();
-        return $this;
+        $this->suppressQuery = $suppress;
     }
 
     /**
@@ -208,8 +129,7 @@ class UrlQueryHelper
      */
     public function isQuerySuppressed()
     {
-        return isset($this->config['suppressQuery'])
-            ? (bool)$this->config['suppressQuery'] : false;
+        return $this->suppressQuery;
     }
 
     /**
@@ -219,18 +139,102 @@ class UrlQueryHelper
      */
     public function getParamArray()
     {
-        return $this->urlParams;
-    }
+        $params = $this->defaultParams;
 
-    /**
-     * Magic method: behavior when this object is treated as a string.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        $escape = isset($this->config['escape']) ? $this->config['escape'] : true;
-        return $this->getParams($escape);
+        // Build all the URL parameters based on search object settings:
+        if (!$this->suppressQuery) {
+            if ($this->params->getSearchType() == 'advanced') {
+                $query = $this->params->getQuery();
+                if ($query instanceof QueryGroup) {
+                    $params['join'] = $query->getOperator();
+                    foreach ($query->getQueries() as $i => $current) {
+                        if ($current instanceof QueryGroup) {
+                            $operator = $current->isNegated()
+                                ? 'NOT' : $current->getOperator();
+                            $params['bool' . $i] = [$operator];
+                            foreach ($current->getQueries() as $inner) {
+                                if (!isset($params['lookfor' . $i])) {
+                                    $params['lookfor' . $i] = [];
+                                }
+                                if (!isset($params['type' . $i])) {
+                                    $params['type' . $i] = [];
+                                }
+                                $params['lookfor' . $i][] = $inner->getString();
+                                $params['type' . $i][] = $inner->getHandler();
+                                if (null !== ($op = $inner->getOperator())) {
+                                    $params['op' . $i][] = $op;
+                                }
+                            }
+                        } else {
+                            throw new \Exception('Unexpected Query object.');
+                        }
+                    }
+                } else {
+                    throw new \Exception('Unexpected Query object.');
+                }
+            } else {
+                $search = $this->params->getDisplayQuery();
+                if (!empty($search)) {
+                    $params[$this->basicSearchParam] = $search;
+                }
+                $type = $this->params->getSearchHandler();
+                if (!empty($type)) {
+                    $params['type'] = $type;
+                }
+            }
+        }
+        $sort = $this->params->getSort();
+        if (!is_null($sort)
+            && $sort != $this->params->getDefaultSort()
+        ) {
+            $params['sort'] = $sort;
+        }
+        $limit = $this->params->getLimit();
+        if (!is_null($limit)
+            && $limit != $this->options->getDefaultLimit()
+        ) {
+            $params['limit'] = $limit;
+        }
+        $view = $this->params->getView();
+        if (!is_null($view)
+            && $view != $this->options->getDefaultView()
+        ) {
+            $params['view'] = $view;
+        }
+        if ($this->params->getPage() != 1) {
+            $params['page'] = $this->params->getPage();
+        }
+        $filters = $this->params->getFilters();
+        if (!empty($filters)) {
+            $params['filter'] = [];
+            foreach ($filters as $field => $values) {
+                foreach ($values as $current) {
+                    $params['filter'][] = $field . ':"' . $current . '"';
+                }
+            }
+        }
+        $hiddenFilters = $this->params->getHiddenFilters();
+        if (!empty($hiddenFilters)) {
+            foreach ($hiddenFilters as $field => $values) {
+                foreach ($values as $current) {
+                    $params['hiddenFilters'][] = $field . ':"' . $current . '"';
+                }
+            }
+        }
+        $shards = $this->params->getSelectedShards();
+        if (!empty($shards)) {
+            sort($shards);
+            $defaultShards = $this->options->getDefaultSelectedShards();
+            sort($defaultShards);
+            if (implode(':::', $shards) != implode(':::', $defaultShards)) {
+                $params['shard'] = $shards;
+            }
+        }
+        if ($this->params->hasDefaultsApplied()) {
+            $params['dfApplied'] = 1;
+        }
+
+        return $params;
     }
 
     /**
@@ -239,13 +243,14 @@ class UrlQueryHelper
      * @param string $from Search term to find
      * @param string $to   Search term to insert
      *
-     * @return UrlQueryHelper
+     * @return string
      */
     public function replaceTerm($from, $to)
     {
-        $query = clone($this->queryObject);
-        $query->replaceTerm($from, $to);
-        return new static($this->urlParams, $query, $this->config);
+        $newParams = clone($this->params);
+        $newParams->getQuery()->replaceTerm($from, $to);
+        $helper = new static($newParams);
+        return $helper->getParams();
     }
 
     /**
@@ -255,9 +260,9 @@ class UrlQueryHelper
      * @param string $value      Facet value
      * @param string $operator   Facet type to add (AND, OR, NOT)
      * @param array  $paramArray Optional array of parameters to use instead of
-     * internally stored values.
+     * getParamArray()
      *
-     * @return UrlQueryHelper
+     * @return string
      */
     public function addFacet($field, $value, $operator = 'AND', $paramArray = null)
     {
@@ -271,13 +276,13 @@ class UrlQueryHelper
      *
      * @param string $filter     Filter to add
      * @param array  $paramArray Optional array of parameters to use instead of
-     * internally stored values.
+     * getParamArray()
      *
-     * @return UrlQueryHelper
+     * @return string
      */
     public function addFilter($filter, $paramArray = null)
     {
-        $params = (null === $paramArray) ? $this->urlParams : $paramArray;
+        $params = is_null($paramArray) ? $this->getParamArray() : $paramArray;
 
         // Add the filter:
         if (!isset($params['filter'])) {
@@ -288,7 +293,7 @@ class UrlQueryHelper
         // Clear page:
         unset($params['page']);
 
-        return new static($params, $this->queryObject, $this->config, false);
+        return '?' . $this->buildQueryString($params);
     }
 
     /**
@@ -298,11 +303,11 @@ class UrlQueryHelper
      */
     public function removeAllFilters()
     {
-        $params = $this->urlParams;
+        $params = $this->getParamArray();
         // Clear page:
         unset($params['filter']);
 
-        return new static($params, $this->queryObject, $this->config, false);
+        return '?' . $this->buildQueryString($params);
     }
 
     /**
@@ -314,48 +319,7 @@ class UrlQueryHelper
      */
     public function getParams($escape = true)
     {
-        return '?' . $this->buildQueryString($this->urlParams, $escape);
-    }
-
-    /**
-     * Parse apart the field and value from a URL filter string.
-     *
-     * @param string $filter A filter string from url : "field:value"
-     *
-     * @return array         Array with elements 0 = field, 1 = value.
-     */
-    protected function parseFilter($filter)
-    {
-        // Simplistic explode/trim behavior if no callback is provided:
-        if (!isset($this->config['parseFilterCallback'])
-            || !is_callable($this->config['parseFilterCallback'])
-        ) {
-            $parts = explode(':', $filter, 2);
-            $parts[1] = trim($parts[1], '"');
-            return $parts;
-        }
-        return call_user_func($this->config['parseFilterCallback'], $filter);
-    }
-
-    /**
-     * Given a facet field, return an array containing all aliases of that
-     * field.
-     *
-     * @param string $field Field to look up
-     *
-     * @return array
-     */
-    protected function getAliasesForFacetField($field)
-    {
-        // If no callback is provided, aliases are unsupported:
-        if (!isset($this->config['getAliasesForFacetFieldCallback'])
-            || !is_callable($this->config['getAliasesForFacetFieldCallback'])
-        ) {
-            return [$field];
-        }
-        return call_user_func(
-            $this->config['getAliasesForFacetFieldCallback'], $field
-        );
+        return '?' . $this->buildQueryString($this->getParamArray(), $escape);
     }
 
     /**
@@ -366,14 +330,14 @@ class UrlQueryHelper
      * @param bool   $escape     Should we escape the string for use in the view?
      * @param string $operator   Facet type to add (AND, OR, NOT)
      * @param array  $paramArray Optional array of parameters to use instead of
-     * internally stored values.
+     * getParamArray()
      *
      * @return string
      */
     public function removeFacet($field, $value, $escape = true, $operator = 'AND',
         $paramArray = null
     ) {
-        $params = (null === $paramArray) ? $this->urlParams : $paramArray;
+        $params = is_null($paramArray) ? $this->getParamArray() : $paramArray;
 
         // Account for operators:
         if ($operator == 'NOT') {
@@ -382,14 +346,14 @@ class UrlQueryHelper
             $field = '~' . $field;
         }
 
-        $fieldAliases = $this->getAliasesForFacetField($field);
+        $fieldAliases = $this->params->getAliasesForFacetField($field);
 
         // Remove the filter:
         $newFilter = [];
         if (isset($params['filter']) && is_array($params['filter'])) {
             foreach ($params['filter'] as $current) {
                 list($currentField, $currentValue)
-                    = $this->parseFilter($current);
+                    = $this->params->parseFilter($current);
                 if (!in_array($currentField, $fieldAliases)
                     || $currentValue != $value
                 ) {
@@ -406,9 +370,7 @@ class UrlQueryHelper
         // Clear page:
         unset($params['page']);
 
-        $config = $this->config;
-        $config['escape'] = $escape;
-        return new static($params, $this->queryObject, $config, false);
+        return '?' . $this->buildQueryString($params, $escape);
     }
 
     /**
@@ -422,7 +384,7 @@ class UrlQueryHelper
     public function removeFilter($filter, $escape = true)
     {
         // Treat this as a special case of removeFacet:
-        list($field, $value) = $this->parseFilter($filter);
+        list($field, $value) = $this->params->parseFilter($filter);
         return $this->removeFacet($field, $value, $escape);
     }
 
@@ -451,7 +413,7 @@ class UrlQueryHelper
     public function setSort($s, $escape = true)
     {
         return $this->updateQueryString(
-            'sort', $s, $this->getDefault('sort'), $escape, true
+            'sort', $s, $this->params->getDefaultSort(), $escape, true
         );
     }
 
@@ -466,12 +428,10 @@ class UrlQueryHelper
      */
     public function setHandler($handler, $escape = true)
     {
-        $query = clone($this->queryObject);
-        // We can only set the handler on basic queries:
-        if ($query instanceof Query) {
-            $query->setHandler($handler);
-        }
-        return new static($this->urlParams, $query, $this->config);
+        return $this->updateQueryString(
+            'type', $handler, $this->options->getDefaultHandler(),
+            $escape
+        );
     }
 
     /**
@@ -506,7 +466,7 @@ class UrlQueryHelper
     public function setLimit($l, $escape = true)
     {
         return $this->updateQueryString(
-            'limit', $l, $this->getDefault('limit'), $escape, true
+            'limit', $l, $this->options->getDefaultLimit(), $escape, true
         );
     }
 
@@ -521,8 +481,24 @@ class UrlQueryHelper
      */
     public function setSearchTerms($lookfor, $escape = true)
     {
-        $query = new Query($lookfor);
-        return new static($this->urlParams, $query, $this->config);
+        // If we're currently dealing with an advanced query, turn it off so
+        // that it can be overridden:
+        if ($this->params->getSearchType() == 'advanced') {
+            $savedSuppressQuery = $this->suppressQuery;
+            $this->suppressQuery = true;
+        }
+
+        // Generate the URL:
+        $new = $this->updateQueryString(
+            $this->basicSearchParam, $lookfor, null, $escape, true
+        );
+
+        // Restore settings to their previous state:
+        if (isset($savedSuppressQuery)) {
+            $this->suppressQuery = $savedSuppressQuery;
+        }
+
+        return $new;
     }
 
     /**
@@ -536,7 +512,7 @@ class UrlQueryHelper
     public function asHiddenFields($filter = [])
     {
         $retVal = '';
-        foreach ($this->urlParams as $paramName => $paramValue) {
+        foreach ($this->getParamArray() as $paramName => $paramValue) {
             if (is_array($paramValue)) {
                 foreach ($paramValue as $paramValue2) {
                     if (!$this->filtered($paramName, $paramValue2, $filter)) {
@@ -586,8 +562,8 @@ class UrlQueryHelper
     protected function updateQueryString($field, $value, $default = null,
         $escape = true, $clearPage = false
     ) {
-        $params = $this->urlParams;
-        if (null === $value || $value == $default) {
+        $params = $this->getParamArray();
+        if (is_null($value) || $value == $default) {
             unset($params[$field]);
         } else {
             $params[$field] = $value;
@@ -595,9 +571,7 @@ class UrlQueryHelper
         if ($clearPage && isset($params['page'])) {
             unset($params['page']);
         }
-        $config = $this->config;
-        $config['escape'] = $escape;
-        return new static($params, $this->queryObject, $config, false);
+        return '?' . $this->buildQueryString($params, $escape);
     }
 
     /**
