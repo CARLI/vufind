@@ -7,6 +7,75 @@ use VuFind\Config\Locator as ConfigLocator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+    protected function checkAccountBlocks($patronId)
+    {
+        $callingFunction = debug_backtrace()[1]['function'];
+        // We do NOT want to prevent Request/Renew capability; let the VXWS API sort this out.
+        // This is because we do NOT want a block from one institution preventing requests/renews from other institutions
+        // But we DO want to show block reasons on Checked Out Items (getAccountBlocks) page...
+        if ($callingFunction != "getAccountBlocks") {
+            return false;
+        }
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\nCALLING FUNCTION:" . var_export($callingFunction, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+
+        $cacheId = "blocks|$patronId";
+        $blockReasons = $this->getCachedData($cacheId);
+        if (null === $blockReasons) {
+            // Build Hierarchy
+            $hierarchy = [
+                'patron' =>  $patronId,
+                'patronStatus' => 'blocks'
+            ];
+
+            // Add Required Params
+            $params = [
+                'patron_homedb' => $this->ws_patronHomeUbId,
+                'view' => 'full'
+            ];
+
+            $blocks = $this->makeRequest($hierarchy, $params);
+            if ($blocks
+                && (string)$blocks->{'reply-text'} == 'ok'
+                && isset($blocks->blocks->institution->borrowingBlock)
+            ) {
+                $blockReasons = $this->extractBlockReasons(
+                    // CARLI edit: send all institutions' blocks, not just the first one!
+                    //$blocks->blocks->institution->borrowingBlock
+                    $blocks->blocks
+                );
+            } else {
+                $blockReasons = [];
+            }
+            $this->putCachedData($cacheId, $blockReasons);
+        }
+//$debug = 'In CARLI::VoyagerRestful::checkAccountBlocks, blockReasons: ' . var_export($blockReasons, true);
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+        return $blockReasons;
+    }
+
+    // CARLI edit: parse each inst blocks, instead of assuming just one inst
+    protected function extractBlockReasons($borrowBlocks)
+    {
+        $whitelistConfig = isset($this->config['Patron']['ignoredBlockCodes'])
+            ? $this->config['Patron']['ignoredBlockCodes'] : '';
+        $whitelist = array_map('trim', explode(',', $whitelistConfig));
+
+        $blockReason = [];
+        // CARLI added foreach inst:
+        foreach ($borrowBlocks->institution as $inst) {
+            $instName = $inst->instName;
+            // CARLI edit:
+            //foreach ($borrowBlocks as $borrowBlock) {
+            foreach ($inst->borrowingBlock as $borrowBlock) {
+                if (!in_array((string)$borrowBlock->blockCode, $whitelist)) {
+                    $blockReason[] = $instName . ': ' . (string)$borrowBlock->blockReason;
+                }
+            }
+        }
+        return $blockReason;
+    }
+
+
     /**
      * UB Map
      *
@@ -577,7 +646,7 @@ EOT;
     {
         return array_merge(
                        $this->getHoldsFromApi($patron, false),
-                       $this->getCallSlips($patron, true) // local callslips too
+                       $this->getRemoteCallSlips($patron) // local callslips too
         );
     }
 
@@ -630,30 +699,19 @@ EOT;
                 File_MARC::SOURCE_STRING
             );
             if ($record = $marc->next()) {
-                $labels = $this->getMFHDData(
-                    $record,
-                    '856z'
-                );
-                if ($labels) {
-                    if (! is_array($labels)) {
-                        $labelsArray[] = $labels;
-                    } else {
-                        $labelsArray = $labels;
-                    }
-                    $row['eresource_label'] = $labelsArray;
+                $labels = array();
+                $links = array();
+                $texts = array();
+                $the856s = $this->getMFHD856s($record);
+                foreach ($the856s as $the856) {
+                   $labels[] = $the856['label'];
+                   $links[] = $the856['link'];
+                   $texts[] = $the856['text'];
                 }
-                $URLs = $this->getMFHDData(
-                    $record,
-                    '856u'
-                );
-                if ($URLs) {
-                    if (! is_array($URLs)) {
-                        $URLsArray[] = $URLs;
-                    } else {
-                        $URLsArray = $URLs;
-                    }
-                    $row['eresource'] = $URLsArray;
-                }
+                $row['eresource_text'] = $texts;
+                $row['eresource_label'] = $labels;
+                $row['eresource'] = $links;
+
             }
         } catch (\Exception $e) {
             trigger_error(
@@ -758,6 +816,56 @@ EOT;
 //file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\nsimpleXML:\n\n" . var_export($simpleXML, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
         return $simpleXML;
+    }
+
+    // https://github.com/CARLI/vufind/issues/192
+    //
+    // The 'label' should be taken from the $y.
+    // In the absence of the $y, use the $3.
+    // In the absence of the $y or $3, use the $u.
+    //
+    // The 'link' is always the URL in the 856 $u.
+    // After the 'link', insert a space and display the 'text' of the 856 $z (which is free text note field).
+    //
+    protected function getMFHD856s($record)
+    {
+        $results = array();
+        if ($fields = $record->getFields('856')) {
+            $sfValues = array();
+            foreach ($fields as $field) {
+                if ($subfields = $field->getSubfields()) {
+                    foreach ($subfields as $code => $subfield) {
+                        if (!strstr('y3uz', $code)) {
+                            continue;
+                        }
+                        $sfValues[$code] = $subfield->getData();
+                    }
+                }
+
+                if (! array_key_exists('u', $sfValues)) {
+                    continue;
+                }
+
+                $the856 = array();
+
+                $the856['link'] = $sfValues['u'];
+
+                $the856['label'] = $sfValues['u'];
+                if (array_key_exists('y', $sfValues)) {
+                    $the856['label'] = $sfValues['y'];
+                } else if (array_key_exists('3', $sfValues)) {
+                    $the856['label'] = $sfValues['3'];
+                } 
+
+                $the856['text'] = '';
+                if (array_key_exists('z', $sfValues)) {
+                    $the856['text'] = $sfValues['z'];
+                }
+
+                $results[] = $the856;
+            }
+        }
+        return $results;
     }
 
 }

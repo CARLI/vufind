@@ -4,16 +4,16 @@
   $visualFacetSet = $this->recommend->getPivotFacetSet();
 
   if (isset($visualFacetSet->children)) {
-    $flarechildren = [];
+    $flarechildren = array();
 
     foreach ($visualFacetSet->children as $toplevelfacet) {
-      $toplevelinfo = [];
-      $toplevelchildren = [];
+      $toplevelinfo = array();
+      $toplevelchildren = array();
       $toplevelinfo['name'] = $toplevelfacet['value'];
       $toplevelinfo['field'] = $toplevelfacet['field'];
       $toplevelinfo['size'] = $toplevelfacet['count'];
       foreach($toplevelfacet['pivot'] as $secondlevelfacet) {
-        $secondlevelinfo = [];
+        $secondlevelinfo = array();
         $secondlevelinfo['name'] = $secondlevelfacet['value'];
         $secondlevelinfo['size'] = $secondlevelfacet['count'];
         $secondlevelinfo['field'] = $secondlevelfacet['field'];

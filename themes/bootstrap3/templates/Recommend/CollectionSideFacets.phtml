@@ -5,16 +5,16 @@
   <?
     $keywordFilter = $this->recommend->getKeywordFilter();
     if (!empty($keywordFilter)) {
-      $this->extraSideFacetFilters = [
-        'Keyword' => [
-            [
+      $this->extraSideFacetFilters = array(
+        'Keyword' => array(
+            array(
               'value' => $keywordFilter,
               'displayText' => $keywordFilter,
               'specialType' => 'keyword',
               'operator' => 'OR'
-            ]
-        ]
-      ];
+            )
+        )
+      );
     }
   ?>
   <? ob_start() ?>

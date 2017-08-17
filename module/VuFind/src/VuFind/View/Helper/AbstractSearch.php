@@ -84,11 +84,11 @@ abstract class AbstractSearch extends AbstractHelper
                 }
                 $html .= '<a href="'
                     . $results->getUrlQuery()
-                        ->replaceTerm($term, $data['new_term'])->getParams()
+                        ->replaceTerm($term, $data['new_term'])
                     . '">' . $view->escapeHtml($word) . '</a>';
                 if (isset($data['expand_term']) && !empty($data['expand_term'])) {
                     $url = $results->getUrlQuery()
-                        ->replaceTerm($term, $data['expand_term'])->getParams();
+                        ->replaceTerm($term, $data['expand_term']);
                     $html .= $this->renderExpandLink($url, $view);
                 }
             }

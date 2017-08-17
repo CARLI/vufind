@@ -27,7 +27,7 @@
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
 namespace VuFindConsole\Controller;
-use Zend\Console\Console,
+use Zend\Console\Console, Zend\Console\Getopt,
     Zend\Mvc\Controller\AbstractActionController;
 
 /**
@@ -43,6 +43,13 @@ use Zend\Console\Console,
 class AbstractBase extends AbstractActionController
 {
     /**
+     * Console options
+     *
+     * @var Getopt
+     */
+    protected $consoleOpts;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -52,8 +59,11 @@ class AbstractBase extends AbstractActionController
             throw new \Exception('Access denied to command line tools.');
         }
 
+        // Get access to information about the CLI request.
+        $this->consoleOpts = new Getopt([]);
+
         // Switch the context back to the original working directory so that
-        // relative paths work as expected. (This constant is set in
+        // relative paths work as expected.  (This constant is set in
         // public/index.php)
         if (defined('ORIGINAL_WORKING_DIRECTORY')) {
             chdir(ORIGINAL_WORKING_DIRECTORY);

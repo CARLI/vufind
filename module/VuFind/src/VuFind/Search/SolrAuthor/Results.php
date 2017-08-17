@@ -49,16 +49,9 @@ class Results extends SolrResults
     {
         // Call parent constructor:
         parent::__construct($params);
-    }
 
-    /**
-     * Options for UrlQueryHelper
-     *
-     * @return array
-     */
-    protected function getUrlQueryHelperOptions()
-    {
-        return ['basicSearchParam' => 'author'];
+        // Set up URL helper to use appropriate search parameter:
+        $this->getUrlQuery()->setBasicSearchParam('author');
     }
 
     /**

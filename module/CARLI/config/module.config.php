@@ -14,6 +14,13 @@ return array (
           'noils' => 'CARLI\\ILS\\Driver\\Factory::getNoILS',
         ),
       ),
+      'recorddriver' => 
+      array (
+        'factories' => 
+        array (
+          'solrmarc' => 'CARLI\\RecordDriver\\Factory::getSolrMarc',
+        ),
+      ),
     ),
   ),
 );

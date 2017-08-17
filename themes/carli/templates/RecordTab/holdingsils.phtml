@@ -42,8 +42,9 @@
 <? $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); if (!empty($holdingTitleHold)): ?>
   <a class="placehold" data-lightbox title="<?=$this->transEsc('request_place_text')?>" href="<?=$this->recordLink()->getRequestUrl($holdingTitleHold)?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc('title_hold_place')?></a>
 <? endif; ?>
-<! CARLI BEGIN comment out openUrlActive data !>
-<!--
+<! CARLI BEGIN comment out openUrlActive data for /all/vf/ !>
+<? if (!preg_match('/^\/all\/vf\//', $this->url('home'))) { ?>
+
 <? if (!empty($urls) || $openUrlActive): ?>
   <h3><?=$this->transEsc("Internet")?></h3>
   <? if (!empty($urls)): ?>
@@ -53,15 +54,18 @@
   <? endif; ?>
   <? if ($openUrlActive): ?><?=$openUrl->renderTemplate()?><? endif; ?>
 <? endif; ?>
--->
+<? } ?>
 <! CARLI END comment out openUrlActive data !>
-<? foreach ($holdings['holdings'] as $holding): ?>
+
+<? foreach ($holdings as $holding): ?>
 <h3>
 <! CARLI BEGIN libname !>
 <?
 //if (preg_match('/^\/all\/vf-/', $this->url('home'))) {
-    $this->libname = $holding['items'][0]['item_agency_id'];
-    echo $this->translate($this->libname);
+    if (array_key_exists('item_agency_id', $holding['items'][0])) {
+       $this->libname = $holding['items'][0]['item_agency_id'];
+       echo $this->translate($this->libname);
+    }
 //}
 ?> 
 <br/>
@@ -110,15 +114,21 @@
 <! CARLI END debug row !>
 <! CARLI BEGIN eresource !>
 <?
-   $er_cnt = count($row['eresource']);
-   if ($er_cnt > 0) {
-      for($er_cnt = 0; $er_cnt < count($row['eresource']); ++$er_cnt) {
-          $er_label = $row['eresource'][$er_cnt];
-          if (array_key_exists('eresource_label', $row) && $row['eresource_label'][$er_cnt]) {
-              $er_label = $row['eresource_label'][$er_cnt];
+   if (array_key_exists('eresource', $row)) {
+       $er_cnt = count($row['eresource']);
+       if ($er_cnt > 0) {
+          for($er_cnt = 0; $er_cnt < count($row['eresource']); ++$er_cnt) {
+              $er_label = $row['eresource'][$er_cnt];
+              if (array_key_exists('eresource_label', $row) && $row['eresource_label'][$er_cnt]) {
+                  $er_label = $row['eresource_label'][$er_cnt];
+              }
+              $er_text = '';
+              if (array_key_exists('eresource_text', $row) && $row['eresource_text'][$er_cnt]) {
+                  $er_text = ' ' . $row['eresource_text'][$er_cnt];
+              }
+              echo '<tr><td>E-Resource</td><td><a href="' . $row['eresource'][$er_cnt] . '">' . $er_label . "</a>" . $er_text . "</td></tr>\n";
           }
-          echo '<tr><td>E-Resource</td><td><a href="' . $row['eresource'][$er_cnt] . '">' . $er_label . "</td></tr>\n";
-      }
+       }
    }
 ?>
 <! CARLI END eresource !>

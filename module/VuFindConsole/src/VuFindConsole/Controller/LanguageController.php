@@ -49,13 +49,10 @@ class LanguageController extends AbstractBase
     public function copystringAction()
     {
         // Display help message if parameters missing:
-        $request = $this->getRequest();
-        $source = $request->getParam('source');
-        $target = $request->getParam('target');
-        if (empty($source) || empty($target)) {
+        $argv = $this->consoleOpts->getRemainingArgs();
+        if (!isset($argv[1])) {
             Console::writeLine(
-                'Usage: ' . $request->getScriptName()
-                . ' language copystring [source] [target]'
+                "Usage: {$_SERVER['argv'][0]} [source] [target]"
             );
             Console::writeLine("\tsource - the source key to read");
             Console::writeLine("\ttarget - the target key to write");
@@ -67,8 +64,8 @@ class LanguageController extends AbstractBase
 
         $reader = new ExtendedIniReader();
         $normalizer = new ExtendedIniNormalizer();
-        list($sourceDomain, $sourceKey) = $this->extractTextDomain($source);
-        list($targetDomain, $targetKey) = $this->extractTextDomain($target);
+        list($sourceDomain, $sourceKey) = $this->extractTextDomain($argv[0]);
+        list($targetDomain, $targetKey) = $this->extractTextDomain($argv[1]);
 
         if (!($sourceDir = $this->getLangDir($sourceDomain))
             || !($targetDir = $this->getLangDir($targetDomain, true))
@@ -117,13 +114,10 @@ class LanguageController extends AbstractBase
     public function addusingtemplateAction()
     {
         // Display help message if parameters missing:
-        $request = $this->getRequest();
-        $target = $request->getParam('target');
-        $template = $request->getParam('template');
-        if (empty($template)) {
+        $argv = $this->consoleOpts->getRemainingArgs();
+        if (!isset($argv[1])) {
             Console::writeLine(
-                'Usage: ' . $request->getScriptName()
-                . ' language addusingtemplate [target] [template]'
+                "Usage: {$_SERVER['argv'][0]} [target] [template]"
             );
             Console::writeLine(
                 "\ttarget - the target key to add "
@@ -135,12 +129,13 @@ class LanguageController extends AbstractBase
         }
 
         // Make sure a valid target has been specified:
-        list($targetDomain, $targetKey) = $this->extractTextDomain($target);
+        list($targetDomain, $targetKey) = $this->extractTextDomain($argv[0]);
         if (!($targetDir = $this->getLangDir($targetDomain, true))) {
             return $this->getFailureResponse();
         }
 
         // Extract required source values from template:
+        $template = $argv[1];
         preg_match_all('/\|\|[^|]+\|\|/', $template, $matches);
         $lookups = [];
         foreach ($matches[0] as $current) {
@@ -213,11 +208,10 @@ class LanguageController extends AbstractBase
     public function deleteAction()
     {
         // Display help message if parameters missing:
-        $request = $this->getRequest();
-        $target = $request->getParam('target');
-        if (empty($target)) {
+        $argv = $this->consoleOpts->getRemainingArgs();
+        if (!isset($argv[0])) {
             Console::writeLine(
-                'Usage: ' . $request->getScriptName() . ' language delete [target]'
+                "Usage: {$_SERVER['argv'][0]} [target]"
             );
             Console::writeLine(
                 "\ttarget - the target key to remove "
@@ -227,7 +221,7 @@ class LanguageController extends AbstractBase
         }
 
         $normalizer = new ExtendedIniNormalizer();
-        list($domain, $key) = $this->extractTextDomain($target);
+        list($domain, $key) = $this->extractTextDomain($argv[0]);
         $target = $key . ' = "';
 
         if (!($dir = $this->getLangDir($domain))) {
@@ -264,18 +258,17 @@ class LanguageController extends AbstractBase
     public function normalizeAction()
     {
         // Display help message if parameters missing:
-        $request = $this->getRequest();
-        $target = $request->getParam('target');
-        if (empty($target)) {
+        $argv = $this->consoleOpts->getRemainingArgs();
+        if (!isset($argv[0])) {
             Console::writeLine(
-                'Usage: ' . $request->getScriptName()
-                . ' language normalize [target]'
+                "Usage: {$_SERVER['argv'][0]} [target]"
             );
             Console::writeLine("\ttarget - a file or directory to normalize");
             return $this->getFailureResponse();
         }
 
         $normalizer = new ExtendedIniNormalizer();
+        $target = $argv[0];
         if (is_dir($target)) {
             $normalizer->normalizeDirectory($target);
         } else if (is_file($target)) {
