@@ -14,13 +14,6 @@ $headerMap = '<area shape="rect" coords="5,9,56,75" href="http://illinois.edu/" 
 $feedBackLink = 'http://www.library.illinois.edu/catalog/vufind/feedback.html';
 
 $introText = ' 
-<p>Some features are currently unavailable in the library catalog:</p>
-
-<ul>
-<li>Call number searching</li>
-<li>Saving citations to EndNote</li>
-</ul>
-<p>To use these features, go to the <a href="https://i-share.carli.illinois.edu/uiu/cgi-bin/Pwebrecon.cgi?DB=local&PAGE=First">Classic Search</a>.</p>
 <p><a href="http://www.library.illinois.edu/it/helpdesk/cathelp.html">Library Catalog Help</a></p>
 ';
 

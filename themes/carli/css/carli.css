@@ -82,6 +82,7 @@ footer .container {
 }
 footer a {
   color: #19458d;
+  text-decoration: none;
 }
 footer a:hover, footer a:focus {
   color: #4474c1;
