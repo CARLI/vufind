@@ -1,0 +1,17 @@
+/* CSS for LFC */
+
+a { /* Link color */
+  color: #c31330;
+}
+a:hover,a:focus { /* Link hover & visited */
+  color: #96051e;
+}
+h2, h4 { /* Side Bar header #2 */
+  color: #660000;
+}
+h3 { /* Title #4 */
+  color: #ad001f;
+}
+.list-group-item.title { /* Facet Label #3 */
+  color: #96051e;
+}

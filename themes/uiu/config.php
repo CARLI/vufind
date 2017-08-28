@@ -1,4 +1,4 @@
-<?
+<?php
 
 $headerImage = 'vufind-uiu.gif';
 
@@ -13,7 +13,7 @@ $headerMap = '<area shape="rect" coords="5,9,56,75" href="http://illinois.edu/" 
 
 $feedBackLink = 'http://www.library.illinois.edu/catalog/vufind/feedback.html';
 
-$introText = ' 
+$introText = '
 <p><a href="http://www.library.illinois.edu/it/helpdesk/cathelp.html">Library Catalog Help</a></p>
 ';
 
