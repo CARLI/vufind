@@ -107,6 +107,10 @@ public Set create_institutions(Record record) {
 }
 
 public boolean is_carli_library(String inst) {
+    // special case for HathiTrust
+    if (inst.equals("HAT")) {
+        return true;
+    }
     if (inst.length() == 5 && inst.endsWith("db")) {
         return true;
     }
