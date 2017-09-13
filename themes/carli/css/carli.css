@@ -1,0 +1,173 @@
+/* This is the custom style sheet for the CARLI VuFind2 default themne
+*/
+
+body {
+  background: #ffffff;
+}
+header {
+  margin-top: 0;
+}
+header .navbar {
+  padding: 0;
+}
+header .navbar .navbar-brand {
+  background-image: url('../images/vufind.png');
+  height: 80px;
+  width: 600px;
+}
+header .navbar .navbar-nav > li > a {
+  color: #000;
+  font: 700 12px 'Dosis','Terminal Dosis','Helvetica','sans-serif';
+  text-transform: uppercase;
+  background-color: none;
+  padding: 10px 10px;
+}
+header .navbar .navbar-nav > li > a:hover {
+  background-color: #eee;
+}
+header .nav .open > a:focus {
+  background-color: #3f3e36;
+}
+header .navbar .navbar-nav > li > .dropdown-menu {
+ padding: 0;
+}
+header .dropdown-menu > .active > a {
+  background-color: #000000;
+}
+header .navbar .navbar-right {
+  margin-top: 0;
+}
+header .searchbox {
+  background: none;
+}
+a {
+  color: #19458d;
+}
+a:hover, a:focus {
+  color: #4474c1;
+}
+.searchHomeContent .well-lg {
+  padding: 24px 12px;
+}
+.searchForm a, .btn-link, .searchForm a:hover {
+  color: #5d5d5d;
+}
+.btn-primary, .btn-primary:hover {
+  border-color: #000000;
+}
+.btn-primary:active, .btn-primary:hover, .btn-primary:focus {
+  color: #5d5d5d;
+}
+.btn-primary {
+  background-color: #5d5d5d;
+}
+.searchForm_lookfor, .searchForm_type {
+  border-color: #000000;
+}
+.form-control:focus {
+  border-color: #000000;
+  -webkit-box-shadow: inset 0 1px 1px #b0b0b0, 0 0 8px #5d5d5d;
+  box-shadow: inset 0 1px 1px #b0b0b0, 0 0 8px #5d5d5d;
+}
+.main .container {
+  border-bottom: 2.5px solid #000000;
+  margin-bottom: 2px;
+}
+.searchHomeContent {
+ width: 100%;
+}
+footer .container { 
+  border-top: 1px solid #dedede;
+  padding-top: 15px;
+}
+footer a {
+  color: #19458d;
+  text-decoration: none;
+}
+footer a:hover, footer a:focus {
+  color: #4474c1;
+}
+footer h2 {
+  position: absolute;
+  left: -999em;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+footer h3 {
+  font: 700 15px 'Dosis','Terminal Dosis','Arial','sans-serif';
+  text-transform: uppercase;
+  color: #262402;
+  margin-top: 0;
+}
+footer ul {
+  list-style-type: none;
+  padding: 0px;
+}
+footer ul li {
+font: 12px 'Verdana','sans-serif';
+line-height: 20px;
+margin-top: 8px;
+margin-bottom: 1px;
+padding-top: 5px;
+border-top: 1px solid #dedede;
+}
+footer p.sm-text {
+  font-size: 10px;
+  text-align: left;
+  text-justify: auto;
+}
+footer p.carlifoot a {
+  color: #8a6593;
+}
+/* This is for the CARLI VuFind landing page
+*/
+footer .carli-footer-image {
+  background-image: url('../images/CARLI-footer-logo.png');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  color: transparent;
+  height: 60px;
+  width: 325px;
+}
+
+/* Styles for VuFind3 institution dropdown page */
+
+.carlidrop {
+  padding: 0 0px;
+}
+.carlidrop form {
+  font-size: 18px;
+  width: 100%;
+  color: #636262;
+  border-top: 1px solid #dddddd;
+}
+.carlidrop label {
+  font-size: 12px;
+  font-weight: normal;
+}
+.carlidrop select {
+  border-radius: 0px;
+}
+.carlidrop option {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #c6c5c5;
+}
+.carlidrop .form-group {
+  margin: 0px
+}
+footer .carli-landing p {
+  font-size: 13px;
+}
+
+#whichCatalogAdvanced {
+    margin: 3px 0 10px 0;
+}
+
+.dedupInformation {
+    font-size: 0px;
+    visibility: collapse;
+}

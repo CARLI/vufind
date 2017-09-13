@@ -1,0 +1,77 @@
+<?
+    // Set up page title:
+    $this->headTitle($this->translate('My Fines'));
+
+    // Set up breadcrumbs:
+    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Fines') . '</li>';
+?>
+<div class="<?=$this->layoutClass('mainbody')?>">
+  <h2><?=$this->transEsc('Your Fines')?></h2>
+  <?=$this->flashmessages()?>
+
+  <?=$this->context($this)->renderInContext('librarycards/selectcard.phtml', ['user' => $this->auth()->isLoggedIn()]); ?>
+
+  <? if (empty($this->fines)): ?>
+    <?=$this->transEsc('You do not have any fines')?>
+  <? else: ?>
+    <table class="table table-striped" summary="<?=$this->transEsc('Your Fines')?>">
+    <tr>
+      <th>&nbsp;</th>
+      <th><?=$this->transEsc('Title')?></th>
+      <th><?=$this->transEsc('Date')?></th>
+      <th><?=$this->transEsc('Type')?></th>
+      <th><?=$this->transEsc('Balance')?></th>
+    </tr>
+    <? $totalDue = 0; ?>
+    <? $lastInstitution = ''; ?>
+    <? $lastInstitutionTotal = 0; ?>
+    <? $fineCount = 0; ?>
+    <? foreach ($this->fines as $record): ?>
+<?
+//echo "<pre>";
+//print_r($record);
+//echo "</pre>";
+?>
+      <? 
+      if ($fineCount > 0) { 
+          if ($lastInstitution != $record['institution_name']) {
+              echo '<tr style="font-weight:bold"><td colspan="4">Total fines from ' . $lastInstitution . '</td><td>' . $this->safeMoneyFormat($lastInstitutionTotal) . '<br/><br/></td></tr>';
+              echo '<!-- <tr style="font-weight:bold"><td colspan="5">' . $record['institution_name'] . '</td></tr> -->';
+          }
+      }  else {
+          echo '<!-- <tr style="font-weight:bold"><td colspan="5">' . $record['institution_name'] . '</td></tr> -->';
+      }
+      ?>
+
+      <tr>
+        <td><?=isset($record['institution_name']) ? $this->escapeHtml($record['institution_name']) : ''?></td>
+        <td><?=isset($record['title2']) ? $this->escapeHtml($record['title2']) : ''?></td>
+        <td><?=isset($record['date']) ? $this->escapeHtml($record['date']) : ''?></td>
+        <td><?=isset($record['type']) ? $this->escapeHtml($record['type']) : ''?></td>
+        <td><?=isset($record['amount_balance']) ? $this->safeMoneyFormat($record['amount_balance']) : ''?></td>
+      </tr>
+
+      <? 
+      $fineCount++;
+      $totalDue += $record['amount'];
+      $lastInstitution = $record['institution_name'];
+      $lastInstitutionTotal = $record['amount_balance_total'];
+      ?>
+
+    <? endforeach; ?>
+      <? 
+      if ($fineCount > 0) { 
+          echo '<tr style="font-weight:bold"><td colspan="4">Total fines from ' . $lastInstitution . '</td><td>' . $this->safeMoneyFormat($lastInstitutionTotal) . '<br/><br/></td></tr>';
+      } 
+      ?>
+
+<!--
+      <tr style="font-weight:bold"><td colspan="4"><?=$this->transEsc('Total Balance Due')?></td><td><?=$this->safeMoneyFormat($totalDue) ?></td></tr>
+-->
+    </table>
+  <? endif; ?>
+</div>
+
+<div class="<?=$this->layoutClass('sidebar')?>">
+  <?=$this->context($this)->renderInContext("myresearch/menu.phtml", ['active' => 'fines'])?>
+</div>

@@ -1,0 +1,35 @@
+import org.marc4j.marc.Record;
+
+// define the base level indexer so that its methods can be called from the script.
+// note that the SolrIndexer code will set this value before the script methods are called.
+org.solrmarc.index.SolrIndexer indexer = null;
+
+public Set getCollection(Record record) {
+
+    String org = indexer.getFirstFieldVal(record, "003");
+    if (org == null) {
+       // org is pretty important!
+       throw new Exception("Record does not contain a 003! Fatal exception. Record: " + r);
+    }
+
+    // Initialize our return value:
+    Set result = new LinkedHashSet();
+
+    // Loop through the specified MARC fields:
+    Set input = indexer.getFieldList(record, "852b");
+    Iterator iter = input.iterator();
+    while (iter.hasNext()) {
+        // Get the current string to work on:
+        String current = iter.next();
+        String _852b = current.toString();
+
+        result.add(org + '_' + _852b);
+    }
+
+    // If we found no call numbers, return null; otherwise, return our results:
+    if (result.isEmpty())
+        return null;
+
+    return result;
+}
+

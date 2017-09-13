@@ -1,0 +1,14 @@
+/* Bradley University (bra) instutition css */
+
+a {
+  color: #cc0000;
+}
+a:hover,a:focus {
+  color: #3d566a;
+}
+h2, h3, h4 {
+  color:#3d566a;
+}
+.list-group-item.title {
+  color:#b50e39; 
+}

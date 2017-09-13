@@ -1,0 +1,14 @@
+/* Kankakee Community College (kcc) instutition css */
+
+a {
+  color: #a21235;
+}
+a:hover,a:focus {
+  color: #00335b;
+}
+h2, h4 {
+  color:#a21235;
+}
+.list-group-item.title {
+  color:#a21235 
+}
