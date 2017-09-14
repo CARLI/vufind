@@ -9,7 +9,7 @@ public Set getCollection(Record record) {
     String org = indexer.getFirstFieldVal(record, "003");
     if (org == null) {
        // org is pretty important!
-       throw new Exception("Record does not contain a 003! Fatal exception. Record: " + r);
+       throw new Exception("Record does not contain a 003! Fatal exception. Record: " + record);
     }
 
     // Initialize our return value:

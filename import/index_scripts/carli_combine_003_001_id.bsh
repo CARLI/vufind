@@ -26,7 +26,7 @@ public String combine_003_001_id(Record record) {
    String org = indexer.getFirstFieldVal(record, "003");
     if (org == null) {
        // org is pretty important!
-       throw new Exception("Record does not contain a 003! Fatal exception. Record: " + r);
+       throw new Exception("Record does not contain a 003! Fatal exception. Record: " + record);
    }
    return org + "." + id;
 }
