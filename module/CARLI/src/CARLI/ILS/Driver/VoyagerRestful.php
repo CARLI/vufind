@@ -8,17 +8,6 @@ use VuFind\Config\Locator as ConfigLocator;
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
 
-    /**
-     * Protected support method to take an array of status strings and determine
-     * whether or not this indicates an available item.  Returns an array with
-     * two keys: 'available', the boolean availability status, and 'otherStatuses',
-     * every status code found other than "Not Charged" - for use with
-     * pickStatus().
-     *
-     * @param array $statusArray The status codes to analyze.
-     *
-     * @return array             Availability and other status information.
-     */
     protected function determineAvailability($statusArray)
     {
         // It's possible for a record to have multiple status codes.  We
@@ -28,12 +17,13 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         $notCharged = false;
         $otherStatuses = [];
         foreach ($statusArray as $status) {
-file_put_contents("/usr/local/vufind/look.txt", "status: " . $status . "\n", FILE_APPEND | LOCK_EX);
             switch ($status) {
+            // Treat the following statuses as if they were 'Not Charged':
             case 'Discharged':
             case 'Damaged':
             case 'Cataloging Review':
             case 'Circulation Review':
+            // The real 'Not Charged' status:
             case 'Not Charged':
                 $notCharged = true;
                 break;
@@ -46,7 +36,6 @@ file_put_contents("/usr/local/vufind/look.txt", "status: " . $status . "\n", FIL
         // If we found other statuses or if we failed to find "Not Charged,"
         // the item is not available!
         $available = (count($otherStatuses) == 0 && $notCharged);
-file_put_contents("/usr/local/vufind/look.txt", "available: " . $available . "\n\n", FILE_APPEND | LOCK_EX);
 
         return ['available' => $available, 'otherStatuses' => $otherStatuses];
     }
@@ -691,7 +680,7 @@ EOT;
     {
         return array_merge(
                        $this->getHoldsFromApi($patron, false),
-                       $this->getRemoteCallSlips($patron) // local callslips too
+                       $this->getCallSlips($patron, true) // local callslips too
         );
     }
 
