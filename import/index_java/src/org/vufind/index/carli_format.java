@@ -1,22 +1,23 @@
+package org.vufind.index;
+
 import org.marc4j.marc.Record;
 import org.marc4j.marc.DataField;
 import org.marc4j.marc.*;
 import org.solrmarc.tools.Utils;
 import java.util.*;
+import org.solrmarc.index.SolrIndexer;
 
 //import org.apache.log4j.Logger;
 //protected static Logger logger = Logger.getLogger(Utils.class.getName());
 
-// define the base level indexer so that its methods can be called from the script.
-// note that the SolrIndexer code will set this value before the script methods are called.
-org.solrmarc.index.SolrIndexer indexer = null;
+public class carli_format {
 
    /////////////////////////////////
    interface Comparitor {
       public boolean compare(String item, String pattern);
    }
 
-   public class BeginsWithComparitor implements Comparitor {
+   public static class BeginsWithComparitor implements Comparitor {
       public boolean compare(String item, String pattern) {
           if (item.trim().toLowerCase(Locale.US).startsWith(pattern.toLowerCase(Locale.US))) {
              return true;
@@ -25,7 +26,7 @@ org.solrmarc.index.SolrIndexer indexer = null;
       }
    };
 
-   public class EqualsComparitor implements Comparitor {
+   public static class EqualsComparitor implements Comparitor {
       public boolean compare(String item, String pattern) {
           if (item.trim().equalsIgnoreCase(pattern)) {
              return true;
@@ -34,7 +35,7 @@ org.solrmarc.index.SolrIndexer indexer = null;
       }
    };
 
-   public class ContainsComparitor implements Comparitor {
+   public static class ContainsComparitor implements Comparitor {
       public boolean compare(String item, String pattern) {
         String itm = item.trim().toLowerCase(Locale.US);
         String pat = pattern.toLowerCase(Locale.US);
@@ -46,7 +47,7 @@ org.solrmarc.index.SolrIndexer indexer = null;
       }
    };
 
-   public class TokenizedContainsComparitor extends ContainsComparitor {
+   public static class TokenizedContainsComparitor extends ContainsComparitor {
       public boolean compare(String item, String pattern) {
          String[] tokens = item.split("\\s+");
          for (String token : tokens) {
@@ -57,14 +58,14 @@ org.solrmarc.index.SolrIndexer indexer = null;
    };
 
 
-TokenizedContainsComparitor tokenizedContainsComparitor = new TokenizedContainsComparitor();
-ContainsComparitor containsComparitor = new ContainsComparitor();
-EqualsComparitor equalsComparitor = new EqualsComparitor();
-BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
+public static TokenizedContainsComparitor tokenizedContainsComparitor = new TokenizedContainsComparitor();
+public static ContainsComparitor containsComparitor = new ContainsComparitor();
+public static EqualsComparitor equalsComparitor = new EqualsComparitor();
+public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
 
     // a safe way to get LC value (returns empty string instead of null when not found)
     public String getFirstFieldValLowerCase(Record record, String pattern) {
-        String ret = indexer.getFirstFieldVal(record, pattern);
+        String ret = SolrIndexer.instance().getFirstFieldVal(record, pattern);
         if (ret != null) {
             ret = ret.toLowerCase(Locale.US);
         } else {
@@ -73,7 +74,7 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
         return ret;
     }
 
-    public Set getFormat(Record record)
+    public Set getCarliFormat(Record record)
     {
         Set result = new LinkedHashSet();
 
@@ -520,3 +521,6 @@ BeginsWithComparitor beginsWithComparitor = new BeginsWithComparitor();
        return itemMatches(item, pattern, beginsWithComparitor);
     }
 
+
+
+}

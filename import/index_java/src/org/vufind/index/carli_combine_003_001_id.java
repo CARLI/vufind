@@ -1,20 +1,16 @@
-/**
- * Custom call number script.
- *
- * This can be used to override built-in SolrMarc custom functions.  If you change
- * this script, you will need to activate it in import/marc_local.properties before
- * it will be applied during indexing.
- */
-import org.marc4j.marc.Record;
+package org.vufind.index;
 
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import org.marc4j.marc.Record;
+import org.solrmarc.index.SolrIndexer;
+import org.solrmarc.tools.SolrMarcIndexerException;
 
 //import org.apache.log4j.Logger;
-//import org.solrmarc.tools.Utils;
+public class carli_combine_003_001_id
+{
 //protected static Logger logger = Logger.getLogger(Utils.class.getName());
-
-// define the base level indexer so that its methods can be called from the script.
-// note that the SolrIndexer code will set this value before the script methods are called.
-org.solrmarc.index.SolrIndexer indexer = null;
 
 /**
 * Extract the call number label from a record
@@ -22,11 +18,11 @@ org.solrmarc.index.SolrIndexer indexer = null;
 * @return Call number label
 */
 public String combine_003_001_id(Record record) {
-   String id = indexer.getFirstFieldVal(record, "001");
-   String org = indexer.getFirstFieldVal(record, "003");
+   String id = SolrIndexer.instance().getFirstFieldVal(record, "001");
+   String org = SolrIndexer.instance().getFirstFieldVal(record, "003");
     if (org == null) {
        // org is pretty important!
-       throw new Exception("Record does not contain a 003! Fatal exception. Record: " + r);
+       throw new SolrMarcIndexerException(SolrMarcIndexerException.EXIT, "Record does not contain a 003! Fatal exception. Record: " + record);
    }
    return org + "." + id;
 }
@@ -39,8 +35,8 @@ public Set create_local_ids_str_mv(Record record) {
     result.add("(CARLI)");
 
     // Loop through the specified MARC fields:
-    Set input = indexer.getFieldList(record, "035a");
-    Iterator iter = input.iterator();
+    Set input = SolrIndexer.instance().getFieldList(record, "035a");
+    Iterator<String> iter = input.iterator();
     while (iter.hasNext()) {
         // Get the current string to work on:
         String current = iter.next();
@@ -74,8 +70,8 @@ public Set create_institutions(Record record) {
     Set result = new LinkedHashSet();
 
     // Loop through the specified MARC fields:
-    Set input = indexer.getFieldList(record, "035a");
-    Iterator iter = input.iterator();
+    Set input = SolrIndexer.instance().getFieldList(record, "035a");
+    Iterator<String> iter = input.iterator();
     while (iter.hasNext()) {
         // Get the current string to work on:
         String current = iter.next();
@@ -106,7 +102,7 @@ public Set create_institutions(Record record) {
     return result;
 }
 
-public boolean is_carli_library(String inst) {
+public static boolean is_carli_library(String inst) {
     // special case for HathiTrust
     if (inst.equals("HAT")) {
         return true;
@@ -115,4 +111,6 @@ public boolean is_carli_library(String inst) {
         return true;
     }
     return false;
+}
+
 }

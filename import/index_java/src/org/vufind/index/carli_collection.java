@@ -1,23 +1,28 @@
-import org.marc4j.marc.Record;
+package org.vufind.index;
 
-// define the base level indexer so that its methods can be called from the script.
-// note that the SolrIndexer code will set this value before the script methods are called.
-org.solrmarc.index.SolrIndexer indexer = null;
+import org.marc4j.marc.Record;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import org.solrmarc.index.SolrIndexer;
+import org.solrmarc.tools.SolrMarcIndexerException;
+
+public class carli_collection {
 
 public Set getCollection(Record record) {
 
-    String org = indexer.getFirstFieldVal(record, "003");
+    String org = SolrIndexer.instance().getFirstFieldVal(record, "003");
     if (org == null) {
        // org is pretty important!
-       throw new Exception("Record does not contain a 003! Fatal exception. Record: " + r);
+       throw new SolrMarcIndexerException(SolrMarcIndexerException.EXIT, "Record does not contain a 003! Fatal exception. Record: " + record);
     }
 
     // Initialize our return value:
     Set result = new LinkedHashSet();
 
     // Loop through the specified MARC fields:
-    Set input = indexer.getFieldList(record, "852b");
-    Iterator iter = input.iterator();
+    Set input = SolrIndexer.instance().getFieldList(record, "852b");
+    Iterator<String> iter = input.iterator();
     while (iter.hasNext()) {
         // Get the current string to work on:
         String current = iter.next();
@@ -33,3 +38,4 @@ public Set getCollection(Record record) {
     return result;
 }
 
+}
