@@ -44,7 +44,7 @@
     <ul>
       <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
 <! CARLI BEGIN !>
-          <? if (preg_match("/^\/vf-/", $this->url('alphabrowse-home'))): ?>
+          <? if (!getenv('VUFIND_LIBRARY_IS_UC')): ?>
       <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
           <? endif; ?>
 <! CARLI END !>

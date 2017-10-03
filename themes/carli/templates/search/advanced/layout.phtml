@@ -140,12 +140,12 @@
       </div>
 
 <! CARLI BEGIN !>
-          <? if (preg_match("/^\/all\/vf-/", $this->url())): ?>
+          <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
               <select class="form-control" id="whichCatalogAdvanced" onChange="switchCatalog(this)">
               <option value="ishare" selected>All I-Share Libraries</option>
               <option value="local">Local Catalog Only</option>
               </select>
-          <? elseif (preg_match("/^\/vf-/", $this->url())): ?>
+          <? else: ?>
               <select class="form-control" id="whichCatalogAdvanced" onChange="switchCatalog(this)">
               <option value="ishare">All I-Share Libraries</option>
               <option value="local" selected>Local Catalog Only</option>

@@ -44,7 +44,7 @@
 <? endif; ?>
 
 <! CARLI BEGIN comment out openUrlActive data for /all/vf/ !>
-<? if (!preg_match('/^\/all\/vf\//', $this->url('home'))) { ?>
+<? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
 
 <? if (!empty($urls) || $openUrlActive): ?>
   <h3><?=$this->transEsc("Internet")?></h3>
@@ -56,7 +56,7 @@
   <? if ($openUrlActive): ?><?=$openUrl->renderTemplate()?><? endif; ?>
 <? endif; ?>
 
-<? } ?>
+<? endif; ?>
 <! CARLI END comment out openUrlActive data !>
 
 <? foreach ($holdings['holdings'] as $holding): ?>

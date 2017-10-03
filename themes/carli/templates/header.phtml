@@ -8,7 +8,7 @@
   $configInclude =  "/usr/local/vufind/themes/$inst/config.php";
 
   // Setenv VUFIND_LIBRARY_BASE_PATH /all/vf-uiu
-  $is_uc = substr(getenv('VUFIND_LIBRARY_BASE_PATH'), 0, 5) === "/all/";
+  $is_uc = getenv('VUFIND_LIBRARY_IS_UC');
   if (! $is_uc) {
 
       // include individual institution customization file //

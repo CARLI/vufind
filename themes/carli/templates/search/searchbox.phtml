@@ -55,13 +55,13 @@
       <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
     <? endif; ?>
 <! CARLI BEGIN !>
-          <? if (preg_match("/^\/all\/vf-/", $this->url($basicSearch))): ?>
+          <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
               <label for="whichCatalog" class="sr-only">Choose search catalog</label>
               <select class="searchForm_type form-control" id="whichCatalog" data-native-menu="false" onChange="switchCatalog(this)">
               <option value="ishare" selected>All I-Share Libraries</option>
               <option value="local">Local Catalog Only</option>
               </select>
-          <? elseif (preg_match("/^\/vf-/", $this->url($basicSearch))): ?>
+          <? else: ?>
               <label for="whichCatalog" class="sr-only">Choose search catalog</label>
               <select class="searchForm_type form-control" id="whichCatalog" data-native-menu="false" onChange="switchCatalog(this)">
               <option value="ishare">All I-Share Libraries</option>
