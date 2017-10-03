@@ -107,6 +107,10 @@ public static boolean is_carli_library(String inst) {
     if (inst.equals("HAT")) {
         return true;
     }
+    // special case for EBL
+    if (inst.equals("EBL")) {
+        return true;
+    }
     if (inst.length() == 5 && inst.endsWith("db")) {
         return true;
     }
