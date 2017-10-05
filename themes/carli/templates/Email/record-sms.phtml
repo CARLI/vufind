@@ -1,0 +1,91 @@
+<?
+    // This is a text-only email template; do not include HTML!
+
+    // If this record supports real-time status, we'll assume it's a local
+    // resource and display call number/location/title before URL; otherwise,
+    // we'll just show URL and title.  This prioritization is important,
+    // since text messages can be short, and we want the most important stuff
+    // at the top!
+
+    // CARLI added: /////////////////////////////////////
+    $title = $this->driver->getBreadcrumb();
+    $keep_this_many = 30;
+    $title = trim($title);
+    if (strlen($title) > $keep_this_many) {
+       $title_beg = substr($title, 0, ($keep_this_many/2) - 1);
+       $title_beg_trim = trim($title_beg); // remove space if one exists at end
+       $add_extra = strlen($title_beg) - strlen($title_beg_trim);
+       $title_end = substr($title, strlen($title) - ($keep_this_many/2) + 1 - $add_extra);
+       $title = $title_beg_trim . '..' . $title_end;
+    }
+    ////////////////////////////////////////////////////
+
+    if ($this->driver->supportsAjaxStatus()) {
+        $holdings = $this->driver->getRealTimeHoldings();
+
+        // Figure out which call number/location to display.  We'll try to find
+        // a location with an available item that has a call number.  Failing that,
+        // we'll take a location with an available item.  Failing that, we'll use
+        // the last location encountered.
+        $callno = $location = $backupLocation = false;
+        $useBackupLocation = true;
+        foreach ($holdings['holdings'] as $details) {
+            $location = $details['location'];
+            foreach ($details['items'] as $item) {
+                $callno = isset($item['callnumber']) ? $item['callnumber'] : false;
+                if ($item['availability']) {
+                    if ($callno) {
+                        // Best case scenario -- available item with call number!
+                        // Exit loop in this situation.
+                        $useBackupLocation = false;
+                        break 2;
+                    } else if (!$backupLocation) {
+                        // Save first "available" location without call # as backup
+                        // (better than an unavailable location if no call #'s found)
+                        $backupLocation = $location;
+                    }
+                }
+            }
+        }
+        // Use backup location if no available call number was found:
+        if ($useBackupLocation && $backupLocation) {
+            $location = $backupLocation;
+            $callno = false;
+        }
+
+        // CARLI added: /////////////////////////////////////
+        $form_callnumber = $_GET['callnumber'];
+        if ($form_callnumber) $callno = $form_callnumber;
+        ////////////////////////////////////////////////////
+        if ($callno) {
+            //echo $this->translate('callnumber_abbrev') . ':' . trim($callno) . "\n"; // CARLI commented-out
+            echo 'Call#:' . trim($callno) . "\n"; // CARLI replaced above
+        }
+        // CARLI added: ////////////////////////////////////
+        $form_location = $_GET['location'];
+        if ($form_location) $location = $form_location;
+        ////////////////////////////////////////////////////
+        if ($location) {
+            // CARLI added: ////////////////////////////////////
+            $keep_this_many = 30;
+            $location_trim = trim($location);
+            if (strlen($location_trim) > $keep_this_many) {
+               $location_beg = substr($location_trim, 0, ($keep_this_many/2) - 1);
+               $location_beg_trim = trim($location_beg); // remove space if one exists at end
+               $add_extra = strlen($location_beg) - strlen($location_beg_trim);
+               $location_end = substr($location_trim, strlen($location_trim) - ($keep_this_many/2) + 1 - $add_extra);
+               $location = $location_beg . '..' . $location_end;
+            }
+            ////////////////////////////////////////////////////
+            //echo $this->translate('Location') . ': ' . trim($location) . "\n"; // CARLI commented-out
+            echo 'Loc:' . trim($location) . "\n"; // CARLI replaced above
+        }
+        //echo $this->driver->getBreadcrumb() . "\n"; // CARLI commented-out
+        echo $title . "\n";
+        echo $this->serverUrl($this->recordLink()->getUrl($this->driver)) . "\n"; // CARLI replaced above
+    } else {
+        echo $this->serverUrl($this->recordLink()->getUrl($this->driver)) . "\n";
+        //echo $this->driver->getBreadcrumb() . "\n"; // CARLI commented-out
+        echo $title . "\n"; // CARLI replaced above
+    }
+?>
