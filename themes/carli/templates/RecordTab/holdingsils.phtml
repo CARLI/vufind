@@ -203,37 +203,43 @@
       </tr>
     <? endif; ?>
 
+  <? endforeach; ?>
+
 <!-- CARLI: cite/text this/email this/export record/save to list -->
+<? if (!empty($callNos)): ?>
+  <? foreach ($callNos as $callNo): ?>
 <tr><td colspan="2">
 <ul class="record-nav nav nav-pills hidden-print">
   <? if (count($this->driver->getCitationFormats()) > 0): ?>
-    <li><a class="cite-record" data-lightbox href="<?=$this->url('home')?>Record/<?=$this->escapeHtml($row['id'])?>/Cite" rel="nofollow"><i class="fa fa-asterisk" aria-hidden="true"></i> <?=$this->transEsc('Cite this')?></a></li>
+    <li><a class="cite-record" data-lightbox href="<?=$this->url('home')?>Record/<?=$this->escapeHtmlAttr($row['id'])?>/Cite" rel="nofollow"><i class="fa fa-asterisk" aria-hidden="true"></i> <?=$this->transEsc('Cite this')?></a></li>
   <? endif; ?>
   <? if ($this->accountCapabilities()->getSmsSetting() !== 'disabled'): ?>
-    <li><a class="sms-record" data-lightbox href="<?=$this->url('home')?>Record/<?=$this->escapeHtml($row['id'])?>/SMS" rel="nofollow"><i class="fa fa-mobile" aria-hidden="true"></i> <?=$this->transEsc('Text this')?></a></li>
+    <li><a class="sms-record" data-lightbox href="<?=$this->url('home')?>Record/<?=$this->escapeHtmlAttr($row['id'])?>/SMS?callnumber=<?= $this->escapeHtmlAttr($callNo) ?>&location=<?= $this->escapeHtmlAttr($locationText) ?>" rel="nofollow"><i class="fa fa-mobile" aria-hidden="true"></i> <?=$this->transEsc('Text this')?></a></li>
   <? endif; ?>
 
 
-  <li><a class="mail-record" data-lightbox href="<?=$this->url('home')?>Record/<?=$this->escapeHtml($row['id'])?>/Email" rel="nofollow"><i class="fa fa-envelope" aria-hidden="true"></i> <?=$this->transEsc('Email this')?></a></li>
+  <li><a class="mail-record" data-lightbox href="<?=$this->url('home')?>Record/<?=$this->escapeHtmlAttr($row['id'])?>/Email?callnumber=<?= $this->escapeHtmlAttr($callNo) ?>&location=<?= $this->escapeHtmlAttr($locationText) ?>" rel="nofollow"><i class="fa fa-envelope" aria-hidden="true"></i> <?=$this->transEsc('Email this')?></a></li>
 
     <li class="dropdown">
-      <a class="export-toggle dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('home')?>Record/<?=$this->escapeHtml($row['id'])?>/Export" rel="nofollow"><i class="fa fa-list-alt" aria-hidden="true"></i> <?=$this->transEsc('Export Record') ?></a>
+      <a class="export-toggle dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('home')?>Record/<?=$this->escapeHtmlAttr($row['id'])?>/Export?callnumber=<?= $this->escapeHtmlAttr($callNo) ?>&location=<?= $this->escapeHtmlAttr($locationText) ?>" rel="nofollow"><i class="fa fa-list-alt" aria-hidden="true"></i> <?=$this->transEsc('Export Record') ?></a>
   <? $exportFormats = $this->export()->getFormatsForRecord($this->driver); ?>
   <? if(count($exportFormats) > 0): ?>
       <ul class="dropdown-menu" role="menu">
         <? foreach ($exportFormats as $exportFormat): ?>
-          <li><a <? if ($this->export()->needsRedirect($exportFormat)): ?>target="<?=$this->escapeHtmlAttr($exportFormat)?>Main" <? endif; ?>href="<?=$this->url('home')?>Record/<?=$this->escapeHtml($row['id'])?>/Export?style=<?=$this->escapeHtmlAttr($exportFormat)?>" rel="nofollow"><?=$this->transEsc('Export to')?> <?=$this->transEsc($this->export()->getLabelForFormat($exportFormat))?></a></li>
+          <li><a <? if ($this->export()->needsRedirect($exportFormat)): ?>target="<?=$this->escapeHtmlAttr($exportFormat)?>Main" <? endif; ?>href="<?=$this->url('home')?>Record/<?=$this->escapeHtmlAttr($row['id'])?>/Export?style=<?=$this->escapeHtmlAttr($exportFormat)?>&callnumber=<?= $this->escapeHtmlAttr($callNo) ?>&location=<?= $this->escapeHtmlAttr($locationText) ?>" rel="nofollow"><?=$this->transEsc('Export to')?> <?=$this->transEsc($this->export()->getLabelForFormat($exportFormat))?></a></li>
         <? endforeach; ?>
       </ul>
     </li>
   <? endif; ?>
 
-      <li><a class="save-record" data-lightbox href="<?=$this->url('home')?>Record/<?=$this->escapeHtml($row['id'])?>/Save" rel="nofollow"><i class="fa fa-star" aria-hidden="true"></i> Save to List</a></li>
+      <li><a class="save-record" data-lightbox href="<?=$this->url('home')?>Record/<?=$this->escapeHtmlAttr($row['id'])?>/Save" rel="nofollow"><i class="fa fa-star" aria-hidden="true"></i> Save to List</a></li>
 </ul>
 </td></tr>
+  <? endforeach; ?>
+<? endif; ?>
 <!-- END OF CARLI: cite/text this/email this/export record/save to list -->
 
-  <? endforeach; ?>
+
   <? if (!empty($holding['purchase_history'])): ?>
     <tr>
       <th><?=$this->transEsc("Most Recent Received Issues")?>:</th>
