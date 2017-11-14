@@ -162,6 +162,9 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
         Set carrierCode = new LinkedHashSet();
         addSubfieldDataToSet(record, carrierCode, "338", "b");
 
+        Set set_300c = new LinkedHashSet();
+        addSubfieldDataToSet(record, set_300c, "300", "c");
+
         if (setItemContains(set_gmd, "electronic resource") ||
             setItemEquals(carrierTerm, "online resource")||
             setItemBeginsWith(carrierTerm, "computer") ||
@@ -274,9 +277,6 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
                 result.add("Audio CD");
 
             } else {
-
-                Set set_300c = new LinkedHashSet();
-                addSubfieldDataToSet(record, set_300c, "300", "c");
 
                 if (
                     setItemContains(set_300c, "12 cm") || setItemContains(set_300c, "4 3/4") || setItemContains(set_300c, "4 ¾") || setItemContains(set_300c, "4¾") ||  setItemContains(set_300c, "4 ³/₄") || setItemContains(set_300c, "4³/₄")
@@ -420,6 +420,71 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
        ) {
            result.add("Large Print");
        } // End "Large Print"
+
+       /**** CD-ROM format facet request:
+
+       (RecType=m and 008/23=q) OR (007/00=c AND 007/01=o) OR (007/00=c AND 007/04=g) OR (006/00=m AND 006/06=q) OR 245h=”computer file” OR 337a=”computer” OR 337b=c OR 338b=“computer disc”
+       OR 338b=cd OR (300c=4/3/4 in. OR 12 cm) OR (the terms “computer laser optical disc” OR “computer optical disc” OR “computer disc” appear in 300a, 300b)
+
+       AND
+       The term “CD-ROM” appears in 300a, 300b, 300e, 338$3, 538a, 690a, 753a
+       ****/
+
+      String _007_04 = getFirstFieldValLowerCase(record, "007[4]");
+
+      Set set_337a = new LinkedHashSet();
+      addSubfieldDataToSet(record, set_337a, "337", "a");
+
+      Set set_337b = new LinkedHashSet();
+      addSubfieldDataToSet(record, set_337b, "337", "b");
+
+      Set set_338b = new LinkedHashSet();
+      addSubfieldDataToSet(record, set_338b, "338", "b");
+
+      Set set_300ab = new LinkedHashSet();
+      addSubfieldDataToSet(record, set_300ab, "300", "a");
+      addSubfieldDataToSet(record, set_300ab, "300", "b");
+
+      Set set_300abe_3383_538a_690a_753a = new LinkedHashSet();
+      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "300", "a");
+      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "300", "b");
+      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "300", "e");
+      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "338", "3");
+      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "538", "a");
+      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "690", "a");
+      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "753", "a");
+
+      if (
+           (
+              (itemEquals(recType,"m") && itemEquals(_008_23,"q"))
+                 ||
+              (_007_00.equals("c") && _007_01.equals("o"))
+                 ||
+              (_007_00.equals("c") && _007_04.equals("g"))
+                 ||
+              (_006_00.equals("m") && _006_06.equals("q"))
+                 ||
+              setItemContains(set_gmd, "computer file")
+                 ||
+              setItemContains(set_337a, "computer")
+                 ||
+              setItemContains(set_337b, "c")
+                 ||
+              setItemContains(set_338b, "computer disc")
+                 ||
+              (setItemContains(set_300c, "12 cm") || setItemContains(set_300c, "4 3/4") || setItemContains(set_300c, "4 ¾") || setItemContains(set_300c, "4¾") ||  setItemContains(set_300c, "4 ³/₄") || setItemContains(set_300c, "4³/₄")) 
+                 ||
+              (setItemContains(set_300ab, "computer laser optical disc") || setItemContains(set_300ab, "computer optical disc") || setItemContains(set_300ab, "computer disc"))
+           )
+           &&
+           (
+              setItemContains(set_300abe_3383_538a_690a_753a, "CD-ROM")
+           )
+
+        ) {
+           result.add("CD-ROM");
+        }
+
 
 
 //logger.debug("Formats results = " + result + "\n");
