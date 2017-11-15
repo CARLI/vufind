@@ -475,7 +475,7 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
                  ||
               setItemContains(set_338a, "computer disc")
                  ||
-              setItemContains(set_338b, "bc")
+              setItemContains(set_338b, "cd")
                  ||
               (setItemContains(set_300c, "12 cm") || setItemContains(set_300c, "4 3/4") || setItemContains(set_300c, "4 ¾") || setItemContains(set_300c, "4¾") ||  setItemContains(set_300c, "4 ³/₄") || setItemContains(set_300c, "4³/₄")) 
                  ||
