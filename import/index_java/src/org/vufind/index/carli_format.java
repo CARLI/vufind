@@ -423,7 +423,7 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
 
        /**** CD-ROM format facet request:
 
-       (RecType=m and 008/23=q) OR (007/00=c AND 007/01=o) OR (007/00=c AND 007/04=g) OR (006/00=m AND 006/06=q) OR 245h=”computer file” OR 337a=”computer” OR 337b=c OR 338b=“computer disc”
+       (RecType=m and 008/23=q) OR (007/00=c AND 007/01=o) OR (007/00=c AND 007/04=g) OR (006/00=m AND 006/06=q) OR 245h=”computer file” OR 337a=”computer” OR 337b=c OR 338a=“computer disc”
        OR 338b=cd OR (300c=4/3/4 in. OR 12 cm) OR (the terms “computer laser optical disc” OR “computer optical disc” OR “computer disc” appear in 300a, 300b)
 
        AND
@@ -437,6 +437,9 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
 
       Set set_337b = new LinkedHashSet();
       addSubfieldDataToSet(record, set_337b, "337", "b");
+
+      Set set_338a = new LinkedHashSet();
+      addSubfieldDataToSet(record, set_338a, "338", "a");
 
       Set set_338b = new LinkedHashSet();
       addSubfieldDataToSet(record, set_338b, "338", "b");
@@ -470,7 +473,9 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
                  ||
               setItemContains(set_337b, "c")
                  ||
-              setItemContains(set_338b, "computer disc")
+              setItemContains(set_338a, "computer disc")
+                 ||
+              setItemContains(set_338b, "bc")
                  ||
               (setItemContains(set_300c, "12 cm") || setItemContains(set_300c, "4 3/4") || setItemContains(set_300c, "4 ¾") || setItemContains(set_300c, "4¾") ||  setItemContains(set_300c, "4 ³/₄") || setItemContains(set_300c, "4³/₄")) 
                  ||
