@@ -752,6 +752,8 @@ EOT;
                 'Poorly Formatted MFHD Record', E_USER_NOTICE
             );
         }
+        // Always show the Request Item link (i.e., even before patrons are logged in!)
+        $row['addILLRequestLink'] = true;
 
 //file_put_contents("/usr/local/vufind/holdings.txt", "\n\n******************************HOLDING info\n" . var_export($row, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         return $row;
