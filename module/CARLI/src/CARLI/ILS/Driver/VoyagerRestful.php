@@ -20,7 +20,6 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
             switch ($status) {
             // Treat the following statuses as if they were 'Not Charged':
             case 'Discharged':
-            case 'Damaged':
             case 'Cataloging Review':
             case 'Circulation Review':
             // The real 'Not Charged' status:
