@@ -904,5 +904,14 @@ EOT;
         return $results;
     }
 
+    // Disable the Holds & Recalls actions, since we show this information already in Requested Items
+    public function supportsMethod($method, $params)
+    {
+        if ($method == "getMyHolds") {
+            return false;
+        }
+        return parent::supportsMethod($method, $params);
+    }
+
 }
 
