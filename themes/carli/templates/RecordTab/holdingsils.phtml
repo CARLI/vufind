@@ -44,7 +44,7 @@
 <? endif; ?>
 
 <! CARLI BEGIN comment out openUrlActive data for /all/vf/ !>
-<? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
+<? if (!getenv('VUFIND_LIBRARY_IS_UC')): ?>
 
 <? if (!empty($urls) || $openUrlActive): ?>
   <h3><?=$this->transEsc("Internet")?></h3>
