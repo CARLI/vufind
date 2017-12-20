@@ -912,5 +912,52 @@ EOT;
         return parent::supportsMethod($method, $params);
     }
 
+    // Set the default pickup library to that of the patron's library (not the item owning's library)
+    public function getILLPickupLibraries($id, $patron)
+    {
+        $results = parent::getILLPickupLibraries($id, $patron);
+        if ($results === false) {
+            return false;
+        }
+
+        // determine logged-in patron's UbId
+        list($source, $patronId) = explode('.', $patron['id'], 2);
+        if (isset($this->config['ILLRequestSources'][$source])) {
+            $pickupLibUbId = $this->config['ILLRequestSources'][$source];
+
+            // clear out any default settings and set only the patron's UbId setting
+            for ($i = 0; $i < count($results); ++$i) {
+               if ($results[$i]['id'] == $pickupLibUbId) {
+                   $results[$i]['isDefault'] = true;
+               } else {
+                   $results[$i]['isDefault'] = false;
+               }
+            }
+
+            // The results aren't in order. The item owning's library is at the top. Fix this by re-sorting.
+            $this->sortByAssocArrayKey('name', $results, 'asc');
+        }
+
+        return $results;
+    }
+
+
+   // Function described in following article: https://joshtronic.com/2013/09/23/sorting-associative-array-specific-key/
+   function sortByAssocArrayKey($field, &$array, $direction = 'asc')
+   {
+       usort($array, create_function('$a, $b', '
+           $a = $a["' . $field . '"];
+           $b = $b["' . $field . '"];
+
+           if ($a == $b) return 0;
+
+           $direction = strtolower(trim($direction));
+
+           return ($a ' . ($direction == 'desc' ? '>' : '<') .' $b) ? -1 : 1;
+       '));
+
+       return true;
+   }
+
 }
 
