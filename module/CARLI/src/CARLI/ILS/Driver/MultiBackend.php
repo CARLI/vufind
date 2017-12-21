@@ -27,15 +27,15 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
                 $patron_agency_id = $matches[1];
             }
          }
+         $noCallslipLibraries = $this->getNonCallslipLibraries();
          if ($patron_agency_id != '') {
-            $noCallslipLibraries = $this->getNonCallslipLibraries();
             foreach ($noCallslipLibraries as $noCallslipLibrary) {
                 if ($patron_agency_id == $noCallslipLibrary) {
                     $disable_callslip = true;
                     break;
                 }
             }
-         }
+        }
 
         $results = array();
         $source = $this->getSource($id);
@@ -126,6 +126,18 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
            if (preg_match('/^(...)db/', $agency, $matches)) {
                $item_agency_id_lc3 = strtolower($matches[1]);
                $item_agency_id = strtoupper($matches[1]) . 'db';
+
+               // for non-logged-in patrons in a LOCAL catalog, 
+               // *still* honor the noCallSlip setting for LOCAL items.
+               if ($patron_agency_id == '' && !getenv('VUFIND_LIBRARY_IS_UC')) {
+                   foreach ($noCallslipLibraries as $noCallslipLibrary) {
+                       if ($item_agency_id == $noCallslipLibrary) {
+                           $disable_callslip = true;
+                           $item_agency_id = $patron_agency_id;
+                           break;
+                       }
+                    }
+               }
 
                for ($i=0 ; $i<count($result); $i++) {
                    $result[$i]['item_agency_id'] = $item_agency_id_lc3;
