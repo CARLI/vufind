@@ -1,0 +1,20 @@
+/* Illinois Institute of Technology (iit) instutition css */
+
+a {
+  color: #555555;
+}
+a:visited {
+  color: #cc0000;
+} 
+a:hover,a:focus,a:active {
+  color: #8e0404;
+}
+h2, h3 {
+  color:#3D566A;
+}
+h4 {
+  color:#555555;
+}
+.facet-group .title {
+  color:#555555;
+}
