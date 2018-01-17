@@ -43,7 +43,11 @@
                 <?=$this->escapeHtml($item['displayText']) ?>
 CARLI END COMMENT OUT -->
 <!CARLI BEGIN!>
-                <?=$this->escapeHtml($this->translate($item['displayText'])) ?>
+                <! 1. we want to translate codes into display text !>
+                <! 2. we also replace escapeHtml function with htmlentities
+                   so that we can set double_encode parm to false;
+                   this solves ugly display of ampersands !>
+                <?=htmlentities($this->translate($item['displayText']), ENT_COMPAT, 'UTF-8', false) ?>
 <!CARLI END!>
               <? else: ?>
                 <?=$this->escapeHtml($item['value']) ?>
