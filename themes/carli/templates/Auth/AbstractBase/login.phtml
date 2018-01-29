@@ -18,8 +18,7 @@
 
 
 <! Do not "auto-login" if this form was POSTed to !>
-<? if ($_POST['auth_method']): ?>
-<? else: ?>
+<? if (!isset($_POST['auth_method'])): ?>
 <script language="javascript">
     autoLoginCarli();
 </script>
