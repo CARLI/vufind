@@ -43,7 +43,10 @@ header .searchbox {
 a {
   color: #19458d;
 }
-a:hover, a:focus {
+a:visited {
+  color: #19458d;
+}
+a:hover, a:focus, a:active {
   color: #4474c1;
 }
 .searchHomeContent .well-lg {
@@ -70,8 +73,9 @@ a:hover, a:focus {
   box-shadow: inset 0 1px 1px #b0b0b0, 0 0 8px #5d5d5d;
 }
 .main .container {
-  border-bottom: 2.5px solid #000000;
-  margin-bottom: 2px;
+  border-bottom: 2.5px solid #000000; /* black line before the footer */
+  margin-bottom: 2px; /* space between the black line and the grey line in the footer */
+  padding-bottom: 40px; /* this is the space before the footer black line */
 }
 .searchHomeContent {
  width: 100%;
@@ -81,6 +85,10 @@ footer .container {
   padding-top: 15px;
 }
 footer a {
+  color: #19458d;
+  text-decoration: none;
+}
+footer a:visited {
   color: #19458d;
   text-decoration: none;
 }

@@ -1,0 +1,24 @@
+/* css SIM */
+a {  /* Link color */
+  color: #68478D;
+}
+a:visited { /* Link visited */
+  color: #68478D;
+}
+a:hover,a:focus,a:active {  /* Link hover & focus */
+  color: #452B6F;
+}
+h2, h4 {  /* Side Bar header #2 */
+  color:#000000;
+}
+h3 {  /* Title #4 */
+  color:#000000;
+}
+.facet-group .title {  /* Facet Label #3 */
+  color:#666666
+}
+.sidebar .facet.active, .sidebar .facet.active:hover, .sidebar .active-filters .facet { /* background for right sidebar in search */
+  color: #ffffff;
+  background: #68478d;
+  border-color: #68478d;
+}

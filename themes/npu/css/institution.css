@@ -1,0 +1,23 @@
+/* CSS NPU */
+
+a {  /* Link color */
+  color: #002d62;
+}
+a:visited { /* Link visited */
+}
+a:hover,a:focus,a:active {  /* Link hover & focus */
+}
+h2, h4 {  /* Side Bar header #2 */
+  color:#002d62;
+}
+h3 {  /* Title #4 */
+}
+.facet-group .title {  /* Facet Label #3 */
+}
+.sidebar .facet.active, .sidebar .facet.active:hover, .sidebar .active-filters .facet { /* background for right sidebar in search */
+/*
+  color: #ffffff;
+  background: #cc0000;
+  border-color: #cc0000;
+*/
+}
