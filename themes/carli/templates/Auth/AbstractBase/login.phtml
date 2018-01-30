@@ -17,8 +17,8 @@
   </form>
 
 
-<! Do not "auto-login" if this form was POSTed to !>
-<? if (!isset($_POST['auth_method'])): ?>
+<! Do NOT "auto-login" if this form was POSTed (e.g, patron entered incorrect un/pw) OR if not accessed directly (e.g., Logout redirect) !>
+<? if (!isset($_POST['auth_method']) && preg_match('/\/MyResearch\/UserLogin$/', $_SERVER['SCRIPT_URL'])): ?>
 <script language="javascript">
     autoLoginCarli();
 </script>
@@ -28,3 +28,4 @@
 <? else: ?>
   <a id="carli-login-link" name="carli-login-link" href="<?=$this->escapeHtmlAttr($sessionInitiator)?>" class="btn btn-link" data-lightbox-ignore><?=$this->transEsc("Institutional Login")?></a>
 <? endif; ?>
+
