@@ -59,6 +59,14 @@
 <? endif; ?>
 <! CARLI END comment out openUrlActive data !>
 
+<?
+   $noHoldingsMessage = '';
+   $numHoldings = count($holdings['holdings']);
+   if ($numHoldings < 1) {
+      $noHoldingsMessage = 'The catalog cannot display location or copy information at this time. Please ask a library staff member for assistance.';
+   }
+?>
+
 <? foreach ($holdings['holdings'] as $holding): ?>
 <?
 //print_r($holding);
@@ -73,7 +81,7 @@
 ?>
 <br/>
 <! CARLI END libname !>
-  <? $locationText = $this->transEsc('location_' . $holding['location'], [], $holding['location']); ?>
+  <? $locationText = isset($holding['location']) ? $this->transEsc('location_' . $holding['location'], [], $holding['location']) : ''; ?>
   <? if (isset($holding['locationhref']) && $holding['locationhref']): ?>
     <a href="<?=$holding['locationhref']?>" target="_blank"><?=$locationText?></a>
   <? else: ?>
@@ -239,7 +247,6 @@
 <? endif; ?>
 <!-- END OF CARLI: cite/text this/email this/export record/save to list -->
 
-
   <? if (!empty($holding['purchase_history'])): ?>
     <tr>
       <th><?=$this->transEsc("Most Recent Received Issues")?>:</th>
@@ -252,6 +259,12 @@
   <? endif; ?>
 </table>
 <? endforeach; ?>
+
+<!-- CARLI: no MFHDs/holdings message -->
+<? if (!empty($noHoldingsMessage)): ?>
+<tr><td colspan="2"><?=$noHoldingsMessage?></td></tr>
+<? endif; ?>
+
 
 <? $history = $this->driver->getRealTimeHistory(); ?>
 <? if (is_array($history) && !empty($history)): ?>
