@@ -70,11 +70,9 @@
             $keep_this_many = 30;
             $location_trim = trim($location);
             if (strlen($location_trim) > $keep_this_many) {
-               $location_beg = substr($location_trim, 0, ($keep_this_many/2) - 1);
+               $location_beg = substr($location_trim, 0, $keep_this_many - 2);
                $location_beg_trim = trim($location_beg); // remove space if one exists at end
-               $add_extra = strlen($location_beg) - strlen($location_beg_trim);
-               $location_end = substr($location_trim, strlen($location_trim) - ($keep_this_many/2) + 1 - $add_extra);
-               $location = $location_beg . '..' . $location_end;
+               $location = $location_beg_trim . '..';
             }
             ////////////////////////////////////////////////////
             //echo $this->translate('Location') . ': ' . trim($location) . "\n"; // CARLI commented-out
