@@ -12,11 +12,9 @@
     $keep_this_many = 30;
     $title = trim($title);
     if (strlen($title) > $keep_this_many) {
-       $title_beg = substr($title, 0, ($keep_this_many/2) - 1);
+       $title_beg = substr($title, 0, $keep_this_many - 2);
        $title_beg_trim = trim($title_beg); // remove space if one exists at end
-       $add_extra = strlen($title_beg) - strlen($title_beg_trim);
-       $title_end = substr($title, strlen($title) - ($keep_this_many/2) + 1 - $add_extra);
-       $title = $title_beg_trim . '..' . $title_end;
+       $title = $title_beg_trim . '..';
     }
     ////////////////////////////////////////////////////
 
