@@ -1,21 +1,22 @@
 <?
 
-$headerImage = 'vufind-swi.gif';
+$headerImage = 'vufind-swi.png';
 
 $headerUrl = '';
 
-$headerMap = '<area shape="rect" coords="276,35,547,118" href="http://www.swic.edu/library/" alt="SWIC Library Home"/>
-<area shape="rect" coords="791,27,954,52" href="http://www.swic.edu/library/" alt="SWIC Library Home"/>
-<area shape="rect" coords="668,52,954,77" href="http://www.swic.edu/periodical-databases/" alt="Find Articles in the Library Databases"/>
-<area shape="rect" coords="734,77,954,98" href="http://www.swic.edu/hours-locations/" alt="Library Hours and Locations"/>
-<area shape="rect" coords="598,98,954,119" href="http://www.swic.edu/librarian-contact/" alt="Need Help? Contact a Friendly SWIC Librarian"/>
-<area shape="rect" coords="10,10,261,135" href="http://www.swic.edu/" alt="Southwestern Illinois College"/>
+$headerMap = '
+<area target="_blank" alt="Library Home Page" title="Library Home Page" href="https://www.swic.edu/students/services/library/" coords="728,73,925,46" shape="rect">
+<area target="_blank" alt="Hours and Locations" title="Hours and Locations" href="https://www.swic.edu/students/services/library/hours-and-locations/" coords="710,108,925,82" shape="rect">
+<area target="_blank" alt="Contact Us" title="Contact Us" href="https://www.swic.edu/students/services/library/contact/" coords="690,142,925,113" shape="rect">
 ';
 
 $feedBackLink = 'http://www.swic.edu/facultyandstaff';
 
-$introtext = '
-<span style="font-weight:bold;">Login to request and renew library items. If you are new, you will want to </span> <span style="color:084B8A;font-weight:bold;"> <a href="https://vufind.carli.illinois.edu/vf-swi/MyResearch/Account?followup=%2Fvf-swi%2FMyResearch%2FHome">create an account</a>.</span>
+$introText = '
+';
+
+$loginText = '
+<p>Your library barcode is found on the front of your SWIC Student/Employee ID card.</p>
 ';
 
 ?>

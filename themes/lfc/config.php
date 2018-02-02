@@ -5,13 +5,9 @@ $headerImage = 'vufind-lfc.png';
 $headerUrl = '';
 
 $headerMap = '
-<area shape="rect" coords="400,0,500,25" 
-href="http://www.lakeforest.edu/library/ask.php" alt="Ask a Librarian"> 
-<area shape="rect" coords="35,35,500,91" 
-href="http://www.lakeforest.edu/library/" alt="Donnelley and Lee Library, 
-Lake Forest College"> 
-<area shape="rect" coords="570,25,675,120" href="http://www.lakeforest.edu/" 
-alt="Lake Forest College">
+<area shape="rect" coords="30,0,200,20" href="http://www.lakeforest.edu/library/ask.php" target="_blank" alt="Ask a Librarian">
+<area shape="rect" coords="30,40,500,90" href="http://www.lakeforest.edu/library/" alt="Donnelley and Lee Library, Lake Forest College">
+<area shape="rect" coords="550,5,939,126" href="http://www.lakeforest.edu/" alt="Lake Forest College">
 ';
 
 $feedBackLink = 'http://www.lakeforest.edu/library/how/ask.php';

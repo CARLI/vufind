@@ -40,6 +40,12 @@ header .navbar .navbar-right {
 header .searchbox {
   background: none;
 }
+h4.location {
+  font-weight: 300;
+}
+h4.location strong {
+  font-weight: 500;
+}
 a {
   color: #19458d;
 }

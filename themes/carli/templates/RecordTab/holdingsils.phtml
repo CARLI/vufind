@@ -79,15 +79,18 @@
        echo $this->translate($this->libname);
     }
 ?>
-<br/>
 <! CARLI END libname !>
+</h3>
+<! CARLI BEGIN locationText !>
+<h4 class='location'>
   <? $locationText = isset($holding['location']) ? $this->transEsc('location_' . $holding['location'], [], $holding['location']) : ''; ?>
   <? if (isset($holding['locationhref']) && $holding['locationhref']): ?>
-    <a href="<?=$holding['locationhref']?>" target="_blank"><?=$locationText?></a>
+    <strong>Location:</strong> <a href="<?=$holding['locationhref']?>" target="_blank"><?=$locationText?></a>
   <? else: ?>
-    <?=$locationText?>
+    <strong>Location:</strong> <?=$locationText?>
   <? endif; ?>
-</h3>
+</h4>
+<! CARLI END locationText !>
 <table class="table table-striped" summary="<?=$this->transEsc('holdings_details_from', ['%%location%%' => $this->transEsc($holding['location'])]) ?>">
   <? $callNos = $this->tab->getUniqueCallNumbers($holding['items']); if (!empty($callNos)): ?>
   <tr>

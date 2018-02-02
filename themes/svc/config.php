@@ -1,13 +1,16 @@
 <?
 
-$headerImage = 'vufind-svc.gif';
+$headerImage = 'vufind-svc.png';
 
-$headerUrl = 'http://www.svcc.edu/InfoMenu/departments/lrc/index.html';
+$headerUrl = 'https://www.svcc.edu/departments/learning-commons/library/books.html';
 
 $headerMap = '';
 
 $feedBackLink = 'mailto:lrc@svcc.edu';
 
-$introText = '';
+$introText = '
+<p> <img src="https://www.svcc.edu/departments/learning-commons/-images/lc-header.png">
+</p> 
+';
 
 ?>

@@ -3,7 +3,10 @@
 a { /* Link color */
   color: #c31330;
 }
-a:hover,a:focus { /* Link hover & visited */
+a:visited { /* Link visited */
+  color: #663333;
+}
+a:hover,a:focus,a:active { /* Link hover & focus */
   color: #96051e;
 }
 h2, h4 { /* Side Bar header #2 */
@@ -12,6 +15,6 @@ h2, h4 { /* Side Bar header #2 */
 h3 { /* Title #4 */
   color: #ad001f;
 }
-.list-group-item.title { /* Facet Label #3 */
+.facet-group .title { /* Facet Label #3 */
   color: #96051e;
 }
