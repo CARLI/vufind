@@ -13,7 +13,7 @@ $introText ='<p>Welcome to Carl Sandburg College\'s library catalog. </p>
 corner. Have your student ID handy to complete the process. </p>
 <p>To find journal or reference articles, search our 
 <a href="https://myportal.sandburg.edu/Library/Pages/Databases.aspx">databases</a> page in 
-mySandbureg.</p> 
+mySandburg.</p> 
 
 ';
 
