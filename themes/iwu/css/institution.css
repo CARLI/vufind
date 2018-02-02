@@ -1,0 +1,24 @@
+/* css XXX */
+a {  /* Link color */
+  color: #006633;
+}
+a:visited { /* Link visited */
+  color: #006633;
+}
+a:hover,a:focus,a:active {  /* Link hover & focus */
+  color: #006633;
+}
+h2, h4 {  /* Side Bar header #2 */
+  color:#006633;
+}
+h3 {  /* Title #4 */
+  color:#006633;
+}
+.facet-group .title {  /* Facet Label #3 */
+  color:#000000
+}
+.sidebar .facet.active, .sidebar .facet.active:hover, .sidebar .active-filters .facet { /* background for right sidebar in search */
+  color: #ffffff;
+  background: #006633;
+  border-color: #006633;
+}
