@@ -56,7 +56,9 @@
           $cover = $coverDetails['html'];
           $thumbnail = false;
           $thumbnailAlignment = $this->record($resource)->getThumbnailAlignment('account');
-          if ($cover):
+          // CARLI EDIT: never show cover images because our ILS driver, VoyagerRestful, never supplies us with a bib ID
+          //if ($cover):
+          if (false && $cover):
             ob_start(); ?>
             <div class="media-<?=$thumbnailAlignment ?> <?=$this->escapeHtmlAttr($coverDetails['size'])?>">
               <?=$cover ?>
