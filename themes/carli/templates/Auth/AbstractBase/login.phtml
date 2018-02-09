@@ -18,7 +18,7 @@
 
 
 <! Do NOT "auto-login" if this form was POSTed (e.g, patron entered incorrect un/pw) OR if not accessed directly (e.g., Logout redirect) !>
-<? if (!isset($_POST['auth_method']) && preg_match('/\/MyResearch\/UserLogin$/', $_SERVER['SCRIPT_URL'])): ?>
+<? if (getenv('VUFIND_LIBRARY_IS_SHIBBOLETH') && (!isset($_POST['auth_method']) && preg_match('/\/MyResearch\/UserLogin$/', $_SERVER['SCRIPT_URL']))): ?>
 <script language="javascript">
     autoLoginCarli();
 </script>
