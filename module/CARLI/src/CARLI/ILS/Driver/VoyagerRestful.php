@@ -8,6 +8,99 @@ use VuFind\Config\Locator as ConfigLocator;
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
 
+    // This is an override because the RESTful method circulationActions is inconsistent 
+    // The XMLoverHTTP method, MyAccountService, seems more stable
+    public function getMyTransactions2($patron)
+    {
+            $patronId = $this->encodeXML($patron['id']);
+            $lastname = $this->encodeXML($patron['lastname']);
+            $barcode = $this->encodeXML($patron['cat_username']);
+            $localUbId = $this->encodeXML($this->ws_patronHomeUbId);
+
+            $xml = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<ser:serviceParameters
+xmlns:ser="http://www.endinfosys.com/Voyager/serviceParameters">
+  <ser:parameters/>
+  <ser:patronIdentifier lastName="$lastname" patronHomeUbId="$localUbId"
+    patronId="$patronId">
+    <ser:authFactor type="B">$barcode</ser:authFactor>
+  </ser:patronIdentifier>
+</ser:serviceParameters>
+EOT;
+
+            $response = $this->makeRequest(
+                //['MyAccountService' => false], ['patronId' => $patronId, 'patronHomeUbId' => $localUbId], 'POST', $xml
+                ['MyAccountService' => false], [], 'POST', $xml
+            );
+            if ($response === false) {
+                throw new ILSException('mytransactions_error');
+            }
+
+            // Process
+            $myac_ns = 'http://www.endinfosys.com/Voyager/myAccount';
+            $response->registerXPathNamespace(
+                'ser', 'http://www.endinfosys.com/Voyager/serviceParameters'
+            );
+            $response->registerXPathNamespace('myac', $myac_ns);
+/*
+            // The service doesn't actually return messages (in Voyager 8.1),
+            // but maybe in the future...
+            foreach ($response->xpath('//ser:message') as $message) {
+                if ($message->attributes()->type == 'system'
+                    || $message->attributes()->type == 'error'
+                ) {
+                    return false;
+                }
+            }
+*/
+
+            $finalResult = [];
+            foreach ($response->xpath('//myac:clusterChargedItems') as $cluster) {
+                $cluster = $cluster->children($myac_ns);
+                $dbKey = (string)$cluster->cluster->ubSiteId;
+                foreach ($cluster->chargedItem as $chargedItem) {
+                    $chargedItem = $chargedItem->children($myac_ns);
+
+                    $result = [];
+                    $result['institution_name'] = (string)$cluster->cluster->clusterName;
+                    $result['institution_id'] = $dbKey;
+                    $result['institution_dbkey'] = $dbKey;
+                    $result['item_id'] = (string)$chargedItem->itemId;
+                    $result['id'] = $result['institution_id'] . '_' . $result['item_id'];
+                    $result['dueStatus'] = $this->getChargedStatusCode((string)$chargedItem->statusCode);
+                    $result['title'] = (string)$chargedItem->title;
+                    $result['author'] = (string)$chargedItem->author;
+                    $result['location'] = (string)$chargedItem->location;
+                    $result['renewable'] = (string)$chargedItem->renewable;
+                    $dueDate = (string)$chargedItem->dueDate;
+                    try {
+                        $newDate = $this->dateFormat->convertToDisplayDate(
+                            'Y-m-d H:i', $dueDate
+                        );
+                        $response['new_date'] = $newDate;
+                    } catch (DateException $e) {
+                        // If we can't parse out the date, use the raw string:
+                        $response['new_date'] = $dueDate;
+                    }
+                    try {
+                        $newTime = $this->dateFormat->convertToDisplayTime(
+                            'Y-m-d H:i', $dueDate
+                        );
+                        $response['new_time'] = $newTime;
+                    } catch (DateException $e) {
+                        // If we can't parse out the time, just ignore it:
+                        $response['new_time'] = false;
+                    }
+                    $result['duedate'] = $newDate;
+                    $result['dueTime'] = $newTime;
+
+                    $finalResult[] = $result;
+                }
+            }
+        return $finalResult;
+    }
+
     protected function determineAvailability($statusArray)
     {
         // It's possible for a record to have multiple status codes.  We
@@ -662,7 +755,10 @@ EOT;
         $cnt = 0;
         $filteredResults = array();
 
-        $results = parent::getMyTransactions($patron);
+        //$results = parent::getMyTransactions($patron); // bypass. buggy RESTful API call.
+        $results = $this->getMyTransactions2($patron); // call our new XMLoverHTTP method, instead!
+/*
+// NO NEED to do this anymore, since we are now using our own cusotmized getMyTransactions2 method!
 
         foreach ($results as $result) {
 
@@ -673,6 +769,8 @@ EOT;
             $filteredResults[] = $result;
         }
         return $filteredResults;
+*/
+        return $results; // see above: NO NEED...
     }
 
     public function getMyILLRequests($patron)
@@ -959,5 +1057,36 @@ EOT;
        return true;
    }
 
+   function getChargedStatusCode($code)
+   {
+      switch ($code) {
+         case '1': return 'Available';
+         case '2': return 'Checked out';
+         case '3': return 'Renewed';
+         case '4': return 'Overdue';
+         case '5': return 'Recall Request';
+         case '6': return 'Hold Request';
+         case '7': return 'On Hold';
+         case '8': return 'In Transit';
+         case '9': return 'In Transit Discharged';
+         case '10': return 'In Transit On Hold';
+         case '11': return 'Recently checked in';
+         case '12': return 'Missing';
+         case '13': return 'Reported Lost by Patron';
+         case '14': return 'Overdue; Assumed Lost';
+         case '15': return 'Claims Returned';
+         case '16': return 'Damaged';
+         case '17': return 'Withdrawn';
+         case '18': return 'At Bindery';
+         case '19': return 'Cataloging Review';
+         case '20': return 'Circulation Review';
+         case '21': return 'Scheduled';
+         case '22': return 'In Process';
+         case '23': return 'Callslip Request';
+         case '24': return 'Short Loan Request';
+         case '25': return 'Remote Storage Request';
+      }
+      return $code;
+   }
 }
 
