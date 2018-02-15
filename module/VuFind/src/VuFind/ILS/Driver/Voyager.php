@@ -617,6 +617,7 @@ EOT;
             "BIB_ITEM.BIB_ID", "MFHD_ITEM.MFHD_ID",
             "ITEM_BARCODE.ITEM_BARCODE", "ITEM.ITEM_ID",
             "ITEM.ON_RESERVE", "ITEM.ITEM_SEQUENCE_NUMBER",
+            "ITEM.COPY_NUMBER",
             "ITEM.RECALLS_PLACED", "ITEM.HOLDS_PLACED",
             "ITEM_STATUS_TYPE.ITEM_STATUS_DESC as status",
             "MFHD_DATA.RECORD_SEGMENT", "MFHD_ITEM.ITEM_ENUM",
@@ -673,6 +674,7 @@ EOT;
             'bind' => $sqlBind,
         ];
 
+file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($sqlArray, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         return $sqlArray;
     }
 
@@ -747,9 +749,8 @@ EOT;
         $data = [];
 
         foreach ($sqlRows as $row) {
-            // Determine Copy Number (always use sequence number; append volume
-            // when available)
-            $number = $row['ITEM_SEQUENCE_NUMBER'];
+            // Determine Copy Number (append volume when available)
+            $number = $row['COPY_NUMBER'];
             if (isset($row['ITEM_ENUM'])) {
                 $number .= ' (' . utf8_encode($row['ITEM_ENUM']) . ')';
             }
