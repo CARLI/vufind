@@ -750,7 +750,10 @@ file_put_contents("/usr/local/vufind/look.txt", "\n\n***************************
 
         foreach ($sqlRows as $row) {
             // Determine Copy Number (append volume when available)
-            $number = $row['COPY_NUMBER'];
+            $number = '';
+            if (isset($row['COPY_NUMBER'])) {
+                $number = $row['COPY_NUMBER'];
+            }
             if (isset($row['ITEM_ENUM'])) {
                 $number .= ' (' . utf8_encode($row['ITEM_ENUM']) . ')';
             }
