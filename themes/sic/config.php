@@ -14,34 +14,10 @@ $feedBackLink = 'http://www.lib.siu.edu/resources/askalibrarian';
 
 $introText = ' 
 <p>
-
-<b>Note to SIUC users!</b></p>
-
-<p>&nbsp;</p>
-
-<p>You do not automatically have an account. You must create
-
-an account to use features such as requesting materials. </p>
-
-<p><a href="https://vufind-test.carli.illinois.edu/all/vf-sic/MyResearch/Home">Login</a> to existing account</p>
-
-<p><a href="https://vufind-test.carli.illinois.edu/all/vf-sic/MyResearch/Account?followup=%2Fall%2Fvf-sic%2FMyResearch%2FHome">Create new account</a> (new users) </p>
-
-<p>When you <a href="https://vufind-test.carli.illinois.edu/all/vf-sic/MyResearch/Account?followup=%2Fall%2Fvf-sic%2FMyResearch%2FHome">create new account</a>, Morris Library recommends:
-
-</p>
-
-<ul>
-
-<li>Desired Username &amp; Borrower ID = Network ID (siu85XXXXXX)</li>
-
-<li>Password = Your Last Name</li>
-
-</ul>
-
-<p>&nbsp;   </p>
-
-<p>Need more help? See: <a href="http://libguides.lib.siu.edu/I-ShareatMorris" target="_blank">http://libguides.lib.siu.edu/I-ShareatMorris</a></p>
+This version of I-Share is currently in Beta release.</p>
+<p> You may access your 
+account via the Institutional Login button (top right corner) using your SIUC 
+credentials.</p> 
 ';
 
 ?>
