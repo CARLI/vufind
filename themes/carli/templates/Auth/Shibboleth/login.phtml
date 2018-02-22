@@ -1,0 +1,19 @@
+<!--
+====>====e begins: themes/carli/templates/Auth/Shibboleth/login.phtml ====><br>
+-->
+<? $account = $this->auth()->getManager(); ?>
+<? $sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home'))); ?>
+
+  <a id="carli-login-link" name="carli-login-link" href="<?=$this->escapeHtmlAttr($sessionInitiator)?>" class="btn btn-link" data-lightbox-ignore><?=$this->transEsc("Institutional Login")?></a>
+
+
+<! Do NOT "auto-login" if this form was POSTed (e.g, patron entered incorrect un/pw) OR if not accessed directly (e.g., Logout redirect) !>
+<? if (!isset($_POST['auth_method'])): ?>
+<script language="javascript">
+    autoLoginCarli();
+</script>
+<? endif; ?>
+
+<!--
+<br><==== Page ends: themes/carli/templates/Auth/Shibboleth/login.phtml <==== <br>
+-->

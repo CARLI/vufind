@@ -1,3 +1,6 @@
+<!--
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ====> Page begins: themes/carli/templates/Auth/MultiILS/loginfields.phtml ====><br>
+-->
 <!-- CARLI BEGIN Customization --!>
 <?php // CARLI customization information //
 
@@ -8,14 +11,14 @@
   $configInclude =  "/usr/local/vufind/themes/$inst/config.php";
 
   // Setenv VUFIND_LIBRARY_BASE_PATH /all/vf-uiu
-  $is_uc = getenv('VUFIND_LIBRARY_IS_UC');
-  if (! $is_uc) {
+///  $is_uc = getenv('VUFIND_LIBRARY_IS_UC');
+///  if (! $is_uc) {
 
       // include individual institution customization file //
-      if (file_exists($configInclude)) {
+///      if (file_exists($configInclude)) {
           include $configInclude;
-      }
-  }
+///      }
+///  }
 ?>
 <!-- CARLI END Customization --!>
 
@@ -56,3 +59,6 @@ CARLI: END comment out library selection control -->
   <input id="login_<?=$this->escapeHtmlAttr($topClass)?>_password" type="text" name="password" class="form-control"/>
 <!-- CARLI END change type from "password" to "text" -->
 </div>
+<!--
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <==== Page ends: themes/carli/templates/Auth/MultiILS/loginfields.phtml <====<br>
+-->
