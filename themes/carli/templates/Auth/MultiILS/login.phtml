@@ -1,3 +1,6 @@
+<!-- 
+====> Page begins: themes/carli/templates/Auth/MultiILS/login.phtml ====><br>
+-->
 <? $account = $this->auth()->getManager(); ?>
 <? $sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home'))); ?>
 <? if (!$sessionInitiator): // display default login form if no login URL provided ?>
@@ -15,17 +18,10 @@
       <? endif; ?>
     </div>
   </form>
-
-
-<! Do NOT "auto-login" if this form was POSTed (e.g, patron entered incorrect un/pw) OR if not accessed directly (e.g., Logout redirect) !>
-<? if (getenv('VUFIND_LIBRARY_IS_SHIBBOLETH') && (!isset($_POST['auth_method']) && preg_match('/\/MyResearch\/UserLogin$/', $_SERVER['SCRIPT_URL']))): ?>
-<script language="javascript">
-    autoLoginCarli();
-</script>
-<? endif; ?>
-
-
 <? else: ?>
   <a id="carli-login-link" name="carli-login-link" href="<?=$this->escapeHtmlAttr($sessionInitiator)?>" class="btn btn-link" data-lightbox-ignore><?=$this->transEsc("Institutional Login")?></a>
 <? endif; ?>
 
+<!--
+<br><==== Page ends: themes/carli/templates/Auth/MultiILS/login.phtml <==== <br>
+-->
