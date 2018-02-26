@@ -9,7 +9,15 @@ $headerMap = '';
 $feedBackLink = 'http://libanswers.neiu.edu/search.php';
 
 $introText = '
-<p>Welcome to the new version of the NEIU Library / I-Share Catalog.</p>
+<p>Use the <a href="https://i-share.carli.illinois.edu/vf-nei/">NEIU Library
+Catalog</a> to look for physical items located at the NEIU Ronald Williams
+Library, CCICS Library, or El Centro Library and Learning Resource Center. To
+search just the NEIU Library, choose "Local Catalog Only".</p>
+<p>The NEIU Library Catalog is part of the <a
+href="https://i-share.carli.illinois.edu/all/vf/">I-Share Catalog</a>, a
+resource used to borrow physical items from other Illinois academic
+libraries. To search all of these libraries, choose "All I-Share
+Libraries".</p>
 ';
 
 $loginText = '

@@ -674,7 +674,6 @@ EOT;
             'bind' => $sqlBind,
         ];
 
-file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($sqlArray, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         return $sqlArray;
     }
 

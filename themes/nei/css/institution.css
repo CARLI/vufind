@@ -13,10 +13,10 @@ h2, h4 {  /* Side Bar header #2 */
   color:#004a98;
 }
 h3 {  /* Title #4 */
-  color:#004a98;
+  color:#000000;
 }
 .facet-group .title {  /* Facet Label #3 */
-  color:#000000;
+  color:#004a98;
 }
 .sidebar .facet.active, .sidebar .facet.active:hover, .sidebar .active-filters .facet { /* background for right sidebar in search */
   color: #ffffff;

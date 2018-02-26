@@ -2,7 +2,7 @@
 
 $headerImage = 'vufind-iwu.gif';
 
-$headerUrl = 'ihttp://www.iwu.edu/library/';
+$headerUrl = 'http://www.iwu.edu/library/';
 
 $headerMap = '';
 
