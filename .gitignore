@@ -111,6 +111,10 @@ public-all-vf-usf
 public-all-vf-whe
 public-all-vf-wiu
 public-all-vf-wrh
+public-all-vf-alp
+public-all-vf-mhc
+public-all-vf-mbi
+public-all-vf-scj
 public-vf
 public-vf-adl
 public-vf-aru
@@ -201,6 +205,10 @@ public-vf-usf
 public-vf-whe
 public-vf-wiu
 public-vf-wrh
+public-vf-alp
+public-vf-mhc
+public-vf-mbi
+public-vf-scj
 solr_deduped
 vf-adl
 vf-aru
@@ -291,4 +299,8 @@ vf-usf
 vf-whe
 vf-wiu
 vf-wrh
+vf-alp
+vf-mhc
+vf-mbi
+vf-scj
 vf
