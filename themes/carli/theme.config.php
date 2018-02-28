@@ -3,7 +3,7 @@ return array(
     'extends' => 'bootprint3',
     'js' => array(
         'googlefonts.js',
-        'carlilogin.js',
+        'carli.js',
     ),
    'css' => array(
         'carli.css',

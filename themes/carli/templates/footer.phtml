@@ -44,11 +44,15 @@
     <ul>
       <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
 <! CARLI BEGIN !>
+<!-- Do not show alpha browse link if in UC  --!>
           <? if (!getenv('VUFIND_LIBRARY_IS_UC')): ?>
       <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
-      <li><a href="<?=$this->url('search-reserves')?>"><?=$this->transEsc('Course Reserves')?></a></li>
-      <li><a href="<?=$this->url('search-newitem')?>"><?=$this->transEsc('New Items')?></a></li>
           <? endif; ?>
+<!-- institution links for New Items and Course Reserves even if in /all/vf-xxx/ no links in /all/vf/ --!>          
+          <? if (!empty($inst)) { ?>    
+      <li><a href="/vf-<?print($inst)?>/Search/Reserves"><?=$this->transEsc('Course Reserves')?></a></li>
+      <li><a href="/vf-<?print($inst)?>/Search/NewItem"><?=$this->transEsc('New Items')?></a></li>
+          <? } ?>
 <! CARLI END !>
 <!--
         <? if (!empty($courseReservesUrl)) { ?>
