@@ -988,7 +988,7 @@ EOT;
             }
 
             // The results aren't in order. The item owning's library is at the top. Fix this by re-sorting.
-            $this->sortByAssocArrayKey('name', $results, 'asc');
+            $this->sortByAssocArrayKeyAsc('name', $results);
         }
 
         return $results;
@@ -996,7 +996,7 @@ EOT;
 
 
    // Function described in following article: https://joshtronic.com/2013/09/23/sorting-associative-array-specific-key/
-   function sortByAssocArrayKey($field, &$array, $direction = 'asc')
+   function sortByAssocArrayKeyAsc($field, &$array)
    {
        usort($array, create_function('$a, $b', '
            $a = $a["' . $field . '"];
@@ -1004,9 +1004,20 @@ EOT;
 
            if ($a == $b) return 0;
 
-           $direction = strtolower(trim($direction));
+           return ($a ' . '<' .' $b) ? -1 : 1;
+       '));
 
-           return ($a ' . ($direction == 'desc' ? '>' : '<') .' $b) ? -1 : 1;
+       return true;
+   }
+   function sortByAssocArrayKeyDesc($field, &$array)
+   {
+       usort($array, create_function('$a, $b', '
+           $a = $a["' . $field . '"];
+           $b = $b["' . $field . '"];
+
+           if ($a == $b) return 0;
+
+           return ($a ' . '>' .' $b) ? -1 : 1;
        '));
 
        return true;
