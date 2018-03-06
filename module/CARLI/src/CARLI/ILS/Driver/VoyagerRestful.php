@@ -7,6 +7,59 @@ use VuFind\Config\Locator as ConfigLocator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+    public function getDefaultPickUpLocation($patron = false, $holdDetails = null)
+    {
+        if ($patron) {
+            $patronId = $this->encodeXML($patron['id']);
+            $lastname = $this->encodeXML($patron['lastname']);
+            $barcode = $this->encodeXML($patron['cat_username']);
+            $localUbId = $this->encodeXML($this->ws_patronHomeUbId);
+
+            $xml = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<ser:serviceParameters
+xmlns:ser="http://www.endinfosys.com/Voyager/serviceParameters">
+  <ser:parameters>
+      <ser:parameter key="pickupLibId">
+          <ser:value>$localUbId</ser:value>
+        </ser:parameter>
+  </ser:parameters>
+  <ser:patronIdentifier lastName="$lastname" patronHomeUbId="$localUbId"
+    patronId="$patronId">
+    <ser:authFactor type="B">$barcode</ser:authFactor>
+  </ser:patronIdentifier>
+</ser:serviceParameters>
+EOT;
+
+            $response = $this->makeRequest(
+                ['UBPickupLibService' => false], [], 'POST', $xml
+            );
+            if ($response === false) {
+                throw new ILSException('mytransactions_error');
+            }
+
+            // Process
+            $myreq_ns = 'http://www.endinfosys.com/Voyager/requests';
+            $response->registerXPathNamespace(
+                'ser', 'http://www.endinfosys.com/Voyager/serviceParameters'
+            );
+            $response->registerXPathNamespace('req', $myreq_ns);
+
+            foreach ($response->xpath('//req:pickUpLocations') as $pickUpLoc) {
+                $pickUpLoc = $pickUpLoc->children($myreq_ns);
+
+                foreach ($pickUpLoc->location as $location) {
+                    $isDefault = (string) $location->attributes()->isDefault;
+                    $pickUpLocId = (string) $location->attributes()->id;
+                    if ($isDefault == "Y") {
+                        return $pickUpLocId;
+                    }
+                }
+            }
+        }
+
+        return $this->defaultPickUpLocation;
+    }
 
     protected function determineAvailability($statusArray)
     {
