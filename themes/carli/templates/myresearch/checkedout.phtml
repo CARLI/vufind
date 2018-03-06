@@ -158,10 +158,8 @@
             <? else: ?>
               <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
               <? if ($showStatus): ?>
-                <? if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue"): ?>
+                <? if (isset($ilsDetails['dueStatus']) && preg_match('/[Oo]verdue/', $ilsDetails['dueStatus'])): ?>
                   <div class="alert alert-danger"><?=$this->transEsc("renew_item_overdue")?></div>
-                <? elseif (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "due"): ?>
-                  <div class="alert alert-info"><?=$this->transEsc("renew_item_due")?></div>
                 <? endif; ?>
               <? endif; ?>
             <? endif; ?>
