@@ -1286,6 +1286,17 @@ class AjaxController extends AbstractBase
                         );
                     }
                 }
+
+///////////// BEGIN CARLI EDIT: Ere Maijala's suggestion below worked!!! ////////////////////
+                $wsConfig = $catalog->getConfig('WebServices', $patron);
+                if (!empty($wsConfig['patronHomeUbId']) && $wsConfig['patronHomeUbId'] === $pickupLib) {
+                    $homeLibrary = $this->getUser()->home_library;
+                    foreach ($results as &$result) {
+                        $result['isDefault'] = $result['id'] === $homeLibrary;
+                    }
+                }
+/////////////////////////////////////////////////////////////////////////////////////
+
                 return $this->output(['locations' => $results], self::STATUS_OK);
             }
         } catch (\Exception $e) {
