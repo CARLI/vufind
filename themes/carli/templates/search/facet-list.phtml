@@ -49,8 +49,10 @@ CARLI END COMMENT OUT -->
                    this solves ugly display of ampersands !>
                 <?=htmlentities($this->translate($item['displayText']), ENT_COMPAT, 'UTF-8', false) ?>
 <!CARLI END!>
-              <? else: ?>
+              <? elseif (!empty($item['value'])): ?>
                 <?=$this->escapeHtml($item['value']) ?>
+              <? else: // prevent empty value inside <a> tag ?>
+                -
               <? endif; ?>
             <? if ($subLinks): ?>
               </a>
