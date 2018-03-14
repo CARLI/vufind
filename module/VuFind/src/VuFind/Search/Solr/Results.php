@@ -128,6 +128,7 @@ class Results extends \VuFind\Search\Base\Results
         }
 
         $this->responseFacets = $collection->getFacets();
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n****************************** facets= " . var_export($this->responseFacets, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         $this->resultTotal = $collection->getTotal();
 
         // Process spelling suggestions

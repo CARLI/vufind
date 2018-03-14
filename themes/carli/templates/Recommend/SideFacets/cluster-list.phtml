@@ -39,7 +39,9 @@
   <? if ($thisFacet['isApplied']): ?>
     <span class="status"><i class="fa fa-check" aria-hidden="true"></i></span>
   <? else: ?>
-    <span class="badge"><?=$this->localizedNumber($thisFacet['count'])?></span>
+<!-- CARLI EDIT BEGIN -->
+    <span class="badge"><?=$this->localizedNumber($thisFacet['count'])>0?$thisFacet['count']:''?></span>
+<!-- CARLI EDIT END -->
   <? endif; ?>
 
   <? if (!$thisFacet['isApplied'] && $this->allowExclude): ?>
@@ -52,7 +54,7 @@
     <i class="fa <?=$thisFacet['isApplied'] ? 'fa-check-square-o' : 'fa-square-o' ?>" aria-hidden="true"></i>
   <? endif; ?>
 
-  <?=$this->translate($this->escapeHtml($thisFacet['displayText']))?>
+  <?=$this->escapeHtml($thisFacet['displayText'])?>
 
   <? if (!$thisFacet['isApplied'] && $this->allowExclude): ?>
       </a>
@@ -64,7 +66,7 @@
 <? endforeach; ?>
 
 <? /* LESS and SEE MORE links */ ?>
-<? if ($i >= $this->facets_before_more): ?>
+<? if (isset($i) && $i >= $this->facets_before_more): ?>
   <? if ($this->showMoreInLightbox === 'more' && $facetLightbox = $options->getFacetListAction()): ?>
     <? $moreUrl = $this->url($facetLightbox) . $results->getUrlQuery()->getParams().'&amp;facet='.$this->title.'&amp;facetop='.$thisFacet['operator'].'&amp;facetexclude='.($this->allowExclude ? 1 : 0); ?>
     <a class="facet narrow-toggle <?=$moreClass ?>" data-lightbox href="<?=$moreUrl ?>" rel="nofollow"><?=$this->transEsc('see all')?> ...</a>
