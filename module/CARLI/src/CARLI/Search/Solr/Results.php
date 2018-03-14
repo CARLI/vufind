@@ -10,7 +10,7 @@ use VuFindSearch\Backend\Solr\Response\Json\NamedList;
 class Results extends \VuFind\Search\Solr\Results
 {
     protected $includeUngroupedLocations = false;
-    protected $facetMinCount = 2;
+    protected $facetMinCount = 1;
     protected $groupSortOrder; // needed in usort anon fn
     protected $libraryInstance; // e.g., UIUdb
 
@@ -42,6 +42,9 @@ class Results extends \VuFind\Search\Solr\Results
                     $groupName = $groupId;
                     if (array_key_exists($groupId, $id2group)) {
                         $groupName = $id2group[$groupId];
+                    } else {
+                        // not assigned to a group? ignore it...
+                        continue;
                     }
                     // If group has been seen already, simply update the count
                     $isDuplicate = 0;
@@ -55,11 +58,11 @@ class Results extends \VuFind\Search\Solr\Results
                         }
                     }
                     if (! $isDuplicate) {
-                        $groupedLocations[] = array($groupName, 0); // We can't know for certain what this count is, so set it to 0 (hide later)
+                        $groupedLocations[] = array($groupName, 0); // We can't know for certain what this count is, so set it to 0 (hide later in templates)
                     }
                }
             } else {
-                $unGroupedLocations[] = array($loc, 0);// We can't know for certain what this count is, so set it to 0 (hide later)
+                $unGroupedLocations[] = array($loc, 0);// We can't know for certain what this count is, so set it to 0 (hide later in templates)
             }
         }
 
@@ -69,10 +72,16 @@ class Results extends \VuFind\Search\Solr\Results
             $combinedLocs = $groupedLocations;
         }
         usort($combinedLocs, function($a, $b) {
-            $a0 = 1000000; // a "large" number
+            $a0 = 1000000; 
+            if (preg_match('/_group_/', $a[0], $matches) ) {
+                $a0 -= 1000; // give precedence to groups (over ungrouped locations)
+            }
             $b0 = 1000000; // a "large" number
+            if (preg_match('/_group_/', $b[0], $matches) ) {
+                $b0 -= 1000; // give precedence to groups (over ungrouped locations)
+            }
 
-            // only keep sort order if within the same local library instance; otherwise, treat randomly at the end
+            // only keep sort order if within the same local library instance; otherwise, put randomly at the end
             if (strlen($this->libraryInstance) > 0) {
                 if (preg_match('/^' . $this->libraryInstance . '_group_/', $a[0], $matches) ) {
                     if (array_key_exists($a[0], $this->groupSortOrder)) {
