@@ -36,16 +36,18 @@ class Util
 
     # groups
     #UIUdb|   57|oakstreet |Oak Street Facility
-    static public function group_data(&$id2group, &$group2id, &$group2desc) {
+    static public function group_data(&$id2group, &$group2id, &$group2desc, &$groupSortOrder) {
         $id2group = array();
         $group2desc = array();
         $data = Util::read_groups();
+        $cnt = 1;
         foreach ($data as $line) {
             list($library, $id, $group, $desc) = preg_split('/\s*\|\s*/', $line);
             $id2group[$library . '_' . $id] = $library . '_group_' . $group;
             $group2id[$library . '_group_' . $group] = $library . '_' . $id;
             $group2desc[$library . '_group_' . $group] = $desc;
-        }
+	    $groupSortOrder[$library . '_group_' . $group] = $cnt++;
+	}
     }
 
     # locs - NOTE: many-to-many loc-to-id

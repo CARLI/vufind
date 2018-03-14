@@ -11,13 +11,16 @@ class Results extends \VuFind\Search\Solr\Results
 {
     protected $includeUngroupedLocations = false;
     protected $facetMinCount = 2;
-    protected $group2desc; // needed in usort anon fn
+    protected $groupSortOrder; // needed in usort anon fn
+    protected $libraryInstance; // e.g., UIUdb
 
     protected function performSearch()
     {
         parent::performSearch();
 
-        Util::group_data($id2group, $group2id, $this->group2desc);
+        $this->libraryInstance = getenv('VUFIND_LIBRARY_DB'); // e.g., UIUdb
+
+        Util::group_data($id2group, $group2id, $group2desc, $this->groupSortOrder);
         Util::location_data($loc2ids, $id2locs);
 
         $fieldFacets = $this->responseFacets->getFieldFacets();
@@ -66,15 +69,23 @@ class Results extends \VuFind\Search\Solr\Results
             $combinedLocs = $groupedLocations;
         }
         usort($combinedLocs, function($a, $b) {
-            $a0 = $a[0];
-            $b0 = $b[0];
-            if (array_key_exists($a0, $this->group2desc)) {
-                $a0 = $this->group2desc[$a0];
+            $a0 = 1000000; // a "large" number
+            $b0 = 1000000; // a "large" number
+
+            // only keep sort order if within the same local library instance; otherwise, treat randomly at the end
+            if (strlen($this->libraryInstance) > 0) {
+                if (preg_match('/^' . $this->libraryInstance . '_group_/', $a[0], $matches) ) {
+                    if (array_key_exists($a[0], $this->groupSortOrder)) {
+                        $a0 = $this->groupSortOrder[$a[0]];
+                    }
+                }
+                if (preg_match('/^' . $this->libraryInstance . '_group_/', $b[0], $matches) ) {
+                    if (array_key_exists($b[0], $this->groupSortOrder)) {
+                        $b0 = $this->groupSortOrder[$b[0]];
+                    }
+                }
             }
-            if (array_key_exists($b0, $this->group2desc)) {
-                $b0 = $this->group2desc[$b0];
-            }
-            return strcmp(strtolower($a0), strtolower($b0));
+            return $a0 - $b0;
         });
 
         $replaceWith = new NamedList($combinedLocs);
