@@ -44,7 +44,7 @@ class Util
             list($library, $id, $group, $desc) = preg_split('/\s*\|\s*/', $line);
             $id2group[$library . '_' . $id] = $library . '_group_' . $group;
             $group2id[$library . '_group_' . $group] = $library . '_' . $id;
-            $group2desc[$library . '_' . $group] = $desc;
+            $group2desc[$library . '_group_' . $group] = $desc;
         }
     }
 

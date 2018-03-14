@@ -11,12 +11,13 @@ class Results extends \VuFind\Search\Solr\Results
 {
     protected $includeUngroupedLocations = false;
     protected $facetMinCount = 2;
+    protected $group2desc; // needed in usort anon fn
 
     protected function performSearch()
     {
         parent::performSearch();
 
-        Util::group_data($id2group, $group2id, $group2desc);
+        Util::group_data($id2group, $group2id, $this->group2desc);
         Util::location_data($loc2ids, $id2locs);
 
         $fieldFacets = $this->responseFacets->getFieldFacets();
@@ -65,10 +66,9 @@ class Results extends \VuFind\Search\Solr\Results
             $combinedLocs = $groupedLocations;
         }
         usort($combinedLocs, function($a, $b) {
+            return strcmp(strtolower($this->group2desc[$a[0]]), strtolower($this->group2desc[$b[0]]) );
             return $b[1] - $a[1];
         });
-
-//file_put_contents("/usr/local/vufind/look.txt", "\n\n****************************** combined locations = " . var_export($combinedLocs, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
         $replaceWith = new NamedList($combinedLocs);
         $fieldFacets['collection'] = $replaceWith;

@@ -68,9 +68,6 @@ class LocationGroupListener
             }
         }
 
-
-//file_put_contents("/usr/local/vufind/look.txt", "\n\n****************************** new_fq = " . var_export($new_fq, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
-
         $params->set('fq', $new_fq);
 
         return $event;
