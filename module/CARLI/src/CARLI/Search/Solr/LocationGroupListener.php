@@ -35,7 +35,7 @@ class LocationGroupListener
             $fq = [];
         }
 
-        Util::group_data($id2group, $group2id, $group2desc);
+        Util::group_data($id2group, $group2id, $group2desc, $groupSortOrder);
         Util::location_data($loc2ids, $id2locs);
 
         $new_fq = array();
