@@ -66,8 +66,15 @@ class Results extends \VuFind\Search\Solr\Results
             $combinedLocs = $groupedLocations;
         }
         usort($combinedLocs, function($a, $b) {
-            return strcmp(strtolower($this->group2desc[$a[0]]), strtolower($this->group2desc[$b[0]]) );
-            return $b[1] - $a[1];
+            $a0 = $a[0];
+            $b0 = $b[0];
+            if (array_key_exists($a0, $this->group2desc)) {
+                $a0 = $this->group2desc[$a0];
+            }
+            if (array_key_exists($b0, $this->group2desc)) {
+                $b0 = $this->group2desc[$b0];
+            }
+            return strcmp(strtolower($a0), strtolower($b0));
         });
 
         $replaceWith = new NamedList($combinedLocs);
