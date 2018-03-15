@@ -18,6 +18,13 @@ class Results extends \VuFind\Search\Solr\Results
     {
         parent::performSearch();
 
+        $isUC = getenv('VUFIND_LIBRARY_IS_UC'); // e.g., 1
+
+        // only process local catalogs
+        if ($isUC) {
+            return;
+        }
+
         $this->libraryInstance = getenv('VUFIND_LIBRARY_DB'); // e.g., UIUdb
 
         Util::group_data($id2group, $group2id, $group2desc, $this->groupSortOrder);
