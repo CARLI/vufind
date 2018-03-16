@@ -2,11 +2,11 @@
 
 $headerImage = 'vufind-prk.png';
 
-$headerUrl = 'https://library.parkland.edu/';
+$headerUrl = 'http://library.parkland.edu/';
 
 $headerMap = '';
 
-$feedBackLink = 'https://library.parkland.edu/contact';
+$feedBackLink = 'http://library.parkland.edu/contact';
 
 $introText = ' 
 <p>Find books, DVDs and other materials at the Parkland Library.
