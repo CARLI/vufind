@@ -4,17 +4,6 @@ return array (
   'vufind' => 
   array (
     'plugin_managers' => 
-//// CARLI BEGIN //////
-    array (
-      'search_results' => 
-        array (
-          'factories' => 
-          array (
-            'solr' => 'CARLI\Search\Results\Factory::getSolr',
-          ),
-        ),
-      ),
-//// CARLI END //////
     array (
       'ils_driver' => 
       array (
@@ -33,6 +22,17 @@ return array (
         ),
       ),
     ),
+//// CARLI BEGIN //////
+    array (
+      'search_results' => 
+        array (
+          'factories' => 
+          array (
+            'solr' => 'CARLI\Search\Results\Factory::getSolr',
+          ),
+        ),
+      ),
+//// CARLI END //////
     /////// CARLI EDIT BEGIN ///////
         'recorddriver_tabs' => array (
             'VuFind\RecordDriver\SolrDefault' => array (
