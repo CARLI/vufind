@@ -21,18 +21,17 @@ return array (
           'solrmarc' => 'CARLI\RecordDriver\Factory::getSolrMarc',
         ),
       ),
-    ),
-//// CARLI BEGIN //////
-    array (
+
+      //// CARLI EDIT BEGIN //////
       'search_results' => 
-        array (
-          'factories' => 
-          array (
-            'solr' => 'CARLI\Search\Results\Factory::getSolr',
-          ),
-        ),
-      ),
-//// CARLI END //////
+       array (
+        'factories' => 
+         array (
+           'solr' => 'CARLI\Search\Results\Factory::getSolr',
+         ),
+       ),
+      //// CARLI EDIT END //////
+    ),
     /////// CARLI EDIT BEGIN ///////
         'recorddriver_tabs' => array (
             'VuFind\RecordDriver\SolrDefault' => array (
