@@ -122,7 +122,7 @@ class QueryBuilder implements QueryBuilderInterface
         /////////////////////////
         //CARLI EDIT:
         $hideOthers = false;
-        if ($_REQUEST['filter']) {
+        if (isset($_REQUEST['filter'])) {
             foreach ($_REQUEST['filter'] as $filter) {
                if (preg_match('/^building:/', $filter, $matches)) {
                   $hideOthers = true;
