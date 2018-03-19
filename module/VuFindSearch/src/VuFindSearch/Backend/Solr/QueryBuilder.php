@@ -118,16 +118,19 @@ class QueryBuilder implements QueryBuilderInterface
      */
     public function build(AbstractQuery $query)
     {
-//CARLI EDIT:
-$hideOthers = false;
-if ($_REQUEST['filter']) {
-    foreach ($_REQUEST['filter'] as $filter) {
-       if (preg_match('/^building:/', $filter, $matches)) {
-          $hideOthers = true;
-       }
-    }
-}
-//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************hideOthers: " . var_export($hideOthers, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+
+        /////////////////////////
+        //CARLI EDIT:
+        $hideOthers = false;
+        if ($_REQUEST['filter']) {
+            foreach ($_REQUEST['filter'] as $filter) {
+               if (preg_match('/^building:/', $filter, $matches)) {
+                  $hideOthers = true;
+               }
+            }
+        }
+        /////////////////////////
+
         $params = new ParamBag();
 
         // Add spelling query if applicable -- note that we must set this up before
@@ -141,10 +144,14 @@ if ($_REQUEST['filter']) {
 
         if ($query instanceof QueryGroup) {
             $finalQuery = $this->reduceQueryGroup($query);
-//CARLI EDIT:
-if ($hideOthers) {
-    $string = $finalQuery->getString() ?: '*:*';
-}
+
+            /////////////////////////
+            //CARLI EDIT:
+            if ($hideOthers) {
+                $string = $finalQuery->getString() ?: '*:*';
+            }
+            /////////////////////////
+
         } else {
             // Clone the query to avoid modifying the original user-visible query
             $finalQuery = clone($query);
@@ -152,10 +159,12 @@ if ($hideOthers) {
         }
         $string = $finalQuery->getString() ?: '*:*';
 
-//CARLI EDIT:
-if ($hideOthers) {
-    $string = $finalQuery->getString();
-}
+        /////////////////////////
+        //CARLI EDIT:
+        if ($hideOthers) {
+            $string = $finalQuery->getString();
+        }
+        /////////////////////////
 
         if ($handler = $this->getSearchHandler($finalQuery->getHandler(), $string)) {
             if (!$handler->hasExtendedDismax()
@@ -185,19 +194,22 @@ if ($hideOthers) {
                 $string = $handler->createSimpleQueryString($string);
             }
         }
-//CARLI EDIT:
-if ($hideOthers) {
-    // Implement 'Hide eResources to which I don't have access.'
-    // ((Q) NOT  format:"Electronic" ) OR ((Q) AND  (format:"Electronic" AND institutions:"UIUdb") OR (format:"Electronic" AND institutions:"HAT") OR (format:"Electronic" AND institutions:"EBL") OR (format:"Electronic" AND institutions:"OTL"))
-    $libraryInstance = getenv('VUFIND_LIBRARY_DB'); // e.g., UIUdb
-    if ($string) {
-        $newQueryString = '((' . $string . ') NOT format:"Electronic") OR ((' . $string . ') AND (format:"Electronic" AND institutions:"' . $libraryInstance . '")  OR (format:"Electronic" AND institutions:"HAT") OR (format:"Electronic" AND institutions:"EBL") OR (format:"Electronic" AND institutions:"OTL"))';
-    } else {
-        $newQueryString = '(NOT format:"Electronic") OR ((format:"Electronic" AND institutions:"' . $libraryInstance . '") OR (format:"Electronic" AND institutions:"HAT") OR (format:"Electronic" AND institutions:"EBL") OR (format:"Electronic" AND institutions:"OTL"))';
-    }
 
-    $string = $newQueryString;
-}
+        /////////////////////////
+        //CARLI EDIT:
+        if ($hideOthers) {
+            // Implement 'Hide eResources to which I don't have access.'
+            $libraryInstance = getenv('VUFIND_LIBRARY_DB'); // e.g., UIUdb
+            if ($string) {
+                // ( (Q) NOT format:"Electronic") OR ( (Q) AND ((format:"Electronic" AND institutions:"EIUdb") OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL"))
+                $newQueryString = '((' . $string . ') NOT format:"Electronic") OR ((' . $string . ') AND ((format:"Electronic" AND institutions:"' . $libraryInstance . '")  OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL"))';
+            } else {
+                // (NOT format:"Electronic") OR ((format:"Electronic" AND institutions:"EIUdb") OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL")
+                $newQueryString = '(NOT format:"Electronic") OR ((format:"Electronic" AND institutions:"' . $libraryInstance . '") OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL")';
+            }
+            $string = $newQueryString;
+        }
+        /////////////////////////
 
         $params->set('q', $string);
 
