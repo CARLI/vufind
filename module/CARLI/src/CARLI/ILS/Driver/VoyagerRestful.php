@@ -873,6 +873,33 @@ EOT;
         return false;
     }
 
+    protected function getHoldingData($sqlRows)
+    {
+        // manipulate the sql data...
+        foreach ($sqlRows as & $row) {
+            try {
+                $marc = new File_MARC(
+                    str_replace(["\n", "\r"], '', $row['RECORD_SEGMENT']),
+                    File_MARC::SOURCE_STRING
+                );
+                if ($record = $marc->next()) {
+                    // GitHub Issue# 299: Use the 852$t for Copy Number instead!
+                    if ($_852 = $record->getField('852')) {
+                       if ($_852t = $_852->getSubfield('t')) {
+                          $row['COPY_NUMBER'] = $_852t->getData();
+                       }
+                    }
+                }
+            } catch (\Exception $e) {
+                trigger_error(
+                    'Poorly Formatted MFHD Record', E_USER_NOTICE
+                );
+            }
+        }
+        // ...before handing back off to standard processing...
+        return parent::getHoldingData($sqlRows);
+    }
+
     protected function processHoldingRow($sqlRow)
     {
         $row = parent::processHoldingRow($sqlRow);
@@ -895,7 +922,6 @@ EOT;
                 $row['eresource_text'] = $texts;
                 $row['eresource_label'] = $labels;
                 $row['eresource'] = $links;
-
             }
         } catch (\Exception $e) {
             trigger_error(
