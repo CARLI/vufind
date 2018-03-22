@@ -875,29 +875,54 @@ EOT;
 
     protected function getHoldingData($sqlRows)
     {
-        // manipulate the sql data...
-        foreach ($sqlRows as & $row) {
-            try {
-                $marc = new File_MARC(
-                    str_replace(["\n", "\r"], '', $row['RECORD_SEGMENT']),
-                    File_MARC::SOURCE_STRING
-                );
-                if ($record = $marc->next()) {
-                    // GitHub Issue# 299: Use the 852$t for Copy Number instead!
-                    if ($_852 = $record->getField('852')) {
-                       if ($_852t = $_852->getSubfield('t')) {
-                          $row['COPY_NUMBER'] = $_852t->getData();
-                       }
-                    }
+        $rows = parent::getHoldingData($sqlRows);
+
+        $deleteThese = array();
+        foreach ($rows as $mfhd_id => & $this_row) {
+            foreach ($this_row as $copy_number => & $row) {
+                if (!isset($row['RECORD_SEGMENT'])) {
+                    continue;
                 }
-            } catch (\Exception $e) {
-                trigger_error(
-                    'Poorly Formatted MFHD Record', E_USER_NOTICE
-                );
+                try {
+                    $marc = new File_MARC(
+                        str_replace(["\n", "\r"], '', $row['RECORD_SEGMENT']),
+                        File_MARC::SOURCE_STRING
+                    );
+                    if ($record = $marc->next()) {
+                        // GitHub Issue# 299: Use the 852$t for Copy Number instead!
+                        if ($_852 = $record->getField('852')) {
+                           if ($_852t = $_852->getSubfield('t')) {
+                              $row['COPY_NUMBER'] = $_852t->getData();
+                              // Determine Copy Number (append volume when available)
+                              $number = '';
+                              if (isset($row['COPY_NUMBER'])) {
+                                  $number = $row['COPY_NUMBER'];
+                              }
+                              if (isset($row['ITEM_ENUM'])) {
+                                  $number .= ' (' . utf8_encode($row['ITEM_ENUM']) . ')';
+                              }
+                              // If "Copy Number" is different, we need to use it as the new key
+                              // and delete the old one later
+                              if (strcmp($number, $copy_number)) {
+                                  $rows[$mfhd_id][$number] = $rows[$mfhd_id][$copy_number];
+                                  $deleteThese[$mfhd_id][] = $copy_number;
+                              }
+                           }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    trigger_error(
+                        'Poorly Formatted MFHD Record', E_USER_NOTICE
+                    );
+                }
             }
         }
-        // ...before handing back off to standard processing...
-        return parent::getHoldingData($sqlRows);
+        foreach ($deleteThese as $mfhd_id => $copy_numbers) {
+            foreach ($copy_numbers as $copy_number) {
+                unset ($rows[$mfhd_id][$copy_number]);
+            }
+        }
+        return $rows;
     }
 
     protected function processHoldingRow($sqlRow)
