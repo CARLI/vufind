@@ -67,6 +67,24 @@
    }
 ?>
 
+
+<? 
+// CARLI EDIT: Split each holding by MFHD_ID. Do not group together by Location Name.
+$split = array();
+$split['blocks'] = $holdings['blocks'];
+$holding_cnt = 0;
+foreach ($holdings['holdings'] as $holding_id => $holding_val) {
+    foreach ($holding_val['items'] as $itm) {
+        $split['holdings'][$holding_id . '|' . $holding_cnt]['items'][] = $itm;
+        $split['holdings'][$holding_id . '|' . $holding_cnt]['location'] = $holdings['holdings'][$holding_id]['location'];
+        $split['holdings'][$holding_id . '|' . $holding_cnt]['locationhref'] = $holdings['holdings'][$holding_id]['locationhref'];
+        $split['holdings'][$holding_id . '|' . $holding_cnt]['textfields'] = $holdings['holdings'][$holding_id]['textfields'];
+        $holding_cnt++;
+    }
+}
+$holdings = $split;
+?>
+
 <? foreach ($holdings['holdings'] as $holding): ?>
 <?
 //print_r($holding);
@@ -76,7 +94,10 @@
 <?
     if (array_key_exists('item_agency_id', $holding['items'][0])) {
        $this->libname = $holding['items'][0]['item_agency_id'];
-       echo $this->translate($this->libname);
+       if ($this->lastLibname != $this->libname) {
+           echo $this->translate($this->libname);
+       }
+       $this->lastLibname = $this->libname;
     }
 ?>
 <! CARLI END libname !>
