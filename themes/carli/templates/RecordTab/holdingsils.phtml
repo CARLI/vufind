@@ -67,28 +67,31 @@
    }
 ?>
 
-
 <? 
 // CARLI EDIT: Split each holding by MFHD_ID. Do not group together by Location Name.
 $split = array();
 $split['blocks'] = $holdings['blocks'];
-$holding_cnt = 0;
-foreach ($holdings['holdings'] as $holding_id => $holding_val) {
-    foreach ($holding_val['items'] as $itm) {
-        $split['holdings'][$holding_id . '|' . $holding_cnt]['items'][] = $itm;
-        $split['holdings'][$holding_id . '|' . $holding_cnt]['location'] = $holdings['holdings'][$holding_id]['location'];
-        $split['holdings'][$holding_id . '|' . $holding_cnt]['locationhref'] = $holdings['holdings'][$holding_id]['locationhref'];
-        $split['holdings'][$holding_id . '|' . $holding_cnt]['textfields'] = $holdings['holdings'][$holding_id]['textfields'];
-        $holding_cnt++;
+$new_holding_id = '';
+$last_holding_id = '';
+foreach ($holdings['holdings'] as $location => $location_val) {
+    foreach ($location_val['items'] as $itm) {
+        $new_holding_id = $location . '|' . $itm['id'] . '|' . $itm['holdings_id'];
+        if ($new_holding_id != $last_holding_id) {
+            $last_holding_id = $new_holding_id;
+            // Notes and Summary need special care:
+            if (isset($itm['notes'])) { $split['holdings'][$new_holding_id]['textfields']['holdings_notes'][] = $itm['notes']; }
+            if (isset($itm['summary'])) { $split['holdings'][$new_holding_id]['textfields']['summary'][] = $itm['summary']; }
+        }
+        $split['holdings'][$new_holding_id]['items'][] = $itm;
+        $split['holdings'][$new_holding_id]['location'] = $holdings['holdings'][$location]['location'];
+        $split['holdings'][$new_holding_id]['locationhref'] = $holdings['holdings'][$location]['locationhref'];
+
     }
 }
 $holdings = $split;
 ?>
 
 <? foreach ($holdings['holdings'] as $holding): ?>
-<?
-//print_r($holding);
-?>
 <h3>
 <! CARLI BEGIN libname !>
 <?
