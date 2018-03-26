@@ -79,8 +79,24 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         if ($new_holding_id != $last_holding_id) {
             $last_holding_id = $new_holding_id;
             // Notes and Summary need special care:
-            if (isset($itm['notes'])) { $split['holdings'][$new_holding_id]['textfields']['holdings_notes'][] = $itm['notes']; }
-            if (isset($itm['summary'])) { $split['holdings'][$new_holding_id]['textfields']['summary'][] = $itm['summary']; }
+            if (isset($itm['notes'])) { 
+                $notes = array();
+                if (! is_array($itm['notes'])) {
+                    $notes[] = $itm['notes'];
+                } else {
+                    $notes = $itm['notes'];
+                }
+                $split['holdings'][$new_holding_id]['textfields']['holdings_notes'] = $notes;
+            }
+            if (isset($itm['summary'])) { 
+                $sum = array();
+                if (! is_array($itm['summary'])) {
+                    $sum[] = $itm['summary'];
+                } else {
+                    $sum = $itm['summary'];
+                }
+                $split['holdings'][$new_holding_id]['textfields']['summary'] = $sum;
+            }
         }
         $split['holdings'][$new_holding_id]['items'][] = $itm;
         $split['holdings'][$new_holding_id]['location'] = $holdings['holdings'][$location]['location'];
@@ -89,6 +105,9 @@ foreach ($holdings['holdings'] as $location => $location_val) {
     }
 }
 $holdings = $split;
+?>
+<?
+//print_r($holdings);
 ?>
 
 <? foreach ($holdings['holdings'] as $holding): ?>
