@@ -67,16 +67,59 @@
    }
 ?>
 
-<? foreach ($holdings['holdings'] as $holding): ?>
-<?
-//print_r($holding);
+<? 
+// CARLI EDIT: Split each holding by MFHD_ID. Do not group together by Location Name.
+$split = array();
+$split['blocks'] = $holdings['blocks'];
+$new_holding_id = '';
+$last_holding_id = '';
+foreach ($holdings['holdings'] as $location => $location_val) {
+    foreach ($location_val['items'] as $itm) {
+        $new_holding_id = $location . '|' . $itm['id'] . '|' . $itm['holdings_id'];
+        if ($new_holding_id != $last_holding_id) {
+            $last_holding_id = $new_holding_id;
+            // Notes and Summary need special care:
+            if (isset($itm['notes'])) { 
+                $notes = array();
+                if (! is_array($itm['notes'])) {
+                    $notes[] = $itm['notes'];
+                } else {
+                    $notes = $itm['notes'];
+                }
+                $split['holdings'][$new_holding_id]['textfields']['holdings_notes'] = $notes;
+            }
+            if (isset($itm['summary'])) { 
+                $sum = array();
+                if (! is_array($itm['summary'])) {
+                    $sum[] = $itm['summary'];
+                } else {
+                    $sum = $itm['summary'];
+                }
+                $split['holdings'][$new_holding_id]['textfields']['summary'] = $sum;
+            }
+        }
+        $split['holdings'][$new_holding_id]['items'][] = $itm;
+        $split['holdings'][$new_holding_id]['location'] = $holdings['holdings'][$location]['location'];
+        $split['holdings'][$new_holding_id]['locationhref'] = $holdings['holdings'][$location]['locationhref'];
+
+    }
+}
+$holdings = $split;
 ?>
+<?
+//print_r($holdings);
+?>
+
+<? foreach ($holdings['holdings'] as $holding): ?>
 <h3>
 <! CARLI BEGIN libname !>
 <?
     if (array_key_exists('item_agency_id', $holding['items'][0])) {
        $this->libname = $holding['items'][0]['item_agency_id'];
-       echo $this->translate($this->libname);
+       if ($this->lastLibname != $this->libname) {
+           echo $this->translate($this->libname);
+       }
+       $this->lastLibname = $this->libname;
     }
 ?>
 <! CARLI END libname !>
