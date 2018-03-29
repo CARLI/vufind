@@ -18,12 +18,15 @@ class IgnoreSuppressedListener
 
     public function onSearchPre(EventInterface $event)
     {
-        // Only ignore suppressed (searchable:false) records for regular searches.
-        // We do not want to prevent record loading, though (id: searches).
-        if (!array_key_exists('lookfor', $_REQUEST) && !array_key_exists('lookfor0', $_REQUEST)) {
+        // We do not want to prevent record loading (id: searches)!
+        // These id: searches do not have a 'type' parameter;
+        // so do nothing if there is no 'type' parameter.
+        if (!array_key_exists('type', $_REQUEST)) {
             return $event;
         }
 
+        // Only ignore suppressed (searchable:false) records for regular searches.
+        // Note: regular searches have a 'type' parameter
         $params = $event->getParam('params');
         $fq = $params->get('fq');
         if (!is_array($fq)) {
