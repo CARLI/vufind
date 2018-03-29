@@ -30,6 +30,7 @@ namespace VuFind\Search\Factory;
 
 // CARLI EDIT:
 use CARLI\Search\Solr\LocationGroupListener;
+use CARLI\Search\Solr\IgnoreSuppressedListener;
 
 use VuFind\Search\Solr\FilterFieldConversionListener;
 use VuFind\Search\Solr\HideFacetValueListener;
@@ -185,6 +186,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
 
         // CARLI EDIT:
         (new LocationGroupListener($search))->attach($events);
+        (new IgnoreSuppressedListener())->attach($events);
 
         // Highlighting
         $this->getInjectHighlightingListener($backend, $search)->attach($events);
