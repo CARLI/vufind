@@ -650,6 +650,11 @@ EOT;
             "ITEM.ITEM_ID = ITEM_STATUS.ITEM_ID",
             "ITEM_STATUS.ITEM_STATUS = ITEM_STATUS_TYPE.ITEM_STATUS_TYPE",
             "ITEM_BARCODE.ITEM_ID (+)= ITEM.ITEM_ID",
+/////////////////////////////////////////////////////////////
+// CARLI EDIT:
+//    Do not include INACTIVE item info! (inactive barcodes)
+            "ITEM_BARCODE.BARCODE_STATUS = 1",
+/////////////////////////////////////////////////////////////
             "LOCATION.LOCATION_ID = ITEM.PERM_LOCATION",
             "CIRC_TRANSACTIONS.ITEM_ID (+)= ITEM.ITEM_ID",
             "MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID",
