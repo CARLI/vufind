@@ -19,4 +19,6 @@ $loginText = '
 <p>Your library barcode is found on the front of your SWIC Student/Employee ID card.</p>
 ';
 
+$searchDropText = 'SWIC Library Only';
+
 ?>
