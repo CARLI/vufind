@@ -16,5 +16,18 @@ $feedBackLink = 'http://www.library.illinois.edu/catalog/vufind/feedback.html';
 $introText = '
 <p><a href="http://www.library.illinois.edu/it/helpdesk/cathelp.html">Library Catalog Help</a></p>
 ';
+ 	
+
+$loginText = '
+<p>If you do not have a Campus ID, please enter your Library Borrower ID/Barcode and your Last Name, then click the Login button.</p>
+';
+
+$authLoginText = '
+<p>Log in with your NetID and password</p>
+';
+
+$loginButtonText = 'Login with your Campus ID';
+
+$loginLinkHelp = 'Don’t have a Campus ID?';
 
 ?>
