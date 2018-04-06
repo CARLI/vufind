@@ -40,6 +40,17 @@ header .navbar .navbar-right {
 header .searchbox {
   background: none;
 }
+header .loginLinkHelp a {
+  line-height: 1;
+  text-decoration: underline;
+  padding-left: 10px; 
+}
+.carli-auth-link {
+  text-decoration: underline;
+  font-weight: 700;
+  font-size: 1.2em;
+  padding: 10px 0 30px 0;
+}
 h4.location {
   font-weight: 300;
 }

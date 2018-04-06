@@ -1,10 +1,39 @@
 <!--
 ====>====e begins: themes/carli/templates/Auth/Shibboleth/login.phtml ====><br>
 -->
+<! CARLI BEGIN Customization !>
+<? // CARLI customization information //
+
+  // get the 3 letter institution code //
+  $inst = getenv('VUFIND_LIBRARY');
+
+  // path to the individual institution customization variables//
+  $configInclude =  "/usr/local/vufind/themes/$inst/config.php";
+
+  // Setenv VUFIND_LIBRARY_BASE_PATH /all/vf-uiu
+  $is_uc = getenv('VUFIND_LIBRARY_IS_UC');
+  if (! $is_uc) {
+
+      // include individual institution customization file //
+      if (file_exists($configInclude)) {
+          include $configInclude;
+      }
+  }
+?>
+<! CARLI END Customization !>
+
 <? $account = $this->auth()->getManager(); ?>
 <? $sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home'))); ?>
 
-  <a id="carli-login-link" name="carli-login-link" href="<?=$this->escapeHtmlAttr($sessionInitiator)?>" class="btn btn-link" data-lightbox-ignore><?=$this->transEsc("Institutional Login")?></a>
+<p class="carli-auth-link" > <a id="carli-login-link" name="carli-login-link" href="<?=$this->escapeHtmlAttr($sessionInitiator)?>" data-lightbox-ignore>
+<! CARLI BEGIN Customization !>
+<? if (isset($loginButtonText)) : ?>
+  <? echo $loginButtonText ?>
+<? else: ?> 
+ <?=$this->transEsc("Institutional Login")?>
+<? endif; ?>
+<! CARLI END Customization !> 
+  </a></p>
 
 
 <! Do NOT "auto-login" if this form was POSTed (e.g, patron entered incorrect un/pw) OR if not accessed directly (e.g., Logout redirect) !>
