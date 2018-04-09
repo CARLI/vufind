@@ -1,21 +1,20 @@
 <! CARLI BEGIN Customization !>
 <? // CARLI customization information //
 
-  // get the 3 letter institution code //
-  $inst = getenv('VUFIND_LIBRARY');
+	// get the 3 letter institution code //
+	$inst = getenv('VUFIND_LIBRARY');
 
-  // path to the individual institution customization variables//
-  $configInclude =  "/usr/local/vufind/themes/$inst/config.php";
+	// path to the individual institution customization variables//
+	$configInclude =  "/usr/local/vufind/themes/$inst/config.php";
 
-  // Setenv VUFIND_LIBRARY_BASE_PATH /all/vf-uiu
-  $is_uc = getenv('VUFIND_LIBRARY_IS_UC');
-  if (! $is_uc) {
+	// Setenv VUFIND_LIBRARY_BASE_PATH /all/vf-uiu
+	$is_uc = getenv('VUFIND_LIBRARY_IS_UC');
+  
+	// include individual institution customization file //
+	if (file_exists($configInclude)) {
+		include $configInclude;
+	}
 
-      // include individual institution customization file //
-      if (file_exists($configInclude)) {
-          include $configInclude;
-      }
-  }
 ?>
 <! CARLI END Customization !>
 
@@ -106,28 +105,34 @@ CARLI COMMENT OUT END -->
 
 <! CARLI BEGIN Customization !>
 <?
-  // if there is a custom header image show, otherwise show the defalt CARLI logo //
-  if (isset($headerImage)) {
-    if (!empty($headerUrl)) {
-    echo '<a class="lang-' . $this->layout()->userLang . '" href="' . $headerUrl . '"><img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '"></a>';
-    } elseif (!empty($headerMap)) {
-    echo '<img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '" usemap="#Map">';
-    echo '<map name="Map" id="Map">';
-    echo $headerMap;
-    echo '</map>';
-   } else {
-    echo '<a class="lang-' . $this->layout()->userLang . '" href="' . $this->url('home') . '"><img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '"></a>';
-  }} else {
-    echo '<a class="navbar-brand lang-' . $this->layout()->userLang . '" href="' . $this->url('home') . '">VuFind</a>';
-    if (! $is_uc) {
-       echo '<h1>';
-         if (preg_match('/vf-(...)/', $this->url('home'), $matches)) {
-            $this->libname = $matches[1];
-         }
-       echo $this->translate($this->libname);
-       echo '</h1>';
-    }
-  }
+	// if in the UC do not display custom header //
+	if ($is_uc) {
+		echo '<a class="navbar-brand lang-' . $this->layout()->userLang . '" href="' . $this->url('home') . '">VuFind</a>';
+	} else {	
+	// if there is a custom header image show, otherwise show the defalt CARLI logo //
+	if (isset($headerImage)) {
+		if (!empty($headerUrl)) {
+    		echo '<a class="lang-' . $this->layout()->userLang . '" href="' . $headerUrl . '"><img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '"></a>';
+		} elseif (!empty($headerMap)) {
+			echo '<img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '" usemap="#Map">';
+			echo '<map name="Map" id="Map">';
+			echo $headerMap;
+			echo '</map>';
+		} else {
+			echo '<a class="lang-' . $this->layout()->userLang . '" href="' . $this->url('home') . '"><img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '"></a>';
+		}
+	} else {
+		echo '<a class="navbar-brand lang-' . $this->layout()->userLang . '" href="' . $this->url('home') . '">VuFind</a>';
+		if (! $is_uc) {
+			echo '<h1>';
+			if (preg_match('/vf-(...)/', $this->url('home'), $matches)) {
+				$this->libname = $matches[1];
+			}
+			echo $this->translate($this->libname);
+			echo '</h1>';
+		}
+	}
+}
 ?>
 <! CARLI END Customization !>
 
