@@ -7,6 +7,90 @@ use VuFind\Config\Locator as ConfigLocator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+    public function getCourses()
+    {
+        $courseList = [];
+
+        $sql = "select COURSE.COURSE_NUMBER || ': ' || COURSE.COURSE_NAME as NAME," .
+               " COURSE.COURSE_ID " .
+               "from $this->dbName.RESERVE_LIST, " .
+               "$this->dbName.RESERVE_LIST_COURSES, $this->dbName.COURSE " .
+               "where RESERVE_LIST.RESERVE_LIST_ID = " .
+               "RESERVE_LIST_COURSES.RESERVE_LIST_ID and " .
+               "RESERVE_LIST_COURSES.COURSE_ID = COURSE.COURSE_ID " . 
+               " and " .
+               "RESERVE_LIST.EFFECT_DATE<SYSDATE and " .
+               "RESERVE_LIST.EXPIRE_DATE>SYSDATE " .
+               "group by COURSE.COURSE_ID, COURSE_NUMBER, COURSE_NAME " .
+               "order by COURSE_NUMBER";
+        try {
+            $sqlStmt = $this->executeSQL($sql);
+            while ($row = $sqlStmt->fetch(PDO::FETCH_ASSOC)) {
+                $courseList[$row['COURSE_ID']] = $row['NAME'];
+            }
+        } catch (PDOException $e) {
+            throw new ILSException($e->getMessage());
+        }
+
+        return $courseList;
+    }
+
+    public function getInstructors()
+    {
+        $instList = [];
+
+        $sql = "select INSTRUCTOR.INSTRUCTOR_ID, " .
+               "INSTRUCTOR.LAST_NAME || ', ' || INSTRUCTOR.FIRST_NAME as NAME " .
+               "from $this->dbName.RESERVE_LIST, " .
+               "$this->dbName.RESERVE_LIST_COURSES, $this->dbName.INSTRUCTOR " .
+               "where RESERVE_LIST.RESERVE_LIST_ID = " .
+               "RESERVE_LIST_COURSES.RESERVE_LIST_ID and " .
+               "RESERVE_LIST_COURSES.INSTRUCTOR_ID = INSTRUCTOR.INSTRUCTOR_ID " .
+               " and " .
+               "RESERVE_LIST.EFFECT_DATE<SYSDATE and " .
+               "RESERVE_LIST.EXPIRE_DATE>SYSDATE " .
+               "group by INSTRUCTOR.INSTRUCTOR_ID, LAST_NAME, FIRST_NAME " .
+               "order by LAST_NAME";
+        try {
+            $sqlStmt = $this->executeSQL($sql);
+            while ($row = $sqlStmt->fetch(PDO::FETCH_ASSOC)) {
+                $instList[$row['INSTRUCTOR_ID']] = $row['NAME'];
+            }
+        } catch (PDOException $e) {
+            throw new ILSException($e->getMessage());
+        }
+
+        return $instList;
+    }
+
+    public function getDepartments()
+    {
+        $deptList = [];
+
+        $sql = "select DEPARTMENT.DEPARTMENT_ID, DEPARTMENT.DEPARTMENT_NAME " .
+               "from $this->dbName.RESERVE_LIST, " .
+               "$this->dbName.RESERVE_LIST_COURSES, $this->dbName.DEPARTMENT " .
+               "where " .
+               "RESERVE_LIST.RESERVE_LIST_ID = " .
+               "RESERVE_LIST_COURSES.RESERVE_LIST_ID and " .
+               "RESERVE_LIST_COURSES.DEPARTMENT_ID = DEPARTMENT.DEPARTMENT_ID " .
+               " and " .
+               "RESERVE_LIST.EFFECT_DATE<SYSDATE and " .
+               "RESERVE_LIST.EXPIRE_DATE>SYSDATE " .
+               "group by DEPARTMENT.DEPARTMENT_ID, DEPARTMENT_NAME " .
+               "order by DEPARTMENT_NAME";
+        try {
+            $sqlStmt = $this->executeSQL($sql);
+            while ($row = $sqlStmt->fetch(PDO::FETCH_ASSOC)) {
+                $deptList[$row['DEPARTMENT_ID']] = $row['DEPARTMENT_NAME'];
+            }
+        } catch (PDOException $e) {
+            throw new ILSException($e->getMessage());
+        }
+
+        return $deptList;
+    }
+
     public function getDefaultPickUpLocation($patron = false, $holdDetails = null)
     {
         if ($patron) {
