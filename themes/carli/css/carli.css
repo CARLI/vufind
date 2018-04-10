@@ -196,3 +196,8 @@ footer .carli-landing p {
     font-size: 0px;
     visibility: collapse;
 }
+
+.carliAdvancedVersion {
+    font-weight: normal;
+    width: 100%;
+}

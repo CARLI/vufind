@@ -1,0 +1,70 @@
+<fieldset class="carliAdvancedVersion">
+    <legend>Version</legend>
+    <div class="carliAdvancedVersion">
+        <input class="carliformats" type="radio" name="" value="" id="AnyVersion">
+        <label for="AnyVersion">Any Version</label>
+    </div>
+    <div class="carliAdvancedVersion">
+        <input class="carliformats" type="radio" name="" value="" id="FormatElectronic">
+        <label for="FormatElectronic">Electronic</label>
+    </div>
+    <div class="carliAdvancedVersion">
+        <input class="carliformats" type="radio" name="" value="" id="FormatElectronicOrPrint">
+        <label for="FormatElectronicOrPrint">Electronic or Print, anything but microform</label>
+    </div>
+    <div class="carliAdvancedVersion">
+        <input class="carliformats" type="radio" name="" value="" id="FormatPrint">
+        <label for="FormatPrint">Print, neither electronic nor microform</label>
+    </div>
+    <div class="carliAdvancedVersion">
+        <input class="carliformats" type="radio" name="" value="" id="FormatMicroform">
+        <label for="FormatMicroform">Microform</label>
+    </div>
+
+    <script>
+var selectedVersion = null;
+var allFormats = [];
+$(document).ready(function() {
+    $('#limit_format option').each(function(index,element){
+      allFormats.push(element.value);
+    });
+
+    $(".carliformats").click(function() {
+      selectedVersion = this.id;
+
+      // make anonymous radio buttons behave correctly
+      $(".carliformats").each(function() {
+        if ( this.id == selectedVersion ) {
+            this.checked = true;
+        }
+        else {
+            this.checked = false;
+        };
+      });
+
+      var fmts = [];
+      if (selectedVersion === "FormatElectronic") {
+        fmts.push("~format:\"Electronic\"");
+      } else if (selectedVersion === "FormatElectronicOrPrint") {
+        for (var inx=0; inx < allFormats.length; inx++) {
+          if (allFormats[inx] !== "~format:\"Microform\"") {
+            fmts.push(allFormats[inx]);
+          }
+        }
+      } else if (selectedVersion === "FormatPrint") {
+        for (var inx=0; inx < allFormats.length; inx++) {
+          if (allFormats[inx] !== "~format:\"Microform\"" &&
+              allFormats[inx] !== "~format:\"Electronic\"") {
+            fmts.push(allFormats[inx]);
+          }
+        }
+      } else if (selectedVersion === "FormatMicroform") {
+        fmts.push("~format:\"Microform\"");
+      }
+      $("#limit_format").val(fmts);
+
+    });    
+});
+    </script>
+</fieldset>
+
