@@ -42,28 +42,50 @@ $(document).ready(function() {
         };
       });
 
+      $("#ExcludeElectronic").prop('checked', false);
+      $("#ExcludeMicroform").prop('checked', false);
       var fmts = [];
       if (selectedVersion === "FormatElectronic") {
         fmts.push("~format:\"Electronic\"");
       } else if (selectedVersion === "FormatElectronicOrPrint") {
-        for (var inx=0; inx < allFormats.length; inx++) {
-          if (allFormats[inx] !== "~format:\"Microform\"") {
-            fmts.push(allFormats[inx]);
-          }
-        }
+        $("#ExcludeMicroform").prop('checked', true);
       } else if (selectedVersion === "FormatPrint") {
-        for (var inx=0; inx < allFormats.length; inx++) {
-          if (allFormats[inx] !== "~format:\"Microform\"" &&
-              allFormats[inx] !== "~format:\"Electronic\"") {
-            fmts.push(allFormats[inx]);
-          }
-        }
+        $("#ExcludeElectronic").prop('checked', true);
+        $("#ExcludeMicroform").prop('checked', true);
       } else if (selectedVersion === "FormatMicroform") {
         fmts.push("~format:\"Microform\"");
       }
       $("#limit_format").val(fmts);
 
     });    
+
+    $('#ExcludeElectronic').change(function() {
+      $("#AnyVersion").prop('checked', false);
+      $("#FormatElectronic").prop('checked', false);
+      $("#FormatElectronicOrPrint").prop('checked', false);
+      $("#FormatPrint").prop('checked', false);
+      $("#FormatMicroform").prop('checked', false);
+
+      if($('#ExcludeElectronic').prop('checked') && $('#ExcludeMicroform').prop('checked')) {
+        $('#FormatPrint').prop('checked', true);
+      } else if ($('#ExcludeMicroform').prop('checked')) {
+        $('#FormatElectronicOrPrint').prop('checked', true);
+      }
+    });
+    $('#ExcludeMicroform').change(function() {
+      $("#AnyVersion").prop('checked', false);
+      $("#FormatElectronic").prop('checked', false);
+      $("#FormatElectronicOrPrint").prop('checked', false);
+      $("#FormatPrint").prop('checked', false);
+      $("#FormatMicroform").prop('checked', false);
+
+      if($('#ExcludeElectronic').prop('checked') && $('#ExcludeMicroform').prop('checked')) {
+        $('#FormatPrint').prop('checked', true);
+      } else if ($('#ExcludeMicroform').prop('checked')) {
+        $('#FormatElectronicOrPrint').prop('checked', true);
+      }
+    });
+
 });
     </script>
 </fieldset>
