@@ -21,7 +21,7 @@ class IgnoreSuppressedListener
         // We do not want to prevent record loading (id: searches)!
         // These id: searches do not have a 'type' parameter;
         // so do nothing if there is no 'type' parameter.
-        if (!array_key_exists('type', $_REQUEST)) {
+        if (!array_key_exists('type', $_REQUEST) && !array_key_exists('type0', $_REQUEST)) {
             return $event;
         }
 
