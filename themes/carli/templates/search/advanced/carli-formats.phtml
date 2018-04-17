@@ -1,59 +1,7 @@
-<fieldset class="carliAdvancedVersion">
-    <legend>Version</legend>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="AnyVersion">
-        <label for="AnyVersion">Any Version</label>
-    </div>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="FormatElectronic">
-        <label for="FormatElectronic">Electronic</label>
-    </div>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="FormatElectronicOrPrint">
-        <label for="FormatElectronicOrPrint">Electronic or Print, anything but microform</label>
-    </div>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="FormatPrint">
-        <label for="FormatPrint">Print, neither electronic nor microform</label>
-    </div>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="FormatMicroform">
-        <label for="FormatMicroform">Microform</label>
-    </div>
-
     <script>
 var selectedVersion = null;
 $(document).ready(function() {
   setStateOfCarliControls();
-
-  $(".carliformats").click(function() {
-    // make anonymous radio buttons behave correctly
-    selectedVersion = this.id;
-    $(".carliformats").each(function() {
-      if ( this.id == selectedVersion ) {
-          this.checked = true;
-      }
-      else {
-          this.checked = false;
-      };
-    });
-
-    $("#ExcludeElectronic").prop('checked', false);
-    $("#ExcludeMicroform").prop('checked', false);
-    var fmts = [];
-    if (selectedVersion === "FormatElectronic") {
-      fmts.push('~format:"Electronic"');
-    } else if (selectedVersion === "FormatElectronicOrPrint") {
-      $("#ExcludeMicroform").prop('checked', true);
-    } else if (selectedVersion === "FormatPrint") {
-      $("#ExcludeElectronic").prop('checked', true);
-      $("#ExcludeMicroform").prop('checked', true);
-    } else if (selectedVersion === "FormatMicroform") {
-      fmts.push('~format:"Microform"');
-    }
-    $("#limit_format").val(fmts);
-  });    
-
   $('#ExcludeElectronic').change(function() {
     setStateOfCarliControls();
   });
@@ -65,8 +13,6 @@ $(document).ready(function() {
   });
 });
 function setStateOfCarliControls() {
-  clearVersionControl();
-
   // Give precedence to Format selected
   // Conflict? Remove the Exclude button
   var options = $('#limit_format option:selected');
@@ -91,25 +37,6 @@ function setStateOfCarliControls() {
         }
      }
   }
-
-  // Set Version control to appropriate value (if any)
-  if($('#ExcludeElectronic').prop('checked') && $('#ExcludeMicroform').prop('checked')) {
-    $('#FormatPrint').prop('checked', true);
-  } else if ($('#ExcludeMicroform').prop('checked')) {
-    $('#FormatElectronicOrPrint').prop('checked', true);
-  } else if (len === 1 && gotElectronic ) {
-    $('#FormatElectronic').prop('checked', true);
-  } else if (len === 1 && gotMicroform ) {
-    $('#FormatMicroform').prop('checked', true);
-  }
-}
-function clearVersionControl() {
-  $("#AnyVersion").prop('checked', false);
-  $("#FormatElectronic").prop('checked', false);
-  $("#FormatElectronicOrPrint").prop('checked', false);
-  $("#FormatPrint").prop('checked', false);
-  $("#FormatMicroform").prop('checked', false);
 }
     </script>
-</fieldset>
 

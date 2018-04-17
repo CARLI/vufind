@@ -38,9 +38,6 @@
     </div>
   </fieldset>
 <? endif; ?>
-<!-- CARLI added: -->
-<?=$this->render('search/advanced/carli-formats.phtml')?>
-<!------------------>
 <? if (isset($this->illustratedLimit)): ?>
   <fieldset class="solr">
     <legend><?=$this->transEsc("Illustrated")?>:</legend>
@@ -52,3 +49,6 @@
 <? endif; ?>
 <?=$this->render('search/advanced/limit.phtml')?>
 <?=$this->render('search/advanced/ranges.phtml')?>
+<!-- CARLI added: -->
+<?=$this->render('search/advanced/carli-formats.phtml')?>
+<!------------------>
