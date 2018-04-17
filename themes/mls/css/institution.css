@@ -1,0 +1,24 @@
+/* css MLS */
+a {  /* Link color */
+  color: #005a76;
+}
+a:visited { /* Link visited */
+  color: #f47721;
+}
+a:hover,a:focus,a:active {  /* Link hover & focus */
+  color: #72b431;
+}
+h2, h4 {  /* Side Bar header #2 */
+  color:#005a76;
+}
+h3 {  /* Title #4 */
+  color:#005a76;
+}
+.facet-group .title {  /* Facet Label #3 */
+  color:#72b431;
+}
+.sidebar .facet.active, .sidebar .facet.active:hover, .sidebar .active-filters .facet { /* background for right sidebar in search */
+  color: #ffffff;
+  background: #005a76;
+  border-color: #005a76;
+}
