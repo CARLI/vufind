@@ -73,21 +73,34 @@ function setStateOfCarliControls() {
   var values = $.map(options ,function(option) {
     return option.value;
   });
+  var gotMicroform = false;
+  var gotElectronic = false;
   var len = values.length;
   for (var i=0; i<len; i++) {
      if (values[i] === '~format:"Electronic"') {
-        $('#ExcludeElectronic').prop('checked', false)
-        alert('You cannot "Exclude Electronic" and select "Electronic" Format at the same time.');
+        gotElectronic = true;
+        if ($('#ExcludeElectronic').prop('checked')) {
+          $('#ExcludeElectronic').prop('checked', false)
+          alert('You cannot "Exclude Electronic" and select "Electronic" Format at the same time.');
+        }
      } else if (values[i] === '~format:"Microform"') {
-        $('#ExcludeMicroform').prop('checked', false)
-        alert('You cannot "Exclude Microform" and select "Microform" Format at the same time.');
+        gotMicroform = true;
+        if ($('#ExcludeMicroform').prop('checked')) {
+          $('#ExcludeMicroform').prop('checked', false)
+          alert('You cannot "Exclude Microform" and select "Microform" Format at the same time.');
+        }
      }
   }
 
+  // Set Version control to appropriate value (if any)
   if($('#ExcludeElectronic').prop('checked') && $('#ExcludeMicroform').prop('checked')) {
     $('#FormatPrint').prop('checked', true);
   } else if ($('#ExcludeMicroform').prop('checked')) {
     $('#FormatElectronicOrPrint').prop('checked', true);
+  } else if (len === 1 && gotElectronic ) {
+    $('#FormatElectronic').prop('checked', true);
+  } else if (len === 1 && gotMicroform ) {
+    $('#FormatMicroform').prop('checked', true);
   }
 }
 function clearVersionControl() {
