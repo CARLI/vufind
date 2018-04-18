@@ -1,6 +1,6 @@
 <?
 
-$headerImage = 'vufind-trt.gif';
+$headerImage = 'vufind-trt.jpg';
 
 $headerUrl = 'http://library.triton.edu';
 

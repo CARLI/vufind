@@ -1,6 +1,6 @@
 <?
 
-$headerImage = 'vufind-uic.gif';
+$headerImage = 'vufind-uic.png';
 
 $headerUrl = 'http://library.uic.edu';
 

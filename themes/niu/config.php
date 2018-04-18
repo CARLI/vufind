@@ -24,6 +24,12 @@ previous versions of VuFind.</p>
 ';
 
 $loginText = '
+<p>If you do not have a NIU AccountID, please enter the last name and barcode
+of your NIU Onecard to proceed.</p>
 ';
+
+$loginLinkHelp = 'Don\'t have a NIU AccountID?'; 
+
+$loginButtonText = 'Login with your NIU AccountID'; 
 
 ?>
