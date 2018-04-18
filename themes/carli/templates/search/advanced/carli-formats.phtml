@@ -1,70 +1,42 @@
-<fieldset class="carliAdvancedVersion">
-    <legend>Version</legend>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="AnyVersion">
-        <label for="AnyVersion">Any Version</label>
-    </div>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="FormatElectronic">
-        <label for="FormatElectronic">Electronic</label>
-    </div>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="FormatElectronicOrPrint">
-        <label for="FormatElectronicOrPrint">Electronic or Print, anything but microform</label>
-    </div>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="FormatPrint">
-        <label for="FormatPrint">Print, neither electronic nor microform</label>
-    </div>
-    <div class="carliAdvancedVersion">
-        <input class="carliformats" type="radio" name="" value="" id="FormatMicroform">
-        <label for="FormatMicroform">Microform</label>
-    </div>
-
     <script>
 var selectedVersion = null;
-var allFormats = [];
 $(document).ready(function() {
-    $('#limit_format option').each(function(index,element){
-      allFormats.push(element.value);
-    });
-
-    $(".carliformats").click(function() {
-      selectedVersion = this.id;
-
-      // make anonymous radio buttons behave correctly
-      $(".carliformats").each(function() {
-        if ( this.id == selectedVersion ) {
-            this.checked = true;
-        }
-        else {
-            this.checked = false;
-        };
-      });
-
-      var fmts = [];
-      if (selectedVersion === "FormatElectronic") {
-        fmts.push("~format:\"Electronic\"");
-      } else if (selectedVersion === "FormatElectronicOrPrint") {
-        for (var inx=0; inx < allFormats.length; inx++) {
-          if (allFormats[inx] !== "~format:\"Microform\"") {
-            fmts.push(allFormats[inx]);
-          }
-        }
-      } else if (selectedVersion === "FormatPrint") {
-        for (var inx=0; inx < allFormats.length; inx++) {
-          if (allFormats[inx] !== "~format:\"Microform\"" &&
-              allFormats[inx] !== "~format:\"Electronic\"") {
-            fmts.push(allFormats[inx]);
-          }
-        }
-      } else if (selectedVersion === "FormatMicroform") {
-        fmts.push("~format:\"Microform\"");
-      }
-      $("#limit_format").val(fmts);
-
-    });    
+  setStateOfCarliControls();
+  $('#ExcludeElectronic').change(function() {
+    setStateOfCarliControls();
+  });
+  $('#ExcludeMicroform').change(function() {
+    setStateOfCarliControls();
+  });
+  $('#limit_format').change(function() {
+    setStateOfCarliControls();
+  });
 });
+function setStateOfCarliControls() {
+  // Give precedence to Format selected
+  // Conflict? Remove the Exclude button
+  var options = $('#limit_format option:selected');
+  var values = $.map(options ,function(option) {
+    return option.value;
+  });
+  var gotMicroform = false;
+  var gotElectronic = false;
+  var len = values.length;
+  for (var i=0; i<len; i++) {
+     if (values[i] === '~format:"Electronic"') {
+        gotElectronic = true;
+        if ($('#ExcludeElectronic').prop('checked')) {
+          $('#ExcludeElectronic').prop('checked', false)
+          alert('You cannot "Exclude Electronic" and select "Electronic" Format at the same time.');
+        }
+     } else if (values[i] === '~format:"Microform"') {
+        gotMicroform = true;
+        if ($('#ExcludeMicroform').prop('checked')) {
+          $('#ExcludeMicroform').prop('checked', false)
+          alert('You cannot "Exclude Microform" and select "Microform" Format at the same time.');
+        }
+     }
+  }
+}
     </script>
-</fieldset>
 
