@@ -22,6 +22,9 @@ header .navbar .navbar-nav > li > a {
   background-color: none;
   padding: 10px 10px;
 }
+.text-transform-none { /* for institutions that need lower case in the button link text */
+  text-transform: none;
+}
 header .navbar .navbar-nav > li > a:hover {
   background-color: #eee;
 }

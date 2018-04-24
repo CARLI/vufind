@@ -1,3 +1,24 @@
+<! CARLI BEGIN Customization !>
+<? // CARLI customization information //
+
+  // get the 3 letter institution code //
+  $inst = getenv('VUFIND_LIBRARY');
+
+  // path to the individual institution customization variables//
+  $configInclude =  "/usr/local/vufind/themes/$inst/config.php";
+
+  // Setenv VUFIND_LIBRARY_BASE_PATH /all/vf-uiu
+  $is_uc = getenv('VUFIND_LIBRARY_IS_UC');
+  if (! $is_uc) {
+
+      // include individual institution customization file //
+      if (file_exists($configInclude)) {
+          include $configInclude;
+      }
+  }
+?>
+<! CARLI END Customization !>
+
 <?
   // Set page title.
   $this->headTitle($this->translate('Advanced Search'));
@@ -148,7 +169,13 @@
           <? else: ?>
               <select class="form-control" id="whichCatalogAdvanced" onChange="switchCatalog(this)">
               <option value="ishare">All I-Share Libraries</option>
+              <! CARLI BEGIN Customization !>
+              <? if (isset($searchDropText)) : ?>
+              	<option value="local" selected><? echo $searchDropText ?></option>
+              <? else: ?>               
               <option value="local" selected>Local Catalog Only</option>
+              <? endif; ?>
+              <! CARLI END Customization !>              
               </select>
           <? endif; ?>
 <! CARLI END !>
