@@ -1,8 +1,8 @@
 <?
 
-$headerImage = 'vufind-jwc.gif';
+$headerImage = 'vufind-jwc.jpg';
 
-$headerUrl = 'http://www.jwcc.edu/instruct/library/default.asp';
+$headerUrl = 'https://www.jwcc.edu/library/';
 
 $headerMap = '';
 
