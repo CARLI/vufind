@@ -18,7 +18,7 @@ your search to libraries throughout Illinois.</li>
 <li>Login with your UIC NetID and password to request books from other
 libraries, to see what you have checked out or to renew books.</li>
 </ul>
-<p>If you don\'t find the book you\'re looking for at UIC or any orhter I-Share
+<p>If you don\'t find the book you\'re looking for at UIC or any other I-Share
 Library, you can still request the book. Learn how to <a
 href="https://library.uic.edu/help/article/1935/request-items">request
 items</a> from other libraries.</p>
