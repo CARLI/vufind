@@ -946,6 +946,9 @@ EOT;
     protected function getUBRequestDetails($id, $patron)
     {
         $results = parent::getUBRequestDetails($id, $patron);
+        if (! $results) {
+            return $results;
+        }
 
         // Make certain that home library is included in list of Pickup libraries
         $libraries = $results['libraries'];
