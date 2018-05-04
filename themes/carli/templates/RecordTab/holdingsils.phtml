@@ -45,17 +45,7 @@
 
 <! CARLI BEGIN comment out openUrlActive data for /all/vf/ !>
 <? if (!getenv('VUFIND_LIBRARY_IS_UC')): ?>
-
-<? if (!empty($urls) || $openUrlActive): ?>
-  <h3><?=$this->transEsc("Internet")?></h3>
-  <? if (!empty($urls)): ?>
-    <? foreach ($urls as $current): ?>
-      <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>"><?=$this->escapeHtml($current['desc'])?></a><br/>
-    <? endforeach; ?>
-  <? endif; ?>
   <? if ($openUrlActive): ?><?=$openUrl->renderTemplate()?><? endif; ?>
-<? endif; ?>
-
 <? endif; ?>
 <! CARLI END comment out openUrlActive data !>
 
