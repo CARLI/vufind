@@ -14,20 +14,18 @@ $headerMap = '<area shape="rect" coords="5,9,56,75" href="http://illinois.edu/" 
 $feedBackLink = 'http://www.library.illinois.edu/catalog/vufind/feedback.html';
 
 $introText = '
-<p><a href="http://www.library.illinois.edu/it/helpdesk/cathelp.html">Library Catalog Help</a></p>
+<p>Welcome to the new version of the Library\'s online catalog. If you want to 
+use the previous version, go to <a href="https://vufind.carli.illinois.edu/vf-uiu/">Library Catalog Search</a></p>
 ';
  	
-
 $loginText = '
-<p>If you do not have a Campus ID, please enter your Library Borrower ID/Barcode and your Last Name, then click the Login button.</p>
-';
+<p>Login with your Net ID. 
+If you do not have a Net ID, please enter your Barcode number and your Last 
+Name, then click the Login button.</p>
+'; 
 
-$authLoginText = '
-<p>Log in with your NetID and password</p>
-';
+$loginButtonText = 'Login with your <span class="text-transform-none">Net ID</span>';
 
-$loginButtonText = 'Login with your Campus ID';
-
-$loginLinkHelp = 'Don’t have a Campus ID?';
+$loginLinkHelp = 'Don’t have a Net ID?';
 
 ?>
