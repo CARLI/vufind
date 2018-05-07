@@ -74,6 +74,11 @@ trait ILLRequestsTrait
             return $this->redirectToRecord();
         }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// BEGIN CARLI comment-out (we don't want to pre-approve ILL requests, because we want to
+//                          later test for AAA-scenario; for this scenario, we want to
+//                          override placeILLRequest to make a storageRetrievalRequest instead!)
+/*
         // Block invalid requests:
         $validRequest = $catalog->checkILLRequestIsValid(
             $driver->getUniqueID(), $gatheredDetails, $patron
@@ -85,6 +90,9 @@ trait ILLRequestsTrait
             );
             return $this->redirectToRecord('#top');
         }
+*/
+// END CARLI comment-out ////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
         // Send various values to the view so we can build the form:
 

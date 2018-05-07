@@ -7,6 +7,32 @@ use VuFind\Config\Locator as ConfigLocator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+
+    // We override this method because we need to force a
+    // placeStorageRetrievalRequest() for AAA scenarios.
+    // I.e., when Patron's Home Library, Item's Library, and Pickup Library are the same
+    public function placeILLRequest($details)
+    {
+        $patron = $details['patron'];
+        list($source, $patronId) = explode('.', $patron['id'], 2);
+        $patronHomeUbId = $this->config['ILLRequestSources'][$source];
+        $pickupLibrary = $details['pickUpLibrary'];
+        $localUbId = $this->ws_patronHomeUbId;
+
+        // It's an AAA scenario; we need to use Callslip here!
+        if ($patronHomeUbId == $localUbId && $localUbId == $pickupLibrary) {
+
+            // some param massaging necessary:
+            $details['patron']['id'] = $patronId;
+            // placeILLRequest uses slightly different param name for pickUpLocation!
+            $details['pickUpLocation'] = $details['pickUpLibraryLocation'];
+
+            return $this->placeStorageRetrievalRequest($details);
+        }
+
+        return parent::placeILLRequest($details);
+    }
+
     public function getCourses()
     {
         $courseList = [];
