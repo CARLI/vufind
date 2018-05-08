@@ -1012,7 +1012,10 @@ EOT;
                                   $number = $row['COPY_NUMBER'];
                               }
                               if (isset($row['ITEM_ENUM'])) {
-                                  $number .= ' (' . utf8_encode($row['ITEM_ENUM']) . ')';
+                                  $number .= ' ' . utf8_encode($row['ITEM_ENUM']);
+                              }
+                              if (isset($row['CHRON'])) {
+                                  $number .= ' (' . utf8_encode($row['CHRON']) . ')';
                               }
                               // If "Copy Number" is different, we need to use it as the new key
                               // and delete the old one later
