@@ -14,7 +14,7 @@ $introText = '
 
 $loginText = '
 <p>If you have a library account, use the barcode number from the sticker on the back of your Meadville Lombard ID card. 
-If you do not know your barcode or do not have one, contact the <a href="mailto:library@meadville.edu">Wiggin Library</a>.</p>
+If you do not know your barcode or do not have one, contact the library@meadville.edu.</p>
 ';
 
 $searchDropText = 'Meadville Lombard Catalog Only';
