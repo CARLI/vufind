@@ -621,6 +621,11 @@ EOT;
             "ITEM.RECALLS_PLACED", "ITEM.HOLDS_PLACED",
             "ITEM_STATUS_TYPE.ITEM_STATUS_DESC as status",
             "MFHD_DATA.RECORD_SEGMENT", "MFHD_ITEM.ITEM_ENUM",
+/////////////////////////////////////////////////////////////
+// CARLI EDIT:
+            "MFHD_ITEM.CHRON",
+//    we want to display CHRON
+/////////////////////////////////////////////////////////////
             "NVL(LOCATION.LOCATION_DISPLAY_NAME, " .
                 "LOCATION.LOCATION_NAME) as location",
             "ITEM.TEMP_LOCATION",
