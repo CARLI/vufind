@@ -1012,7 +1012,10 @@ EOT;
                                   $number = $row['COPY_NUMBER'];
                               }
                               if (isset($row['ITEM_ENUM'])) {
-                                  $number .= ' (' . utf8_encode($row['ITEM_ENUM']) . ')';
+                                  $number .= ' ' . utf8_encode($row['ITEM_ENUM']);
+                              }
+                              if (isset($row['CHRON'])) {
+                                  $number .= ' (' . utf8_encode($row['CHRON']) . ')';
                               }
                               // If "Copy Number" is different, we need to use it as the new key
                               // and delete the old one later
@@ -1230,9 +1233,28 @@ EOT;
     // Set the default pickup library to that of the patron's library (not the item owning's library)
     public function getILLPickupLibraries($id, $patron)
     {
+        // Parse out the source library, e.g., UIUdb.123 => 123
+        // (We purposely overrode MultiBackend::getILLPickupLibraries()
+        //  to pass the source in the ID because we need this info!)
+        list($source, $id) = explode('.', $id, 2);
+
+        // we stripped out source library because parent class deals only with local bib IDs (numerals only)
         $results = parent::getILLPickupLibraries($id, $patron);
         if ($results === false) {
-            return false;
+            // We need to always send back at least one library (the item owning's)
+            // so that AAA (callslip) requests can potentially occur
+            $results = array();
+            $result = array();
+            $itemUbId = $this->config['ILLRequestSources'][$source];
+            if (preg_match('/^[1@]*(...)[Dd][Bb]/', $itemUbId, $matches)) {
+                $item_agency_id_lc3 = strtolower($matches[1]);
+                $item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
+            }
+            $result['id'] = $itemUbId;
+            $result['name'] = $this->translate($item_agency_id);
+            $result['isDefault'] = true;
+            $results[] = $result;
+            return $results;
         }
 
         // determine logged-in patron's UbId
