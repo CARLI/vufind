@@ -16,6 +16,26 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             : [];
     }
 
+    // we need to override this because we really need to know the source of the bib ID!
+    public function getILLPickupLibraries($id, $patron)
+    {
+        $source = $this->getSource($id);
+        $driver = $this->getDriver($source);
+        if ($driver
+            && $this->methodSupported(
+                $driver, 'getILLPickupLibraries', compact('id', 'patron')
+            )
+        ) {
+            // Patron is not stripped so that the correct library can be determined
+            return $driver->getILLPickupLibraries(
+                //$this->stripIdPrefixes($id, $source, ['id']),
+                $id,
+                $patron
+            );
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
     public function getHolding($id, array $patron = null)
     {
         // we need to disable Request/Available links for libraries that prohibit "Call slip"
