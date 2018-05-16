@@ -8,6 +8,51 @@ use VuFind\Config\Locator as ConfigLocator;
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
 
+    // overriden because we want to be able to treat an AAA scenario
+    // as if it were a callslip (StorageRetrievalRequest).
+    // NOTE: We purposely overrode MultiBackend::getILLPickupLocations()
+    //       to pass the source in the ID because we need this info!
+    public function getILLPickupLocations($id, $pickupLib, $patron)
+    {
+        // Parse out the source library, e.g., UIUdb.123 => 123
+        // (We purposely overrode MultiBackend::getILLPickupLocations()
+        //  to pass the source in the ID because we need this info!)
+        list($source, $id) = explode('.', $id, 2);
+
+        if (preg_match('/^[1@]*(...)[Dd][Bb]/', $pickupLib, $matches)) {
+            $item_agency_id_lc3 = strtolower($matches[1]);
+            $item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
+            list($patronUbId, $patronId) = explode('.', $patron['id'], 2);
+
+            // It's an AAA scenario! (callslip)
+            if ($source == $item_agency_id && $item_agency_id == $patronUbId) {
+                $results = parent::getPickUpLocations($patron, NULL);
+
+                $ILLresults = array();
+                foreach ($results as $result) {
+                    $ILLresult = array();
+                    $ILLresult['id'] = $result['locationID'];
+                    $ILLresult['name'] = $result['locationDisplay'];
+                    $ILLresults[] = $ILLresult;
+                }
+                return $ILLresults;
+            }
+        }
+
+        try {
+            $results =  parent::getILLPickupLocations($id, $pickupLib, $patron);
+        } catch (ILSException $e) {
+                $ILLresults = array();
+                $ILLresult = array();
+                $ILLresult['id'] = '-1';
+                $ILLresult['name'] = $this->translate($e->getMessage());
+                $ILLresults[] = $ILLresult;
+                return $ILLresults;
+            //throw new ILSException($e->getMessage());
+        }
+        return $results;
+    }
+
     // We override this method because we need to force a
     // placeStorageRetrievalRequest() for AAA scenarios.
     // I.e., when Patron's Home Library, Item's Library, and Pickup Library are the same
@@ -337,8 +382,6 @@ EOT;
             }
             $this->putCachedData($cacheId, $blockReasons);
         }
-//$debug = 'In CARLI::VoyagerRestful::checkAccountBlocks, blockReasons: ' . var_export($blockReasons, true);
-//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         return $blockReasons;
     }
 
@@ -1231,11 +1274,15 @@ EOT;
     }
 
     // Set the default pickup library to that of the patron's library (not the item owning's library)
+    // Also, because we want to be able to treat an AAA scenario
+    // as if it were a callslip (StorageRetrievalRequest).
+    // NOTE: We purposely overrode MultiBackend::getILLPickupLibraries()
+    //       to pass the source in the ID because we need this info!)
     public function getILLPickupLibraries($id, $patron)
     {
         // Parse out the source library, e.g., UIUdb.123 => 123
         // (We purposely overrode MultiBackend::getILLPickupLibraries()
-        //  to pass the source in the ID because we need this info!)
+        //  to pass the source in the ID because we need this info!
         list($source, $id) = explode('.', $id, 2);
 
         // we stripped out source library because parent class deals only with local bib IDs (numerals only)
