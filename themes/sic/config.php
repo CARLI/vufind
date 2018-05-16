@@ -20,4 +20,13 @@ account via the Institutional Login button (top right corner) using your SIUC
 credentials.</p> 
 ';
 
+$loginButtonText = 'Login with Your Network ID';
+
+$loginLinkHelp = 'Courtesy Card Holders Login Here';
+
+$loginText = '
+<p>Courtesy Card holders, please enter your Card # in the \'Barcode\' field and
+your last name, then click \'Login\'.</p>
+'; 
+
 ?>
