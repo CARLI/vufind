@@ -19,9 +19,11 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         //  to pass the source in the ID because we need this info!)
         list($source, $id) = explode('.', $id, 2);
 
+
         if (preg_match('/^[1@]*(...)[Dd][Bb]/', $pickupLib, $matches)) {
-            $item_agency_id_lc3 = strtolower($matches[1]);
-            $item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
+            //$item_agency_id_lc3 = strtolower($matches[1]);
+            //$item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
+            $item_agency_id = $this->ubCodeToLibCode($pickupLib);
             list($patronUbId, $patronId) = explode('.', $patron['id'], 2);
 
             // It's an AAA scenario! (callslip)
@@ -1294,8 +1296,9 @@ EOT;
             $result = array();
             $itemUbId = $this->config['ILLRequestSources'][$source];
             if (preg_match('/^[1@]*(...)[Dd][Bb]/', $itemUbId, $matches)) {
-                $item_agency_id_lc3 = strtolower($matches[1]);
-                $item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
+                //$item_agency_id_lc3 = strtolower($matches[1]);
+                //$item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
+                $item_agency_id = $this->ubCodeToLibCode($itemUbId);
             }
             $result['id'] = $itemUbId;
             $result['name'] = $this->translate($item_agency_id);
@@ -1385,5 +1388,15 @@ EOT;
       }
       return $code;
    }
+
+   function ubCodeToLibCode($ubcode) {
+       foreach ($this->config['ILLRequestSources'] as $source => $this_ubcode) {
+           if ($ubcode === $this_ubcode) {
+               return $source;
+           }
+       }
+       return $ubcode;
+   }
+
 }
 
