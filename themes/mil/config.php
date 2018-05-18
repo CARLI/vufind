@@ -17,4 +17,6 @@ $loginText = '
 Library Borrower ID/Barcode and your Last Name, then click Login.</p> 
 '; 
 
+$searchDropText = 'Millikin\'s Catalog Only'; 
+
 ?>
