@@ -22,6 +22,9 @@ $loginText = '
 <p>Login with your Net ID. 
 If you do not have a Net ID, please enter your Barcode number and your Last 
 Name, then click the Login button.</p>
+<p>Your library barcode is the number that starts with 2011... On i-cards, it
+appears next to the word “Library” on the front of the card, near the
+lower right corner.</p>
 '; 
 
 $loginButtonText = 'Login with your <span class="text-transform-none">Net ID</span>';

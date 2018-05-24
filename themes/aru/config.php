@@ -1,8 +1,8 @@
 <?
 
-$headerImage = 'vufind-aru.gif';
+$headerImage = 'vufind-aru.png';
 
-$headerUrl = 'http://www.aurora.edu/academics/library/index.html';
+$headerUrl = 'https://aurora.edu/academics/library';
 
 $headerMap = '';
 
