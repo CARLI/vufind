@@ -11,7 +11,7 @@ class Results extends \VuFind\Search\Solr\Results
 {
     protected $includeUngroupedLocations = false;
     protected $facetMinCount = 1;
-    protected $groupSortOrder; // needed in usort anon fn
+    protected $groupSortOrder;
     protected $libraryInstance; // e.g., UIUdb
 
     protected function performSearch()
@@ -69,7 +69,9 @@ class Results extends \VuFind\Search\Solr\Results
                     }
                }
             } else {
-                $unGroupedLocations[] = array($loc, 0);// We can't know for certain what this count is, so set it to 0 (hide later in templates)
+                if (array_key_exists($loc, $loc2ids)) {
+                    $unGroupedLocations[] = array($loc, 0);// We can't know for certain what this count is, so set it to 0 (hide later in templates)
+                }
             }
         }
 
@@ -79,29 +81,27 @@ class Results extends \VuFind\Search\Solr\Results
             $combinedLocs = $groupedLocations;
         }
         usort($combinedLocs, function($a, $b) {
-            $a0 = 1000000; 
-            if (preg_match('/_group_/', $a[0], $matches) ) {
-                $a0 -= 1000; // give precedence to groups (over ungrouped locations)
-            }
-            $b0 = 1000000; // a "large" number
-            if (preg_match('/_group_/', $b[0], $matches) ) {
-                $b0 -= 1000; // give precedence to groups (over ungrouped locations)
-            }
+            $groupNameA = $this->translate($a[0]);
+            $groupNameB = $this->translate($b[0]);
 
-            // only keep sort order if within the same local library instance; otherwise, put randomly at the end
+            // give precedence to groups within same local library instance
+            $isLocalGroupA = false;
+            $isLocalGroupB = false;
             if (strlen($this->libraryInstance) > 0) {
                 if (preg_match('/^' . $this->libraryInstance . '_group_/', $a[0], $matches) ) {
-                    if (array_key_exists($a[0], $this->groupSortOrder)) {
-                        $a0 = $this->groupSortOrder[$a[0]];
-                    }
+                    $isLocalGroupA = true;
                 }
                 if (preg_match('/^' . $this->libraryInstance . '_group_/', $b[0], $matches) ) {
-                    if (array_key_exists($b[0], $this->groupSortOrder)) {
-                        $b0 = $this->groupSortOrder[$b[0]];
-                    }
+                    $isLocalGroupB = true;
                 }
             }
-            return $a0 - $b0;
+            if ($isLocalGroupA) {
+                $groupNameA = ' ' . $groupNameA; // prepend space to put it up near the top
+            }
+            if ($isLocalGroupB) {
+                $groupNameB = ' ' . $groupNameB; // prepend space to put it up near the top
+            }
+            return strcmp(strtoupper($groupNameA), strtoupper($groupNameB));
         });
 
         $replaceWith = new NamedList($combinedLocs);
