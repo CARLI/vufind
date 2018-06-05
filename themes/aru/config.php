@@ -8,4 +8,8 @@ $headerMap = '';
 
 $feedBackLink = 'http://aurora.libanswers.com';
 
+$loginText = '
+<p>Enter your barcode Number as 2251100 + your 7-digit student ID number (2251100XXXXXXX)</p>
+'; 
+
 ?>
