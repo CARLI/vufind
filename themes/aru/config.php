@@ -1,11 +1,15 @@
 <?
 
-$headerImage = 'vufind-aru.gif';
+$headerImage = 'vufind-aru.png';
 
-$headerUrl = 'http://www.aurora.edu/academics/library/index.html';
+$headerUrl = 'https://aurora.edu/academics/library';
 
 $headerMap = '';
 
 $feedBackLink = 'http://aurora.libanswers.com';
+
+$loginText = '
+<p>Enter your barcode Number as 2251100 + your 7-digit student ID number (2251100XXXXXXX)</p>
+'; 
 
 ?>

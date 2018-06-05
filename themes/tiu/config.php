@@ -16,4 +16,12 @@ $introtext = '
 </center>
 ';
 
+$searchDropText = 'TIU Catalog Only'; 
+
+$loginText = '
+<p>The Barcode is your TIU ID number.</p>
+';
+
+$searchDropText = 'TIU Catalog Only'; 
+
 ?>

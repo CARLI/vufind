@@ -1,0 +1,24 @@
+/* css ARU */
+a {  /* Link color */
+  color: #00467F;
+}
+a:visited { /* Link visited */
+  color: #0070cc;
+}
+a:hover,a:focus,a:active {  /* Link hover & focus */
+  color: #0070cc;
+}
+h2, h4 {  /* Side Bar header #2 */
+  color:#333333;
+}
+h3 {  /* Title #4 */
+  color:#333333;
+}
+.facet-group .title {  /* Facet Label #3 */
+  color:#333333
+}
+.sidebar .facet.active, .sidebar .facet.active:hover, .sidebar .active-filters .facet, .myresearch-menu a.active { /* background for right facet sidebar in search & right hightlite on MyResearch */
+  color: #ffffff;
+  background: #00467F;
+  border-color: #00467F;
+}
