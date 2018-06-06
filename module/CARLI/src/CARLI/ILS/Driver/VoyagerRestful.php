@@ -7,6 +7,88 @@ use VuFind\Config\Locator as ConfigLocator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+    protected function getHoldingItemsSQL($id)
+    {
+        // Expressions
+        $sqlExpressions = [
+            "BIB_MASTER.BIB_ID",
+            "MFHD_ITEM.MFHD_ID",
+            "ITEM.ITEM_ID",
+            "NVL(ITEM_BARCODE.ITEM_BARCODE, 'No barcode') as ITEM_BARCODE",
+            "ITEM.ON_RESERVE",
+            "ITEM.ITEM_SEQUENCE_NUMBER",
+            "ITEM.RECALLS_PLACED",
+            "ITEM.HOLDS_PLACED",
+            "ITEM_STATUS_TYPE.ITEM_STATUS_DESC as status",
+            "MFHD_DATA.RECORD_SEGMENT",
+            "MFHD_ITEM.ITEM_ENUM", 
+            "NVL(LOCATION.LOCATION_DISPLAY_NAME, LOCATION.LOCATION_NAME) as location",
+            "ITEM.TEMP_LOCATION", 
+            "ITEM.PERM_LOCATION", 
+            "MFHD_MASTER.DISPLAY_CALL_NO as callnumber",
+            "to_char(CIRC_TRANSACTIONS.CURRENT_DUE_DATE, 'MM-DD-YY') as duedate",
+            "(SELECT TO_CHAR(MAX(CIRC_TRANS_ARCHIVE.DISCHARGE_DATE), 'MM-DD-YY HH24:MI') " .
+                "FROM " . $this->dbName . ".CIRC_TRANS_ARCHIVE " . 
+                "WHERE CIRC_TRANS_ARCHIVE.ITEM_ID = ITEM.ITEM_ID) as RETURNDATE",
+            "ITEM.ITEM_SEQUENCE_NUMBER",
+            "(SELECT SORT_GROUP_LOCATION.SEQUENCE_NUMBER " .
+                "FROM " . $this->dbName . ".SORT_GROUP, " . $this->dbName . ".SORT_GROUP_LOCATION " .
+                "WHERE SORT_GROUP.SORT_GROUP_DEFAULT = 'Y' " .
+                "AND SORT_GROUP_LOCATION.SORT_GROUP_ID = SORT_GROUP.SORT_GROUP_ID " .
+                "AND SORT_GROUP_LOCATION.LOCATION_ID = ITEM.PERM_LOCATION) " .
+                "as SORT_SEQ",
+            "ITEM.ITEM_TYPE_ID",
+            "ITEM.TEMP_ITEM_TYPE_ID",
+        ];
+
+        // From
+        $sqlFrom = [
+            $this->dbName . ".BIB_MASTER",
+            $this->dbName . ".BIB_MFHD",
+            $this->dbName . ".ITEM",
+            $this->dbName . ".ITEM_STATUS_TYPE",
+            $this->dbName . ".ITEM_STATUS",
+            $this->dbName . ".LOCATION",
+            $this->dbName . ".MFHD_ITEM",
+            $this->dbName . ".MFHD_MASTER",
+            $this->dbName . ".MFHD_DATA",
+            $this->dbName . ".CIRC_TRANSACTIONS",
+            $this->dbName . ".ITEM_BARCODE",
+        ];
+
+        // Where
+        $sqlWhere = [
+            "BIB_MASTER.BIB_ID = :id",
+            "BIB_MASTER.BIB_ID = BIB_MFHD.BIB_ID",
+            "BIB_MFHD.MFHD_ID = MFHD_MASTER.MFHD_ID",
+            "MFHD_MASTER.MFHD_ID = MFHD_ITEM.MFHD_ID ",
+            "MFHD_ITEM.ITEM_ID = ITEM.ITEM_ID ",
+            "ITEM.ITEM_ID = ITEM_BARCODE.ITEM_ID(+)",
+            "MFHD_DATA.MFHD_ID = MFHD_ITEM.MFHD_ID ",
+            "ITEM.ITEM_ID = ITEM_STATUS.ITEM_ID ",
+            "LOCATION.LOCATION_ID = ITEM.PERM_LOCATION ",
+            "ITEM_STATUS.ITEM_STATUS = ITEM_STATUS_TYPE.ITEM_STATUS_TYPE",
+            "ITEM.ITEM_ID = CIRC_TRANSACTIONS.ITEM_ID(+)",
+            "BIB_MASTER.SUPPRESS_IN_OPAC='N'",
+            "MFHD_MASTER.SUPPRESS_IN_OPAC='N' ",
+        ];
+
+        // Order
+        $sqlOrder = ["MFHD_DATA.MFHD_ID", "MFHD_DATA.SEQNUM"];
+
+        // Bind
+        $sqlBind = [':id' => $id];
+
+        $sqlArray = [
+            'expressions' => $sqlExpressions,
+            'from' => $sqlFrom,
+            'where' => $sqlWhere,
+            'order' => $sqlOrder,
+            'bind' => $sqlBind,
+        ];
+
+        return $sqlArray;
+    }
 
     // overriden because we want to be able to treat an AAA scenario
     // as if it were a callslip (StorageRetrievalRequest).
