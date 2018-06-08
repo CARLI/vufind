@@ -19,4 +19,15 @@ db" alt="New in the Catalog" />
 
 $feedBackLink = 'http://www.library.eiu.edu/requests/email.html';
 
+$loginButtonText = 'Login with your EIU NetID';
+
+$loginLinkHelp = 'Don\'t have an EIU NetID?';
+
+$loginText = '
+<p>The barcode number is 14 digits long and begins with 22211, and may be found on your PantherCard, 
+a community borrower’s card, or a card issued by EIU Distance Education.  Enter this number (with no spaces) 
+in the Barcode box below, then your last name in the Last Name box, and click the Login button.  
+For further assistance, please call the EIU Circulation Desk at 217 581-6071.</p>
+'; 
+
 ?>
