@@ -27,9 +27,15 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
             "ITEM.PERM_LOCATION", 
             "MFHD_MASTER.DISPLAY_CALL_NO as callnumber",
             "to_char(CIRC_TRANSACTIONS.CURRENT_DUE_DATE, 'MM-DD-YY') as duedate",
+/*** 
+ ***
+ RETURNDATE is not always correct (and/or confusing at times); comment it out: 
+
             "(SELECT TO_CHAR(MAX(CIRC_TRANS_ARCHIVE.DISCHARGE_DATE), 'MM-DD-YY HH24:MI') " .
                 "FROM " . $this->dbName . ".CIRC_TRANS_ARCHIVE " . 
                 "WHERE CIRC_TRANS_ARCHIVE.ITEM_ID = ITEM.ITEM_ID) as RETURNDATE",
+ ***
+ ***/
             "ITEM.ITEM_SEQUENCE_NUMBER",
             "(SELECT SORT_GROUP_LOCATION.SEQUENCE_NUMBER " .
                 "FROM " . $this->dbName . ".SORT_GROUP, " . $this->dbName . ".SORT_GROUP_LOCATION " .
