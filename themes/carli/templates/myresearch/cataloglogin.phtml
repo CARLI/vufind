@@ -1,3 +1,18 @@
+<! CARLI BEGIN Customization !>
+<? // get the 3 letter institution code //
+  $inst = getenv('VUFIND_LIBRARY');
+
+  // path to the individual institution customization variables//
+  $configInclude =  "/usr/local/vufind/themes/$inst/config.php";
+
+  // include individual institution customization file //
+  if (file_exists($configInclude)) {
+      include $configInclude;
+  }
+
+?>
+<! CARLI END Customization !>
+
 <?
     // Set up page title:
     $this->headTitle($this->translate('Login'));
@@ -13,7 +28,13 @@
 <? else: ?>
   <h3><?=$this->transEsc('Library Catalog Profile')?></h3>
   <?=$this->flashmessages()?>
-  <p><?=$this->transEsc('cat_establish_account')?></p>
+  <! CARLI BEGIN Customization !>
+  <? if (isset($catEstablishAccount)) : ?>
+  	<? echo $catEstablishAccount ?>
+  <? else: ?> 
+	<p><?=$this->transEsc('cat_establish_account')?></p>
+  <? endif; ?>
+  <! CARLI END Customization !>
   <form method="post" action="<?=$this->serverUrl(true)?>" class="form-catalog-login">
     <? if ($this->targets !== null): ?>
       <div class="form-group">

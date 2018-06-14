@@ -141,10 +141,8 @@ margin-bottom: 1px;
 padding-top: 5px;
 border-top: 1px solid #dedede;
 }
-footer p.sm-text {
+footer p.sm-text, footer .carli-landing p.sm-text {
   font-size: 10px;
-  text-align: left;
-  text-justify: auto;
 }
 footer p.carlifoot a {
   color: #8a6593;
@@ -189,6 +187,7 @@ footer .carli-footer-image {
 }
 footer .carli-landing p {
   font-size: 13px;
+  line-height: 1.5em;
 }
 
 #whichCatalogAdvanced {
