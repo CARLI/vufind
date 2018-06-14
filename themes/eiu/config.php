@@ -4,22 +4,19 @@ $headerImage = 'vufind-eiu.gif';
 
 $headerUrl = '';
 
-$headerMap = '<area alt="Journals" href="http://www.library.eiu.edu/eresources/basicsearch.asp " coords="479,51,554,73" shape="rect" />
-<area alt="Booth Library" href="http://www.library.eiu.edu/" coords="95,57,297,92" shape="rect" />
-<area alt="Booth Library" href="http://www.library.eiu.edu/" coords="440,6,549,28" shape="rect" />
-<area alt="Books" href="http://www.library.eiu.edu/resources/books.html" coords="490,29,548,49" shape="rect" />
-<area href="http://www.library.eiu.edu/requests/asklibr.html" coords="426,72,552,91" shape="rect" />
-<area alt="Eastern Illinois University" href="http://www.eiu.edu/" coords="550,108,550,94,393,93,377,82,360,98,371,109" shape="poly" />
-<area alt="Map It!" onclick="window.open(\'http://booth.library.eiu.edu/mapit/mapit.phpi\',
-\'_blank\', \'width=550,height=220\', \'menubar=no\', \'location=noi\'); return false" target="_blank" href="http://booth.library.eiu.edu/mapit/mapit.php" coords="607,4,694,111" shape="rect" />
-<area shape="rect" coords="401,119,546,141" href="https://i-share.carli.illinois.edu/newbooks/newbooks.cgi?library=EIU
-db" alt="New in the Catalog" />
-<area shape="rect" coords="606,120,777,140" href="https://i-share.carli.illinois.edu/eiu/cgi-bin/Pwebrecon.cgi?DB=local&amp;PAGE=First" alt="Switch to Classic View"  />
+$headerMap = '
+<area shape="rect" coords="116,71,317,112" href="http://library.eiu.edu/">
+<area shape="rect" coords="447,11,547,128" onclick="window.open(\'http://booth.library.eiu.edu/mapit/mapit.php\',
+\'_blank\', \'width=550,height=220\', \'menubar=no\', \'location=no\'); return false" target="_blank" href="http://booth.library.eiu.edu/mapit/mapit.php">
+<area shape="rect" coords="571,4,689,144" href="http://library.eiu.edu/">
+<area shape="rect" coords="714,7,821,131" onclick="window.open(\'http://www.library.eiu.edu/requests/asklibr.html\',
+\'_blank\', \'width=750,height=550\', \'menubar=no\', \'location=no\'); return false" target="_blank" href="http://www.library.eiu.edu/requests/asklibr.html">
+<area shape="rect" coords="840,1,942,35" href="http://www.library.eiu.edu/cataloglogin/">
 ';
 
 $feedBackLink = 'http://www.library.eiu.edu/requests/email.html';
 
-$loginButtonText = 'Login with your EIU NetID';
+$loginButtonText = 'Login with your EIU <span class="text-transform-none">NetID</span>';
 
 $loginLinkHelp = 'Don\'t have an EIU NetID?';
 
