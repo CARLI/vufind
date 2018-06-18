@@ -36,6 +36,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                 "WHERE CIRC_TRANS_ARCHIVE.ITEM_ID = ITEM.ITEM_ID) as RETURNDATE",
  ***
  ***/
+            "null as RETURNDATE",
             "ITEM.ITEM_SEQUENCE_NUMBER",
             "(SELECT SORT_GROUP_LOCATION.SEQUENCE_NUMBER " .
                 "FROM " . $this->dbName . ".SORT_GROUP, " . $this->dbName . ".SORT_GROUP_LOCATION " .
