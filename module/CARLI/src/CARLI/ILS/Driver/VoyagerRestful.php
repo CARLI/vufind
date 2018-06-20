@@ -255,6 +255,10 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 
     public function getDefaultPickUpLocation($patron = false, $holdDetails = null)
     {
+        if ($this->defaultPickUpLocation) {
+            return $this->defaultPickUpLocation;
+        }
+
         if ($patron) {
             $patronId = $this->encodeXML($patron['id']);
             $lastname = $this->encodeXML($patron['lastname']);
