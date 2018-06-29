@@ -18,10 +18,14 @@ For example, to search for the book Gone With the Wind enter:
 "gone with the wind"</p>
 ';
 
+$loginButtonText = 'Login with your college username/password';
+
+$loginLinkHelp = 'Don\'t have a Lake Forest College username/password?';
+
 $loginText = '
-<p>Your “Barcode" is the 14-digit barcode number from your College ID. It 
-begins 210110…. Do not include the little “a” at the beginning and end 
-of the number.</p>
-';
+<p>If you are a community patron or alum with a Lake Forest College library
+borrower account, please enter your borrower number and your last name. To
+verify your borrower number, please email <a href="mailto:libcirc@lakeforest.edu">libcirc@lakeforest.edu</a>.</p>
+'; 
 
 ?>
