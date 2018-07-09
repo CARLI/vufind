@@ -29,4 +29,15 @@ $loginText = '
 your last name, then click \'Login\'.</p>
 '; 
 
+$catEstablishAccount = '
+<p>This form is for first time users. Once your VuFind account is linked to your 
+University account you won\'t see this page again.</p> 
+<p>Courtesy Card holders, please enter your Card # in the \'Barcode\' field and
+your last name, then click \'Login\'.</p>
+';
+
+$searchDropText = '
+SIUC Only
+'; 
+
 ?>

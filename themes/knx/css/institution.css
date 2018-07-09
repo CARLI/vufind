@@ -1,0 +1,25 @@
+/* css KNX */
+a {  /* Link color */
+  color: #337ab7;
+}
+a:visited { /* Link visited */
+  color: #337ab7;
+}
+a:hover,a:focus,a:active {  /* Link hover & focus */
+  color: #23527c;
+  text-decoration: underline;
+}
+h2, h4 {  /* Side Bar header #2 */
+  color:#484646;
+}
+h3 {  /* Title #4 */
+  color: ;
+}
+.facet-group .title {  /* Facet Label #3 */
+  color:#484646
+}
+.sidebar .facet.active, .sidebar .facet.active:hover, .sidebar .active-filters .facet, .myresearch-menu a.active { /* background for right facet sidebar in search & right hightlite on MyResearch */
+  color: #ffffff;
+  background: #484646;
+  border-color: #484646;
+}
