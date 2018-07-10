@@ -74,11 +74,11 @@ trait ILLRequestsTrait
             return $this->redirectToRecord();
         }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-// BEGIN CARLI comment-out (we don't want to pre-approve ILL requests, because we want to
-//                          later test for AAA-scenario; for this scenario, we want to
-//                          override placeILLRequest to make a storageRetrievalRequest instead!)
-/*
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        // BEGIN CARLI comment-out (we don't want to pre-approve ILL requests, because we want to
+        //                          later test for AAA-scenario; for this scenario, we want to
+        //                          override placeILLRequest to make a storageRetrievalRequest instead!)
+        /*
         // Block invalid requests:
         $validRequest = $catalog->checkILLRequestIsValid(
             $driver->getUniqueID(), $gatheredDetails, $patron
@@ -90,9 +90,9 @@ trait ILLRequestsTrait
             );
             return $this->redirectToRecord('#top');
         }
-*/
-// END CARLI comment-out ////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
+        */
+        // END CARLI comment-out ////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////
 
         // Send various values to the view so we can build the form:
 
@@ -148,6 +148,21 @@ trait ILLRequestsTrait
             $driver->getUniqueID(), $patron, $gatheredDetails
         );
 
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        // BEGIN CARLI lookup items for this bib so patron can ultimately decide at request time
+        $holdingsData = $catalog->getHolding( $driver->getUniqueID(), $patron);
+        $items = array();
+        foreach ($holdingsData as $holdingData) {
+           $item = array();
+           $item['id'] = $holdingData['item_id'];
+           $item['name'] = $holdingData['volume'] ? $holdingData['volume'] : 'Copy ' . $holdingData['number'];
+           $items[] = $item;
+        }
+        usort($items, function($a, $b) { return strcmp($a{'name'}, $b{'name'}); });
+
+        // END CARLI lookup items for this bib so patron can ultimately decide at request time
+        /////////////////////////////////////////////////////////////////////////////////////////////
+
         // Get pickup locations. Note that these are independent of pickup library,
         // and library specific locations must be retrieved when a library is
         // selected.
@@ -155,6 +170,7 @@ trait ILLRequestsTrait
 
         $view = $this->createViewModel(
             [
+                'items' => $items,
                 'gatheredDetails' => $gatheredDetails,
                 'pickupLibraries' => $pickupLibraries,
                 'pickupLocations' => $pickupLocations,

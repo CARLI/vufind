@@ -96,9 +96,113 @@ foreach ($holdings['holdings'] as $location => $location_val) {
 }
 $holdings = $split;
 ?>
-<?
+
+<!--
+<pre>
+<?  
 //print_r($holdings);
 ?>
+</pre>
+-->
+
+
+<! CARLI BEGIN 'Request First Available' !>
+<?
+  $rfaScript = <<<JS
+$(document).ready(function() {
+
+  //global: now defined in js/check_requestable.js
+  //var vol2Bibs = [];
+
+JS
+?>
+<?
+// https://defuse.ca/blog/escaping-string-literals-for-javascript-in-php.html
+function js_string_escape($data)
+{
+    $safe = "";
+    for($i = 0; $i < strlen($data); $i++)
+    {
+        if(ctype_alnum($data[$i]))
+            $safe .= $data[$i];
+        else
+            $safe .= sprintf("\\x%02X", ord($data[$i]));
+    }
+    return $safe;
+}
+$volNumsArr = array();
+$volDisplayKeyArr = array();
+$holdingsCount = count($holdings['holdings']);
+$rfaScript .= "  vol2BibsHoldings = " . $holdingsCount . ";\n";
+foreach ($holdings['holdings'] as $location => $location_val) {
+    foreach ($location_val['items'] as $itm) {
+        if (array_key_exists('volume', $itm) && array_key_exists('item_id', $itm)
+        && strlen($itm['volume']) > 0  && strlen($itm['item_id']) > 0
+        ) {
+
+            // normalize volumes by picking out only number followed by digit, e.g., v.999
+            // e.g., v.2(1983) => v.2, v2 => v.2, v.2 1983 => v.2
+            if (false && preg_match('/([Vv])(\.*)([0-9\-]+)/', $itm['volume'], $matches)) {
+                $vol = strtolower($matches[1]) . '.' . strtolower($matches[3]);
+                $volDisplay = $vol;
+                if (preg_match('/(\(*[Vv]\.*[0-9\-]+.*)$/', $itm['volume'], $matches)) {
+                    $volDisplay = $matches[1];
+                }
+            } else {
+                $vol = $itm['volume'];
+                $volDisplay = $vol;
+            }
+
+            if (! array_key_exists($vol, $volDisplayKeyArr)) {
+                $volDisplayKeyArr[$vol] = $volDisplay;
+            } else {
+                if (strlen($volDisplay) > strlen($volDisplayKeyArr[$vol])) {
+                    $volDisplayKeyArr[$vol] = $volDisplay;
+                }
+            }
+
+            if (! array_key_exists($vol, $volNumsArr)) {
+                $volNumsArr[$vol] = 1;
+                $rfaScript .= "  vol2Bibs['" . js_string_escape($vol) . "'] = [];\n";
+            }
+            $rfaScript .= "  vol2Bibs['" . js_string_escape($vol) . "'].push('" . js_string_escape($itm['id']) . "." . js_string_escape($itm['item_id']) . "');\n";
+
+        }
+    }
+}
+ksort($volNumsArr);
+?>
+<?
+  $rfaScript .= <<<JS
+  //console.log(vol2Bibs);
+
+});
+JS;
+?>
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $rfaScript, 'SET'); ?>
+<br/>
+<? if (!$user): ?>
+  <div id="checkRequestableStatus">
+    <a href="<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true" data-lightbox>Request First Available Item</a>
+  </div>
+<? else: ?>
+  <!-- <div id="checkRequestableStatus"> -->
+  <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
+    Select Item: <select id="checkRequestableItem">
+    <?
+      echo "<option value=\"\"></option>\n";
+      foreach ($volNumsArr as $volNum => $ignore) {
+          echo '<option value="' . $volNum . '">' . $volDisplayKeyArr[$volNum] . "</option>\n";
+      }
+    ?>
+    </select>
+  <? endif; ?>
+   <input type="button" onClick="checkRequestableItems()" value="Request First Available Item" id="requestFirstAvailableButton"></input>
+  <div id="checkRequestableStatus">
+  </div>
+<? endif; ?>
+<! CARLI END 'Request First Available' !>
+
 
 <? foreach ($holdings['holdings'] as $holding): ?>
 <h3>
@@ -203,7 +307,7 @@ $holdings = $split;
                 <a class="<?=$checkStorageRetrievalRequest ? 'checkStorageRetrievalRequest ' : ''?> placeStorageRetrievalRequest" data-lightbox href="<?=$this->recordLink()->getRequestUrl($row['storageRetrievalRequestLink'])?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc($checkStorageRetrievalRequest ? "storage_retrieval_request_check_text" : "storage_retrieval_request_place_text")?></a>
               <? endif; ?>
               <? if (isset($row['ILLRequestLink']) && $row['ILLRequestLink']): ?>
-                <a class="<?=$checkILLRequest ? 'checkILLRequest ' : ''?>placeILLRequest" data-lightbox href="<?=$this->recordLink()->getRequestUrl($row['ILLRequestLink'])?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?></a>
+                <a hiddenId="<?=$row['id']?>" class="ajaxCheckRequestableItem <?=$checkILLRequest ? 'checkILLRequest ' : ''?>placeILLRequest" data-lightbox href="<?=$this->recordLink()->getRequestUrl($row['ILLRequestLink'])?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?></a>
               <? endif; ?>
             <? else: ?>
               <? /* Begin Unavailable Items (Recalls) */ ?>

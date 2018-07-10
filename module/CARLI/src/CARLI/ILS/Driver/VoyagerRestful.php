@@ -1183,6 +1183,18 @@ EOT;
     {
         $row = parent::processHoldingRow($sqlRow);
 
+        ///////////////////////////////
+        // Create a clean volume number so we can match these easily during Request First Available
+        if (array_key_exists('ITEM_ENUM', $sqlRow)) {
+            $row['volume'] = str_replace(":", ",", strtolower($sqlRow['ITEM_ENUM']));
+            $row['volume'] = preg_replace('/\s+/', ' ', $row['volume']);
+            $row['volume'] = preg_replace('/,/', ', ', $row['volume']);
+        }
+        if (array_key_exists('CHRON', $sqlRow)) {
+            $row['volume'] .= ' (' . str_replace(":", ",", strtolower($sqlRow['CHRON'])) . ')';
+        }
+        ///////////////////////////////
+
         try {
             $marc = new File_MARC(
                 str_replace(["\n", "\r"], '', $row['_fullRow']['RECORD_SEGMENT']),

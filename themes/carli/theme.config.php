@@ -4,6 +4,7 @@ return array(
     'js' => array(
         'googlefonts.js',
         'carli.js',
+        'check_requestable.js',
     ),
    'css' => array(
         'carli.css',
