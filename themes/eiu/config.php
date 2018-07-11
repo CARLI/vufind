@@ -27,4 +27,16 @@ in the Barcode box below, then your last name in the Last Name box, and click th
 For further assistance, please call the EIU Circulation Desk at 217 581-6071.</p>
 '; 
 
+$catEstablishAccount = '
+<p>Your barcode number is 14 digits long and begins with 22211, and may be
+found on your PantherCard under your picture or on a card issued by EIU
+Distance Education. Enter this number (with no spaces) in the Barcode box,
+then your last name in the Last Name box, and click Login. When successfully
+completed, your name and address should appear. You are ready to use the
+features of Your Account, and you will not need to complete this linking
+procedure again. Future logins with your EIU NetID will take you directly to
+Your Account. Please call the EIU Circulation Desk at 217 581-6071 if you
+need further assistance with logging in to Your Account.</p>
+'; 
+
 ?>

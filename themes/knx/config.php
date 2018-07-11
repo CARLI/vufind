@@ -1,13 +1,29 @@
 <?
 
-$headerImage = 'vufind-knx.gif';
+$headerImage = 'vufind-knx.jpg';
 
-$headerUrl = '';
+$headerUrl = 'http://library.knox.edu';
 
-$headerMap = '<area shape="rect" alt="Knox College Library home page" title="Knox College Library home page" shape="rect" coords="347,59,451,84" style="outline:none;" href="http://knox.libguides.com/libraryresources">
-<area shape="rect" alt="Help with your library account" title="Library account login help" shape="rect" coords="491,59,581,84" style="outline:none;" href="http://knox.libguides.com/library-accout">
-';
+$headerMap = '';
 
 $feedBackLink = 'mailto:reference@knox.edu';
+
+$introText = '
+<p>Need help finding materials? Get <a href="
+http://knox.libguides.com/gethelp" target="_blank">help from a
+librarian</a>.</p>
+
+<p>Questions about materials you have checked out? Contact our Circulation
+Desk at 309-341-7246 or email <a href="mailto:
+libcirc@knox.edu">libcirc@knox.edu</a>.</p>
+
+'; 
+
+$searchDropText = 'Knox College Catalog'; 
+
+$loginText = '
+<p>Your barcode is found on the back of your Knox ID card. Enter <strong>only
+the numbers</strong> of the barcode--do not use the letters.</p>
+'; 
 
 ?>
