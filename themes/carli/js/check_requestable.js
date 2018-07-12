@@ -4,6 +4,7 @@ var vol2Bibs = [];
 var vol2BibsHoldings = 0;
 
 var checkRequestableItemStatusIds = [];
+var checkRequestableItemStatusIdsUsedAlready = [];
 var checkRequestableItemStatusEls = {};
 var checkRequestableItemStatusURLs = [];
 var checkRequestableItemStatusTimer = null;
@@ -41,12 +42,6 @@ function checkRequestableItemStatusFail(response, textStatus) {
 }
 
 function runCheckRequestableItemAjaxForQueue() {
-  // ran out of Ids to check:
-  if (checkRequestableItemStatusIds.length < 1) {
-    showStatusText('There are no more items left to check.<br/>');
-    $('#requestFirstAvailableButton').show();
-    return;
-  }
   // Only run one item status AJAX request at a time:
   if (checkRequestableItemStatusRunning) {
     clearTimeout(checkRequestableItemStatusTimer);
@@ -55,11 +50,35 @@ function runCheckRequestableItemAjaxForQueue() {
   }
   checkRequestableItemStatusRunning = true;
 
-  var id = checkRequestableItemStatusIds.shift();
+  var id;
+  while (checkRequestableItemStatusIds.length > 0) {
+    id  = checkRequestableItemStatusIds.shift();
+    if (! id) {
+      break;
+    }
+    if (checkRequestableItemStatusIdsUsedAlready.indexOf(id) < 0) {
+      checkRequestableItemStatusIdsUsedAlready.push(id);
+      break;
+    } else {
+      id = null;
+    }
+  }
+  if (! id) {
+    showStatusText('There are no more items left to check.<br/>');
+    $('#requestFirstAvailableButton').show();
+    return;
+  }
   var url = checkRequestableItemStatusURLs[id];
   var el = checkRequestableItemStatusEls[id];
 
-  showStatusText('Trying ' + id + '<br/>');
+  var statusText = 'Checking ' + id + ' for ';
+  if (copyVolume) {
+    statusText += ' item: ' + copyVolume;
+  } else {
+    statusText += 'available item';
+  }
+  statusText += '...<br/>';
+  showStatusText(statusText);
 
   $.ajax({
     dataType: 'html',
@@ -69,20 +88,20 @@ function runCheckRequestableItemAjaxForQueue() {
   .done(function checkRequestableItemStatusDone(response) {
     // this is our test of a requestable item (pickUpLibrary variable is in the HTML response)
     if (/gatheredDetails\[pickUpLibrary\]/.test(response)) {
-      showStatusText('Request succeeded!<br/>');
+      showStatusText('Item was found.<br/>');
       $('#requestFirstAvailableButton').show();
 
       el.trigger('click');
       checkRequestableItemStatusRunning = false;
     } else {
-      showStatusText('Request failed. Trying again...<br/>');
+      showStatusText('Item not requestable from this holding. Trying the next one...<br/>');
       checkRequestableItemStatusRunning = false;
       clearTimeout(checkRequestableItemStatusTimer);
       checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
     }
   })
   .fail(function checkRequestableItemStatusFail(response, textStatus) {
-      showStatusText('Request failed. Trying again...<br/>');
+      showStatusText('Item not requestable from this holding. Trying the next one...<br/>');
       checkRequestableItemStatusRunning = false;
       clearTimeout(checkRequestableItemStatusTimer);
       checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
@@ -147,6 +166,11 @@ function checkRequestableItems(_container) {
   $('#requestFirstAvailableButton').hide();
 
   copyVolume = $('#checkRequestableItem').val();
+  if (lastCopyVolume != null && copyVolume !== lastCopyVolume) {
+    // clear out previously-used cache
+    checkRequestableItemStatusIdsUsedAlready = [];
+  }
+  lastCopyVolume = copyVolume;
   resetCheckRequestableParameters();
 
   var ajaxItems = $(container).find('.ajaxCheckRequestableItem');
