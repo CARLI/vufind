@@ -190,7 +190,7 @@ JS;
   <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
     Select Item: <select id="checkRequestableItem">
     <?
-      echo "<option value=\"\"></option>\n";
+      echo "<option value=\"\">any item</option>\n";
       foreach ($volNumsArr as $volNum => $ignore) {
           echo '<option value="' . $volNum . '">' . $volDisplayKeyArr[$volNum] . "</option>\n";
       }
