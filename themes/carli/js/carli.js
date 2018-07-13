@@ -43,7 +43,7 @@ $(document).ready(function() {
   var viewItemsText = 'View more items <i class="fa fa-arrow-circle-right"></i>';
   var hideItemsText = 'Hide items <i class="fa fa-arrow-circle-down"></i>';
 
-  var viewItems = '<tr><td colspan="3"><a href="#" class="itemsToggle text-success">' + viewItemsText + '</a></td></tr>';
+  var viewItems = '<tr><td colspan="2"><a href="#" class="itemsToggle text-success">' + viewItemsText + '</a></td></tr>';
   var hideItems = '<a href="#" class="itemsToggle text-success">' + hideItemsText + '</a>';
 
   $('.carli-holdings-unit').each(function(){
