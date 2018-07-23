@@ -28,4 +28,12 @@ borrower account, please enter your borrower number and your last name. To
 verify your borrower number, please email <a href="mailto:libcirc@lakeforest.edu">libcirc@lakeforest.edu</a>.</p>
 '; 
 
+$catEstablishAccount = '
+<p>Your barcode is located on the front of your College ID, below your photo.  
+Enter all 14 digits below it, beginning with the 2.</p>
+<p>If you need assistance, please email <a href="mailto:libcirc@lakeforest.edu">libcirc@lakeforest.edu</a> or call 
+the Donnelley and Lee Library circulation desk at 847-735-5056.
+</p>
+'; 
+
 ?>
