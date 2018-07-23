@@ -1,17 +1,23 @@
 <?
 
-$headerImage = 'vufind-lew.gif';
+$headerImage = 'vufind-lew.jpg';
 
-$headerUrl = '';
+$headerUrl = 'https://i-share.carli.illinois.edu/vf-lew/';
 
-$headerMap = '<area shape="rect" coords="0,0,800,165" href="http://www.lewisu.edu/academics/library/index.htm" alt="Library Home" /> 
-<area shape="rect" coords="640,175,800,208" href="http://www.lewisu.edu/academics/library/reference/index.htm" alt="Library Help" /> 
-<area shape="rect" coords="480,175,640,208" href="http://lewisu.edu/welcome/index.htm" alt="About Lewis University" /> 
-<area shape="rect" coords="320,175,480,208" href="http://www.lewisu.edu/academics/library/index.htm" alt="" /> 
-<area shape="rect" coords="159,175,320,208" href="http://www.lewisu.edu/academics/library/index.htm" alt="" /> 
-<area shape="rect" coords="0,175,159,208" href="http://www.lewisu.edu/academics/library/index.htm" alt="" /> 
-';
+$headerMap = '';
 
 $feedBackLink = 'mailto:reflib@lewisu.edu';
+
+$introText = '
+<p>For research help, please call the Research Desk at 815-836-5306. For help
+or questions about your Library account, please call the Service Desk at
+815-836-5300.</p>
+';
+
+$loginText = '
+<p>Your Library barcode number is your student or employee ID number with the
+numbers 24311 added at the beginning. For example, if your Lewis ID number is
+L10012345, your barcode number will be 24311L10012345.</p>
+'; 
 
 ?>
