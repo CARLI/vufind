@@ -100,6 +100,10 @@ a:hover, a:focus, a:active {
 .searchHomeContent {
  width: 100%;
 }
+/* 'Live Status Unavailable' box was removed so the box behind it needed to be removed */
+.status .label-default { 
+  background-color: transparent;
+}
 footer .container { 
   border-top: 1px solid #dedede;
   padding-top: 15px;

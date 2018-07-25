@@ -22,4 +22,12 @@ faculty, or staff member, please contact the circulation desk for
 assistance.
 '; 
 
+$catEstablishAccount = '
+<p>In order to set up your I-Share account to work with Single Sign On, please
+enter the information requested below. Your barcode number is the
+fourteen-digit number on the BACK of your IC ID.
+If you need assistance with this process please <a href="mailto:emma.norris@ic.edu">contact the library’s
+Access Services Manager, Emma Norris</a>.</p>
+'; 
+
 ?>
