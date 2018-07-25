@@ -22,6 +22,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
             "ITEM_STATUS_TYPE.ITEM_STATUS_DESC as status",
             "MFHD_DATA.RECORD_SEGMENT",
             "MFHD_ITEM.ITEM_ENUM", 
+            "MFHD_ITEM.CHRON",
             "NVL(LOCATION.LOCATION_DISPLAY_NAME, LOCATION.LOCATION_NAME) as location",
             "ITEM.TEMP_LOCATION", 
             "ITEM.PERM_LOCATION", 
