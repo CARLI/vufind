@@ -10,7 +10,7 @@ $feedBackLink = 'http://library.illinoisstate.edu/library-materials/ask/suggesti
 
 $loginButtonText = 'Login with your ULID';
 
-$loginLinkHelp = 'Courtesy Card Patron Click Here To Login';
+$loginLinkHelp = 'Have a Courtesy Card?';
 
 $loginText = '
 <p>If you do not have a ULID but do have a Milner Library issued Courtesy Card,
