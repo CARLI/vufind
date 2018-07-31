@@ -1,4 +1,4 @@
-/* This is the custom style sheet for the CARLI VuFind2 default themne
+/* This is the custom style sheet for the CARLI VuFind default themne
 */
 
 body {
@@ -99,6 +99,31 @@ a:hover, a:focus, a:active {
 }
 .searchHomeContent {
  width: 100%;
+}
+/* replacing all of the green box highlighting with a neutral color */
+.browse-item.active {
+  background-color: #a0a0a0;
+}
+.pagination > .active > a, .pagination > .active > a:focus, .pagination > .active > a:hover, .pagination > .active > span, .pagination > .active > span:focus, .pagination > .active > span:hover {
+  background-color: #a0a0a0;
+  border-color: #a0a0a0;
+}
+.slider-container .slider-handle {
+  background-color: #a0a0a0;
+  border: 1px solid #4f4f4f;
+}
+.btn-primary.active {
+  color: #333333;
+}
+.btn-primary.active:focus, .btn-primary.active.focus {
+  color: #000000;
+  background-color: #dddddd;
+  border-color: #ffffff;
+}
+.btn-primary.active:hover, .btn-primary:active:hover {
+  color: #333333;
+  background-color: #ededed;
+  border-color: #4f4f4f;
 }
 /* 'Live Status Unavailable' box was removed so the box behind it needed to be removed */
 .status .label-default { 
