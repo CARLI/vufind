@@ -1154,7 +1154,11 @@ EOT;
                                   $number .= ' ' . utf8_encode($row['ITEM_ENUM']);
                               }
                               if (isset($row['CHRON'])) {
-                                  $number .= ' (' . utf8_encode($row['CHRON']) . ')';
+                                  $chron = $row['CHRON'];
+                                  if (! preg_match('/\(/', $chron)) {
+                                      $chron = '(' . $chron . ')';
+                                  }
+                                  $number .= ' ' . utf8_encode($chron);
                               }
                               // If "Copy Number" is different, we need to use it as the new key
                               // and delete the old one later
@@ -1186,13 +1190,21 @@ EOT;
 
         ///////////////////////////////
         // Create a clean volume number so we can match these easily during Request First Available
-        if (array_key_exists('ITEM_ENUM', $sqlRow)) {
-            $row['volume'] = str_replace(":", ",", strtolower($sqlRow['ITEM_ENUM']));
-            $row['volume'] = preg_replace('/\s+/', ' ', $row['volume']);
-            $row['volume'] = preg_replace('/,/', ', ', $row['volume']);
+        if (array_key_exists('ITEM_ENUM', $sqlRow) && isset($sqlRow['ITEM_ENUM'])) {
+            $enum = strtolower($sqlRow['ITEM_ENUM']);
+            $enum = preg_replace('/:/', ',', $enum);
+            $enum = preg_replace('/\//', '-', $enum);
+            $enum = preg_replace('/,/', ', ', $enum);
+            $enum = preg_replace('/\s+/', ' ', $enum);
+            $row['volume'] = $enum;
         }
-        if (array_key_exists('CHRON', $sqlRow)) {
-            $row['volume'] .= ' (' . str_replace(":", ",", strtolower($sqlRow['CHRON'])) . ')';
+        if (array_key_exists('CHRON', $sqlRow) && isset($sqlRow['CHRON'])) {
+            $chron = strtolower($sqlRow['CHRON']);
+            $chron = preg_replace('/:/', ',', $chron);
+            $chron = preg_replace('/\//', '-', $chron);
+            $chron = preg_replace('/\(/', '', $chron);
+            $chron = preg_replace('/\)/', '', $chron);
+            $row['volume'] .= '(' . $chron . ')';
         }
         ///////////////////////////////
 
