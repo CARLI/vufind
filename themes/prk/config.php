@@ -9,8 +9,8 @@ $headerMap = '';
 $feedBackLink = 'http://library.parkland.edu/contact';
 
 $introText = ' 
-<p>Find books, DVDs and other materials at the Parkland Library.
-Search over 80 other "I-Share" libraries and request materials.</p>
+<p>Find books, DVDs and other materials at the Parkland Library. 
+Plus, use the dropdown above to access materials at other "I-Share" libraries in Illinois. </p>
 <p>Need help? <a href="http://library.parkland.edu/contact">Contact us!</a></p>
 ';
 
