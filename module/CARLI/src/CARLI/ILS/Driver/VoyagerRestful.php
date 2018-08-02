@@ -110,7 +110,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         list($source, $id) = explode('.', $id, 2);
 
 
-        if (preg_match('/^[1@]*(...)[Dd][Bb]/', $pickupLib, $matches)) {
+        if (preg_match('/^[1@]*(.+)[Dd][Bb]/', $pickupLib, $matches)) {
             //$item_agency_id_lc3 = strtolower($matches[1]);
             //$item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
             $item_agency_id = $this->ubCodeToLibCode($pickupLib);
@@ -1413,7 +1413,7 @@ EOT;
             $results = array();
             $result = array();
             $itemUbId = $this->config['ILLRequestSources'][$source];
-            if (preg_match('/^[1@]*(...)[Dd][Bb]/', $itemUbId, $matches)) {
+            if (preg_match('/^[1@]*(.+)[Dd][Bb]/', $itemUbId, $matches)) {
                 //$item_agency_id_lc3 = strtolower($matches[1]);
                 //$item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
                 $item_agency_id = $this->ubCodeToLibCode($itemUbId);
