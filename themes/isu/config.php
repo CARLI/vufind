@@ -1,10 +1,13 @@
 <?
 
-$headerImage = 'vufind-isu.gif';
+$headerImage = 'vufind-isu.png';
 
-$headerUrl = 'http://www.library.ilstu.edu/';
+$headerUrl = '';
 
-$headerMap = '';
+$headerMap = '
+<area shape="rect" coords="0,0,345,100" alt="Milner Library" href="https://library.illinoisstate.edu">
+<area shape="rect" coords="790,0,940,38" alt="Ask a Milner Librarian" href="https://library.illinoisstate.edu/contact/">
+';
 
 $feedBackLink = 'http://library.illinoisstate.edu/library-materials/ask/suggestion.php';
 
