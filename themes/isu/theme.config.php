@@ -1,4 +1,7 @@
 <?php
 return array(
-    'extends' => 'carli'
+    'extends' => 'carli',
+    'css' => array(
+        'institution.css'
+    ),
 );
