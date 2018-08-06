@@ -14,9 +14,9 @@
 
 <!--
 <pre>
-<? print_r($this->extraFields); ?>
-<? print_r($this->gatheredDetails); ?>
-<? print_r($this->items); ?>
+<? echo "extraFields<br>\n"; print_r($this->extraFields); ?>
+<? echo "gatheredDetails<br>\n"; print_r($this->gatheredDetails); ?>
+<? echo "items<br>\n"; print_r($this->items); ?>
 </pre>
 -->
 
@@ -29,7 +29,7 @@
       <select id="item_id" name="gatheredDetails[item_id]" class="form-control">
         <? foreach ($this->items as $item): ?>
           <? if (in_array("item_id", $this->extraFields)): ?>
-            <option value="<?=$this->escapeHtmlAttr($item['id'])?>"<?=($this->gatheredDetails['item_id'] == $item['id']) ? ' selected="selected"' : ''?>>
+            <option value="<?=$this->escapeHtmlAttr($item['id'])?>"<?=($_REQUEST['item_id'] == $item['id']) ? ' selected="selected"' : ''?>>
           <? else: ?>
             <option value="<?=$this->escapeHtmlAttr($item['id'])?>">
           <? endif; ?>

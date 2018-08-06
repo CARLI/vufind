@@ -2,6 +2,8 @@
 var vol2Bibs = [];
 // global: number of total holdings
 var vol2BibsHoldings = 0;
+// global: patron's home library
+var patronHomeLibrary;
 
 var checkRequestableItemStatusIds = [];
 var checkRequestableItemStatusIdsUsedAlready = [];
@@ -80,14 +82,30 @@ function runCheckRequestableItemAjaxForQueue() {
   statusText += '...<br/>';
   showStatusText(statusText);
 
+  ///////////////////////////////////////////////////////
+  var vars = deparam(el.attr('href'));
+  vars.id = id;
+
+  var requestType = 'ILLRequest';
+  if (id.startsWith(patronHomeLibrary + '.')) {
+    requestType = 'StorageRetrievalRequest';
+  } else {
+  }
+
+  var url = VuFind.path + '/AJAX/JSON?' + $.param({
+    method: 'checkRequestIsValid',
+    id: id,
+    requestType: requestType,
+    data: vars
+  });
   $.ajax({
-    dataType: 'html',
-    method: 'GET',
-    url: url,
+    dataType: 'json',
+    cache: false,
+    url: url
   })
-  .done(function checkRequestableItemStatusDone(response) {
-    // this is our test of a requestable item (pickUpLibrary variable is in the HTML response)
-    if (/gatheredDetails\[pickUpLibrary\]/.test(response)) {
+  .done(function checkValidDone(response) {
+    if (response.data.status) {
+      isRequestable = true;
       showStatusText('Item was found.<br/>');
       $('#requestFirstAvailableButton').show();
 
@@ -100,12 +118,13 @@ function runCheckRequestableItemAjaxForQueue() {
       checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
     }
   })
-  .fail(function checkRequestableItemStatusFail(response, textStatus) {
-      showStatusText('Item not requestable from this holding. Trying the next one...<br/>');
-      checkRequestableItemStatusRunning = false;
-      clearTimeout(checkRequestableItemStatusTimer);
-      checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
+  .fail(function checkValidFail(/*response*/) {
+    showStatusText('Item not requestable from this holding. Trying the next one...<br/>');
+    checkRequestableItemStatusRunning = false;
+    clearTimeout(checkRequestableItemStatusTimer);
+    checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
   });
+  ///////////////////////////////////////////////////////
 }
 
 function checkRequestableItemQueueAjax(el) {

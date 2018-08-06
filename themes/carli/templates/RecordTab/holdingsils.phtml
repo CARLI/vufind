@@ -134,6 +134,11 @@ $volNumsArr = array();
 $volDisplayKeyArr = array();
 $holdingsCount = count($holdings['holdings']);
 $rfaScript .= "  vol2BibsHoldings = " . $holdingsCount . ";\n";
+if ($user) {
+    $rfaScript .= "  patronHomeLibrary = '" . explode('.', $user->cat_username)[0] . "';\n";
+} else {
+    $rfaScript .= "  patronHomeLibrary = '';\n";
+}
 foreach ($holdings['holdings'] as $location => $location_val) {
     foreach ($location_val['items'] as $itm) {
         if (array_key_exists('volume', $itm) && array_key_exists('item_id', $itm)
@@ -273,6 +278,15 @@ CARLI END comment-out original table -->
     </tr>
   <? endforeach; endif; ?>
   <? foreach ($holding['items'] as $row): ?>
+<! CARLI BEGIN fixrequestlink !>
+<?
+    if (isset($row['ILLRequestLink'])) {
+        if (isset($row['ILLRequestLink']['query'])) {
+            $row['ILLRequestLink']['query'] = 'item_id=' . $row['item_id'] . '&' . $row['ILLRequestLink']['query'];
+        }
+    }
+?>
+<! CARLI END fixrequestlink !>
 <! CARLI BEGIN eresource !>
 <?
    if (array_key_exists('eresource', $row)) {
@@ -422,6 +436,12 @@ CARLI END comment-out original table -->
 <tr><td colspan="2"><?=$noHoldingsMessage?></td></tr>
 <? endif; ?>
 
+<!-- CARLI: no MFHDs/holdings message -->
+<!--
+<? if (!empty(getenv('CARLIDEBUG'))): ?>
+<tr><td colspan="2"><?=getenv('CARLIDEBUG')?></td></tr>
+<? endif; ?>
+-->
 
 <? $history = $this->driver->getRealTimeHistory(); ?>
 <? if (is_array($history) && !empty($history)): ?>

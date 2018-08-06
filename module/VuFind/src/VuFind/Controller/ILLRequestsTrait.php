@@ -67,6 +67,21 @@ trait ILLRequestsTrait
 
         // Do we have valid information?
         // Sets $this->logonURL and $this->gatheredDetails
+
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        // BEGIN CARLI bypass the 'item_id' consistency check: 
+        //
+        // We need to pass along item_id to popup, but if we add it to the HMACKeys list, we can then no
+        // longer allow patron to change this value, i.e., change their mind for value of 'item_id'.
+        // I think benefit outweighs consistency check here.
+        //
+        // BTW, we do not simply skip the validateRequest() method, because we need it to populate
+        // gatheredDetails.
+        // 
+        $checkRequests['HMACKeys'] = array('holdings_id');
+        // END CARLI bypass the 'item_id' consistency check: 
+        /////////////////////////////////////////////////////////////////////////////////////////////
+
         $gatheredDetails = $this->ILLRequests()->validateRequest(
             $checkRequests['HMACKeys']
         );
