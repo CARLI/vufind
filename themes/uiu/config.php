@@ -14,8 +14,11 @@ $headerMap = '<area shape="rect" coords="5,9,56,75" href="http://illinois.edu/" 
 $feedBackLink = 'http://www.library.illinois.edu/catalog/vufind/feedback.html';
 
 $introText = '
-<p>Welcome to the new version of the Library\'s online catalog. If you want to 
-use the previous version, go to <a href="https://vufind.carli.illinois.edu/vf-uiu/">Library Catalog Search</a></p>
+<p>Welcome to the Library\'s Catalog Preview. Give it a try to see the improved
+searching, better relevancy results, and personalization options. Let us know
+what you think by using the "Tell us what you think of the Library Catalog"
+link in the catalog. Your feedback is very important to us.
+To get back to the current version of the Library Catalog, <a href="https://vufind.carli.illinois.edu/vf-uiu/">click here</a></p>
 ';
  	
 $loginText = '
