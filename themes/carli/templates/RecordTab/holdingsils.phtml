@@ -314,7 +314,7 @@ CARLI END comment-out original table -->
       $checkILLRequest = isset($row['checkILLRequest']) && $row['checkILLRequest'];
 // CARLI BEGIN force checkILLRequest = false
       // Setting this to false will prevent the 'Check Requestability' Ajax calls, which are extremely resource intensive!!!
-      $checkILLRequest = false;
+      $checkILLRequest = true;
 // CARLI END force checkILLRequest = false
     ?>
     <? if (isset($row['barcode']) && $row['barcode'] != ""): ?>
@@ -338,7 +338,7 @@ CARLI END comment-out original table -->
                 <a class="<?=$checkStorageRetrievalRequest ? 'checkStorageRetrievalRequest ' : ''?> placeStorageRetrievalRequest" data-lightbox href="<?=$this->recordLink()->getRequestUrl($row['storageRetrievalRequestLink'])?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc($checkStorageRetrievalRequest ? "storage_retrieval_request_check_text" : "storage_retrieval_request_place_text")?></a>
               <? endif; ?>
               <? if (isset($row['ILLRequestLink']) && $row['ILLRequestLink']): ?>
-                <a hiddenId="<?=$row['id']?>" class="ajaxCheckRequestableItem <?=$checkILLRequest ? 'checkILLRequest ' : ''?>placeILLRequest" data-lightbox href="<?=$this->recordLink()->getRequestUrl($row['ILLRequestLink'])?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?></a>
+                <a hiddenId="<?=$row['id']?>" class="ajaxCheckRequestableItem <?=$checkILLRequest ? 'checkILLRequest ' : ''?>placeILLRequest" data-lightbox hiddenHref="<?=$this->recordLink()->getRequestUrl($row['ILLRequestLink'])?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?></a>
               <? endif; ?>
             <? else: ?>
               <? /* Begin Unavailable Items (Recalls) */ ?>

@@ -73,6 +73,13 @@ function runCheckRequestableItemAjaxForQueue() {
   var url = checkRequestableItemStatusURLs[id];
   var el = checkRequestableItemStatusEls[id];
 
+  if (el.attr('href')) {
+    //console.log("already checked for requestability...");
+    el.trigger('click');
+    checkRequestableItemStatusRunning = false;
+    return;
+  }
+
   var statusText = 'Checking ' + id + ' for ';
   if (copyVolume) {
     statusText += ' item: ' + copyVolume;
@@ -83,13 +90,12 @@ function runCheckRequestableItemAjaxForQueue() {
   showStatusText(statusText);
 
   ///////////////////////////////////////////////////////
-  var vars = deparam(el.attr('href'));
+  var vars = deparam(el.attr('hiddenHref'));
   vars.id = id;
 
   var requestType = 'ILLRequest';
   if (id.startsWith(patronHomeLibrary + '.')) {
     requestType = 'StorageRetrievalRequest';
-  } else {
   }
 
   var url = VuFind.path + '/AJAX/JSON?' + $.param({
@@ -108,6 +114,9 @@ function runCheckRequestableItemAjaxForQueue() {
       isRequestable = true;
       showStatusText('Item was found.<br/>');
       $('#requestFirstAvailableButton').show();
+
+      // set href to hiddenHref value so that when clicked it works
+      el.attr('href', el.attr('hiddenHref'));
 
       el.trigger('click');
       checkRequestableItemStatusRunning = false;
@@ -129,7 +138,7 @@ function runCheckRequestableItemAjaxForQueue() {
 
 function checkRequestableItemQueueAjax(el) {
   var id = el.attr('hiddenId');
-  var url = el.attr('href');
+  var url = el.attr('hiddenHref');
   if (id.length < 1 || url.length < 1) {
     return;
   }

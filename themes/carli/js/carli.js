@@ -37,6 +37,59 @@ function switchCatalog(choiceObj) {
     }
 }
 
+function carli_checkRequestIsValid(element, requestType) {
+
+  // if disabled, we are performing check now
+  // if hiddenHref -> href, we already performed check
+  if ($(element).attr('disabled') || $(element).attr('href')) {
+    return;
+  }
+  $(element).attr('disabled', 'disabled')
+  $(element)
+    .addClass('disabled')
+    .attr('title', 'Checking...')
+    .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Checking...');
+
+  var href = $(element).attr('hiddenHref');
+  var recordId = href.match(/\/Record\/([^\/]+)\//)[1];
+  var vars = deparam(href);
+  vars.id = recordId;
+
+  if (recordId.startsWith(patronHomeLibrary + '.')) {
+    requestType = 'StorageRetrievalRequest';
+  }
+  //console.log('carli_checkRequestIsValid requestType = ' + requestType);
+
+  var url = VuFind.path + '/AJAX/JSON?' + $.param({
+    method: 'checkRequestIsValid',
+    id: recordId,
+    requestType: requestType,
+    data: vars
+  });
+  $.ajax({
+    dataType: 'json',
+    cache: false,
+    url: url
+  })
+  .done(function checkValidDone(response) {
+    if (response.data.status) {
+      $(element).removeClass('disabled')
+        .attr('title', response.data.msg)
+        .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + response.data.msg);
+        //.html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Place a Request');
+
+      // set href to hiddenHref value so that when clicked it works
+      $(element).attr('href', href);
+    } else {
+      $(element).remove();
+    }
+  })
+  .fail(function checkValidFail(/*response*/) {
+    $(element).remove();
+  });
+}
+
+
 $(document).ready(function() {
 
   // Text for various states
@@ -103,5 +156,8 @@ $(document).ready(function() {
     $(this).parent().parent().parent().find('tr.toToggle').toggle();
   });
 
+  $('.checkILLRequest').click(function checkILLRequest(e) {
+    carli_checkRequestIsValid(this, 'ILLRequest');
+  });
 
 });
