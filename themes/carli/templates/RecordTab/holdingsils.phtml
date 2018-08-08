@@ -141,18 +141,8 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         && strlen($itm['volume']) > 0  && strlen($itm['item_id']) > 0
         ) {
 
-            // normalize volumes by picking out only number followed by digit, e.g., v.999
-            // e.g., v.2(1983) => v.2, v2 => v.2, v.2 1983 => v.2
-            if (false && preg_match('/([Vv])(\.*)([0-9\-]+)/', $itm['volume'], $matches)) {
-                $vol = strtolower($matches[1]) . '.' . strtolower($matches[3]);
-                $volDisplay = $vol;
-                if (preg_match('/(\(*[Vv]\.*[0-9\-]+.*)$/', $itm['volume'], $matches)) {
-                    $volDisplay = $matches[1];
-                }
-            } else {
-                $vol = $itm['volume'];
-                $volDisplay = $vol;
-            }
+            $vol = $itm['volume'];
+            $volDisplay = $vol;
 
             if (! array_key_exists($vol, $volDisplayKeyArr)) {
                 $volDisplayKeyArr[$vol] = $volDisplay;
@@ -171,7 +161,23 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         }
     }
 }
-ksort($volNumsArr);
+uksort($volNumsArr,
+    function ($a, $b) {
+        $numeric_a = $a;
+        $numeric_b = $b;
+        if (preg_match('/^[^\d]*(\d+)/', $a, $matches)) {
+            $numeric_a = $matches[1];
+        } else {
+            $numeric_a = 99999999;
+        }
+        if (preg_match('/^[^\d]*(\d+)/', $b, $matches)) {
+            $numeric_b = $matches[1];
+        } else {
+            $numeric_b = 99999999;
+        }
+        return ($numeric_a > $numeric_b);
+    }
+);
 ?>
 <?
   $rfaScript .= <<<JS
@@ -195,22 +201,23 @@ JS;
   <? endif; ?>
 
 <? else: ?>
-  <!-- <div id="checkRequestableStatus"> -->
+  <form class="form-inline">
   <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
-    Select Item: <select id="checkRequestableItem">
+    <label class="control-label">Select Item(s):</label><select class="form-control" id="checkRequestableItem" size="5" multiple="multiple">
     <?
-      echo "<option value=\"\">any item</option>\n";
+      echo "<option value=\"\" selected>any item</option>\n";
       foreach ($volNumsArr as $volNum => $ignore) {
-          echo '<option value="' . $volNum . '">' . $volDisplayKeyArr[$volNum] . "</option>\n";
+          echo '<option value="' . $volNum . '">' . $volNum . "</option>\n";
       }
     ?>
     </select>
   <? endif; ?>
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
-     <input type="button" onClick="checkRequestableItems()" value="Request from I-Share Libraries" id="requestFirstAvailableButton"></input>
+     <input class="btn btn-primary" type="button" onClick="checkRequestableItems()" value="Request from I-Share Libraries" id="requestFirstAvailableButton"></input>
   <? else: ?>
-     <input type="button" onClick="checkRequestableItems()" value="Request Item" id="requestFirstAvailableButton"></input>
+     <input class="btn btn-primary" type="button" onClick="checkRequestableItems()" value="Request Item" id="requestFirstAvailableButton"></input>
   <? endif; ?>
+  </form>
   <div id="checkRequestableStatus">
   </div>
 <? endif; ?>
