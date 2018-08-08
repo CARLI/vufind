@@ -10,7 +10,7 @@ $feedBackLink = 'mailto:schewe@mail.ic.edu';
 
 $introText = '
 <p>Try the new VuFind interface to search Schewe Library\'s catalog and the
-iShare catalog.</p>
+I-Share catalog.</p>
 <p>If you\'re using VuFind for the first time and want to access your personal
 Illinois College account to request or renew items, click the Login button
 on the upper right-hand side of the screen. You\'ll need to log in through

@@ -43,11 +43,7 @@
   <a class="placehold" data-lightbox title="<?=$this->transEsc('request_place_text')?>" href="<?=$this->recordLink()->getRequestUrl($holdingTitleHold)?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc('title_hold_place')?></a>
 <? endif; ?>
 
-<! CARLI BEGIN comment out openUrlActive data for /all/vf/ !>
-<? if (!getenv('VUFIND_LIBRARY_IS_UC')): ?>
-  <? if ($openUrlActive): ?><?=$openUrl->renderTemplate()?><? endif; ?>
-<? endif; ?>
-<! CARLI END comment out openUrlActive data !>
+<? if ($openUrlActive): ?><?=$openUrl->renderTemplate()?><? endif; ?>
 
 <?
    $noHoldingsMessage = '';
