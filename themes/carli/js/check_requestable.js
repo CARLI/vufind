@@ -128,18 +128,30 @@ function runCheckRequestableItemAjaxForQueue() {
       el.trigger('click');
       checkRequestableItemStatusRunning = false;
       $('#requestFirstAvailableButton').show();
+
+      el.removeClass('disabled')
+        .attr('title', 'Request This Item')
+        .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Request This Item');
     } else {
       showStatusText('Item not requestable from this holding. Trying the next one...<br/>');
       checkRequestableItemStatusRunning = false;
       clearTimeout(checkRequestableItemStatusTimer);
       checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
-    }
+
+      el.removeClass('disabled')
+        .attr('title', 'Not Requestable')
+        .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Not Requestable');
+      }
   })
   .fail(function checkValidFail(/*response*/) {
     showStatusText('Item not requestable from this holding. Trying the next one...<br/>');
     checkRequestableItemStatusRunning = false;
     clearTimeout(checkRequestableItemStatusTimer);
     checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
+
+    el.removeClass('disabled')
+      .attr('title', 'Not Requestable')
+      .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Not Requestable');
   });
   ///////////////////////////////////////////////////////
 }
