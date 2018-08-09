@@ -127,7 +127,7 @@ function js_string_escape($data)
     return $safe;
 }
 $volNumsArr = array();
-$volDisplayKeyArr = array();
+//$volDisplayKeyArr = array();
 $holdingsCount = count($holdings['holdings']);
 $rfaScript .= "  vol2BibsHoldings = " . $holdingsCount . ";\n";
 if ($user) {
@@ -140,17 +140,19 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         if (array_key_exists('volume', $itm) && array_key_exists('item_id', $itm)
         && strlen($itm['volume']) > 0  && strlen($itm['item_id']) > 0
         ) {
-
-            $vol = $itm['volume'];
-            $volDisplay = $vol;
-
-            if (! array_key_exists($vol, $volDisplayKeyArr)) {
-                $volDisplayKeyArr[$vol] = $volDisplay;
-            } else {
-                if (strlen($volDisplay) > strlen($volDisplayKeyArr[$vol])) {
-                    $volDisplayKeyArr[$vol] = $volDisplay;
-                }
+            if (! $itm['availability']) {
+                continue;
             }
+            $vol = $itm['volume'];
+            //$volDisplay = $vol;
+
+            //if (! array_key_exists($vol, $volDisplayKeyArr)) {
+                //$volDisplayKeyArr[$vol] = $volDisplay;
+            //} else {
+                //if (strlen($volDisplay) > strlen($volDisplayKeyArr[$vol])) {
+                    //$volDisplayKeyArr[$vol] = $volDisplay;
+                //}
+            //}
 
             if (! array_key_exists($vol, $volNumsArr)) {
                 $volNumsArr[$vol] = 1;
@@ -189,6 +191,7 @@ JS;
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $rfaScript, 'SET'); ?>
 <br/>
 <? if (!$user): ?>
+<div>
 
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
     <div id="checkRequestableStatus">
@@ -201,25 +204,34 @@ JS;
   <? endif; ?>
 
 <? else: ?>
-  <form class="form-inline">
+    <form class="form-inline">
+    <hr>
+    <label class="control-label">Select one or more of the following items to be requested</label>
+    <label class="control-label">(one of which will be chosen randomly):</label>
+    <br>
+    <select class="form-control" id="checkRequestableItem" size="5" multiple="multiple">
+    <br>
   <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
-    <label class="control-label">Select Item(s):</label><select class="form-control" id="checkRequestableItem" size="5" multiple="multiple">
     <?
-      echo "<option value=\"\" selected>any item</option>\n";
+      echo "<option value=\"\" selected>     [select all items]     </option>\n";
       foreach ($volNumsArr as $volNum => $ignore) {
           echo '<option value="' . $volNum . '">' . $volNum . "</option>\n";
       }
     ?>
-    </select>
+     </select>
+     <br>
   <? endif; ?>
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
      <input class="btn btn-primary" type="button" onClick="checkRequestableItems()" value="Request from I-Share Libraries" id="requestFirstAvailableButton"></input>
   <? else: ?>
      <input class="btn btn-primary" type="button" onClick="checkRequestableItems()" value="Request Item" id="requestFirstAvailableButton"></input>
   <? endif; ?>
+  <br>
   </form>
   <div id="checkRequestableStatus">
   </div>
+  <hr>
+</div>
 <? endif; ?>
 <! CARLI END 'Request First Available' !>
 
