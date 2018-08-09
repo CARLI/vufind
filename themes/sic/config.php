@@ -30,14 +30,18 @@ your last name, then click \'Login\'.</p>
 '; 
 
 $catEstablishAccount = '
-<p>This form is for first time users. Once your VuFind account is linked to your 
-University account you won\'t see this page again.</p> 
-<p>Courtesy Card holders, please enter your Card # in the \'Barcode\' field and
-your last name, then click \'Login\'.</p>
+<p>First-time I-Share users must complete a one-time set up process to access
+their I-Share account with their SIU Network ID and password.
+Please fill in the following information:</p>
+<p><b>Library</b>: Southern Illinois University Carbondale<br \>
+<b>Barcode</b>: Your SIU Network ID (Network IDs are always SIU+Dawg Tag
+number ( EX. SIU85XXXXXXX)<br \>
+<b>Last name</b>: Your last name
+You can look up your Dawg Tag at <a
+href="https://oit.siu.edu/salukitech/self-help/net-id.php">https://oit.siu.edu/salukitech/self-help/net-id.php
+</a>.</p>
 ';
 
-$searchDropText = '
-SIUC Only
-'; 
+$searchDropText = 'SIUC Only'; 
 
 ?>
