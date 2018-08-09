@@ -167,12 +167,12 @@ uksort($volNumsArr,
     function ($a, $b) {
         $numeric_a = $a;
         $numeric_b = $b;
-        if (preg_match('/^[^\d]*(\d+)/', $a, $matches)) {
+        if (preg_match('/^[^\d]*(\d+)/', $numeric_a, $matches)) {
             $numeric_a = $matches[1];
         } else {
             $numeric_a = 99999999;
         }
-        if (preg_match('/^[^\d]*(\d+)/', $b, $matches)) {
+        if (preg_match('/^[^\d]*(\d+)/', $numeric_b, $matches)) {
             $numeric_b = $matches[1];
         } else {
             $numeric_b = 99999999;
@@ -206,8 +206,7 @@ JS;
 <? else: ?>
     <form class="form-inline">
     <hr>
-    <label class="control-label">Select one or more of the following items to be requested</label>
-    <label class="control-label">(one of which will be chosen randomly):</label>
+    <label class="control-label"><?=$this->translate('carli_rfa_select_item_label', [], 'Select Item(s):')?></label>
     <br>
     <select class="form-control" id="checkRequestableItem" size="5" multiple="multiple">
     <br>
