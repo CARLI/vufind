@@ -16,14 +16,15 @@ $feedBackLink = 'https://library.moody.edu/about-library-services/ask-a-libraria
 $introText = '
 <p>Search the Moody Library Services online catalog for books plus other types
 of resources (CDs, DVDs, Curriculum). Click on "Login" to access your library
-account.</p>
+account. Logging
+in will be necessary if you wish to <a
+href="https://library.moody.edu/crowell-library-chicago/interlibrary-loan/placing-i-share-requests/"
+target="_blank">request I-Share items</a>.</p>
 '; 
 
 $loginText = '
 <p>Login with your 14-digit library barcode number and your last name. Logging
-in will be necessary if you wish to <a
-href="https://library.moody.edu/crowell-library-chicago/interlibrary-loan/placing-i-share-requests/"
-target="_blank">request I-Share items</a>.</p>
+in will be necessary if you wish to request I-Share items.</p>
 '; 
 
 $searchDropText = 'Moody Catalog Only';
