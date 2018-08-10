@@ -35,11 +35,11 @@ their I-Share account with their SIU Network ID and password.
 Please fill in the following information:</p>
 <p><b>Library</b>: Southern Illinois University Carbondale<br \>
 <b>Barcode</b>: Your SIU Network ID (Network IDs are always SIU+Dawg Tag
-number ( EX. SIU85XXXXXXX)<br \>
+number (EX. SIU85XXXXXXX)<br \>
 <b>Last name</b>: Your last name
 You can look up your Dawg Tag at <a
 href="https://oit.siu.edu/salukitech/self-help/net-id.php">https://oit.siu.edu/salukitech/self-help/net-id.php
-</a>.</p>
+</a></p>
 ';
 
 $searchDropText = 'SIUC Only'; 
