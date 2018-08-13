@@ -122,7 +122,9 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
                     $sourceRecord = $matched_agency . '.' . $matched_id;
                     // move local library's results to the top
                     if (strcmp($matched_agency, $localLibrary) == 0) {
-                        $sourceRecords[$totalCount] = $sourceRecords[$localCount];
+                        if ($totalCount != $localCount) {
+                            $sourceRecords[$totalCount] = $sourceRecords[$localCount];
+                        }
                         $sourceRecords[$localCount] = $sourceRecord;
                         $localCount++;
                     } else {

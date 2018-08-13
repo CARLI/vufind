@@ -22,6 +22,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
             "ITEM_STATUS_TYPE.ITEM_STATUS_DESC as status",
             "MFHD_DATA.RECORD_SEGMENT",
             "MFHD_ITEM.ITEM_ENUM", 
+            "MFHD_ITEM.CHRON",
             "NVL(LOCATION.LOCATION_DISPLAY_NAME, LOCATION.LOCATION_NAME) as location",
             "ITEM.TEMP_LOCATION", 
             "ITEM.PERM_LOCATION", 
@@ -109,7 +110,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         list($source, $id) = explode('.', $id, 2);
 
 
-        if (preg_match('/^[1@]*(...)[Dd][Bb]/', $pickupLib, $matches)) {
+        if (preg_match('/^[1@]*(.+)[Dd][Bb]/', $pickupLib, $matches)) {
             //$item_agency_id_lc3 = strtolower($matches[1]);
             //$item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
             $item_agency_id = $this->ubCodeToLibCode($pickupLib);
@@ -1153,7 +1154,11 @@ EOT;
                                   $number .= ' ' . utf8_encode($row['ITEM_ENUM']);
                               }
                               if (isset($row['CHRON'])) {
-                                  $number .= ' (' . utf8_encode($row['CHRON']) . ')';
+                                  $chron = $row['CHRON'];
+                                  if (! preg_match('/\(/', $chron)) {
+                                      $chron = '(' . $chron . ')';
+                                  }
+                                  $number .= ' ' . utf8_encode($chron);
                               }
                               // If "Copy Number" is different, we need to use it as the new key
                               // and delete the old one later
@@ -1182,6 +1187,26 @@ EOT;
     protected function processHoldingRow($sqlRow)
     {
         $row = parent::processHoldingRow($sqlRow);
+
+        ///////////////////////////////
+        // Create a clean volume number so we can match these easily during Request First Available
+        if (array_key_exists('ITEM_ENUM', $sqlRow) && isset($sqlRow['ITEM_ENUM'])) {
+            $enum = strtolower($sqlRow['ITEM_ENUM']);
+            $enum = preg_replace('/:/', ',', $enum);
+            $enum = preg_replace('/\//', '-', $enum);
+            $enum = preg_replace('/,/', ', ', $enum);
+            $enum = preg_replace('/\s+/', ' ', $enum);
+            $row['volume'] = $enum;
+        }
+        if (array_key_exists('CHRON', $sqlRow) && isset($sqlRow['CHRON'])) {
+            $chron = strtolower($sqlRow['CHRON']);
+            $chron = preg_replace('/:/', ',', $chron);
+            $chron = preg_replace('/\//', '-', $chron);
+            $chron = preg_replace('/\(/', '', $chron);
+            $chron = preg_replace('/\)/', '', $chron);
+            $row['volume'] .= '(' . $chron . ')';
+        }
+        ///////////////////////////////
 
         try {
             $marc = new File_MARC(
@@ -1388,7 +1413,7 @@ EOT;
             $results = array();
             $result = array();
             $itemUbId = $this->config['ILLRequestSources'][$source];
-            if (preg_match('/^[1@]*(...)[Dd][Bb]/', $itemUbId, $matches)) {
+            if (preg_match('/^[1@]*(.+)[Dd][Bb]/', $itemUbId, $matches)) {
                 //$item_agency_id_lc3 = strtolower($matches[1]);
                 //$item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
                 $item_agency_id = $this->ubCodeToLibCode($itemUbId);
