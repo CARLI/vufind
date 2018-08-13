@@ -81,14 +81,16 @@ function carli_checkRequestIsValid(element, requestType) {
       // set href to hiddenHref value so that when clicked it works
       $(element).attr('href', href);
     } else {
-      //$(element).remove();
       $(element).removeClass('disabled')
         .attr('title', 'Not Requestable')
         .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Not Requestable');
     }
   })
   .fail(function checkValidFail(/*response*/) {
-    $(element).remove();
+    //$(element).remove();
+    $(element).removeClass('disabled')
+      .attr('title', 'Not Requestable')
+      .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Not Requestable');
   });
 }
 
