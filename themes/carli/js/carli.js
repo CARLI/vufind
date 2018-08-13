@@ -42,7 +42,10 @@ function carli_checkRequestIsValid(element, requestType) {
   if (!userIsLoggedIn) {
       var loginURL = window.location.toString();
       if (loginURL.indexOf("?") > 0) {
-          var loginURL = loginURL.substring(0, loginURL.indexOf("?"));
+          loginURL = loginURL.substring(0, loginURL.indexOf("?"));
+      }
+      if (loginURL.indexOf("#") > 0) {
+          loginURL = loginURL.substring(0, loginURL.indexOf("#"));
       }
       loginURL += '?login=true&catalogLogin=true';
       window.location = loginURL;

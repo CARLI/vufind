@@ -128,7 +128,6 @@ function js_string_escape($data)
 }
 $atLeastOneAvailableItem = false;
 $volNumsArr = array();
-//$volDisplayKeyArr = array();
 $holdingsCount = count($holdings['holdings']);
 $rfaScript .= "  vol2BibsHoldings = " . $holdingsCount . ";\n";
 if ($user) {
@@ -149,15 +148,6 @@ foreach ($holdings['holdings'] as $location => $location_val) {
                 continue;
             }
             $vol = $itm['volume'];
-            //$volDisplay = $vol;
-
-            //if (! array_key_exists($vol, $volDisplayKeyArr)) {
-                //$volDisplayKeyArr[$vol] = $volDisplay;
-            //} else {
-                //if (strlen($volDisplay) > strlen($volDisplayKeyArr[$vol])) {
-                    //$volDisplayKeyArr[$vol] = $volDisplay;
-                //}
-            //}
 
             if (! array_key_exists($vol, $volNumsArr)) {
                 $volNumsArr[$vol] = 1;
@@ -195,9 +185,8 @@ JS;
 ?>
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $rfaScript, 'SET'); ?>
 <br/>
-<? if (!$user && $atLeastOneAvailableItem): ?>
-<div>
-
+<? if ($atLeastOneAvailableItem): ?>
+ <? if (!$user): ?>
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
     <div id="checkRequestableStatus">
       <a href="<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true" data-lightbox>Request from I-Share Libraries</a>
@@ -207,8 +196,7 @@ JS;
       <a href="<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true" data-lightbox>Request Item</a>
     </div>
   <? endif; ?>
-
-<? elseif ($atLeastOneAvailableItem ): ?>
+ <? else: ?>
     <form class="form-inline">
     <hr>
   <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
@@ -235,7 +223,7 @@ JS;
   <div id="checkRequestableStatus">
   </div>
   <hr>
-</div>
+ <? endif; ?>
 <? endif; ?>
 <! CARLI END 'Request First Available' !>
 
