@@ -126,6 +126,7 @@ function js_string_escape($data)
     }
     return $safe;
 }
+$atLeastOneAvailableItem = false;
 $volNumsArr = array();
 $volDisplayKeyArr = array();
 $holdingsCount = count($holdings['holdings']);
@@ -137,6 +138,10 @@ if ($user) {
 }
 foreach ($holdings['holdings'] as $location => $location_val) {
     foreach ($location_val['items'] as $itm) {
+        // if any single item has 'availability', then we can assume callslip is allowed
+        if (array_key_exists('availability', $itm) && $itm['availability']) {
+            $atLeastOneAvailableItem = true;
+        }
         if (array_key_exists('volume', $itm) && array_key_exists('item_id', $itm)
         && strlen($itm['volume']) > 0  && strlen($itm['item_id']) > 0
         ) {
@@ -182,7 +187,7 @@ JS;
 ?>
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $rfaScript, 'SET'); ?>
 <br/>
-<? if (!$user): ?>
+<? if (!$user && $atLeastOneAvailableItem): ?>
 
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
     <div id="checkRequestableStatus">
@@ -194,7 +199,7 @@ JS;
     </div>
   <? endif; ?>
 
-<? else: ?>
+<? elseif ($atLeastOneAvailableItem ): ?>
   <!-- <div id="checkRequestableStatus"> -->
   <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
     Select Item: <select id="checkRequestableItem">
