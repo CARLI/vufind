@@ -206,11 +206,11 @@ JS;
 <? else: ?>
     <form class="form-inline">
     <hr>
+  <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
     <label class="control-label"><?=$this->translate('carli_rfa_select_item_label', [], 'Select Item(s):')?></label>
     <br>
     <select class="form-control" id="checkRequestableItem" size="5" multiple="multiple">
     <br>
-  <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
     <?
       echo "<option value=\"\" selected>     [select all items]     </option>\n";
       foreach ($volNumsArr as $volNum => $ignore) {

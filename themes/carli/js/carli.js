@@ -38,6 +38,16 @@ function switchCatalog(choiceObj) {
 }
 
 function carli_checkRequestIsValid(element, requestType) {
+  // force user to login - otherwise, we will give them false indication of item not being requestable
+  if (!userIsLoggedIn) {
+      var loginURL = window.location.toString();
+      if (loginURL.indexOf("?") > 0) {
+          var loginURL = loginURL.substring(0, loginURL.indexOf("?"));
+      }
+      loginURL += '?login=true&catalogLogin=true';
+      window.location = loginURL;
+      return;
+  }
 
   // if disabled, we are performing check now
   // if hiddenHref -> href, we already performed check
