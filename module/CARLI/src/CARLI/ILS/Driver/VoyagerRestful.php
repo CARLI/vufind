@@ -79,6 +79,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
             "ITEM.ITEM_ID = CIRC_TRANSACTIONS.ITEM_ID(+)",
             "BIB_MASTER.SUPPRESS_IN_OPAC='N'",
             "MFHD_MASTER.SUPPRESS_IN_OPAC='N' ",
+            "ITEM_BARCODE.BARCODE_STATUS = 1",
         ];
 
         // Order
