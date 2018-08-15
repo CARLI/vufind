@@ -7,6 +7,71 @@ use VuFind\Config\Locator as ConfigLocator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+    protected function getHoldingEItemsSQL($id)
+    {
+        // Expressions
+        $sqlExpressions = [
+            "BIB_MFHD.BIB_ID",
+            "BIB_MFHD.MFHD_ID",
+            "EITEM.LINK as EITEM_LINK",
+            "EITEM.CAPTION as EITEM_CAPTION",
+            "'No barcode' as ITEM_BARCODE",
+            "EITEM.EITEM_ID as ITEM_ID",
+            "null as ON_RESERVE",
+            "EITEM.SEQUENCE as ITEM_SEQUENCE_NUMBER",
+            "0 as RECALLS_PLACED",
+            "0 as HOLDS_PLACED",
+            "null as status",
+            "MFHD_DATA.RECORD_SEGMENT",
+            "EITEM.ENUMERATION as ITEM_ENUM",
+            "null as CHRON",
+            "NVL(LOCATION.LOCATION_DISPLAY_NAME, LOCATION.LOCATION_NAME) as location",
+            "null as TEMP_LOCATION",
+            "null as PERM_LOCATION",
+            "MFHD_MASTER.DISPLAY_CALL_NO as callnumber",
+            "null as duedate",
+            "null as RETURNDATE",
+            "0 as SORT_SEQ",
+            "null as ITEM_TYPE_ID",
+            "null as TEMP_ITEM_TYPE_ID ",
+        ];
+
+        // From
+        $sqlFrom = [
+            $this->dbName . ".BIB_MFHD",
+            $this->dbName . ".EITEM",
+            $this->dbName . ".MFHD_MASTER",
+            $this->dbName . ".MFHD_DATA",
+            $this->dbName . ".LOCATION",
+        ];
+
+        // Where
+        $sqlWhere = [
+            "BIB_MFHD.BIB_ID = :id",
+            "BIB_MFHD.MFHD_ID = EITEM.MFHD_ID",
+            "MFHD_MASTER.MFHD_ID = BIB_MFHD.MFHD_ID",
+            "MFHD_MASTER.LOCATION_ID = LOCATION.LOCATION_ID",
+            "MFHD_DATA.MFHD_ID = BIB_MFHD.MFHD_ID",
+            "MFHD_MASTER.SUPPRESS_IN_OPAC='N'",
+        ];
+
+        // Order
+        $sqlOrder = ["ITEM_SEQUENCE_NUMBER", "MFHD_DATA.MFHD_ID", "MFHD_DATA.SEQNUM"];
+
+        // Bind
+        $sqlBind = [':id' => $id];
+
+        $sqlArray = [
+            'expressions' => $sqlExpressions,
+            'from' => $sqlFrom,
+            'where' => $sqlWhere,
+            'order' => $sqlOrder,
+            'bind' => $sqlBind,
+        ];
+
+        return $sqlArray;
+    }
+
     protected function getHoldingItemsSQL($id)
     {
         // Expressions
@@ -1235,6 +1300,18 @@ EOT;
         }
         // Always show the Request Item link (i.e., even before patrons are logged in!)
         $row['addILLRequestLink'] = true;
+
+       // Tack on any EITEM links; treat them like eresources
+       if (array_key_exists('EITEM_LINK', $sqlRow) && isset($sqlRow['EITEM_LINK'])) {
+           $eitem_link = $sqlRow['EITEM_LINK'];
+           $eitem_caption = '';
+           if (array_key_exists('EITEM_CAPTION', $sqlRow) && isset($sqlRow['EITEM_CAPTION'])) {
+               $eitem_caption = $sqlRow['EITEM_CAPTION'];
+           }
+           $row['eresource_text'][] = '';
+           $row['eresource_label'][] = $eitem_caption;
+           $row['eresource'][] = $eitem_link;
+       }
 
 //file_put_contents("/usr/local/vufind/holdings.txt", "\n\n******************************HOLDING info\n" . var_export($row, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
         return $row;

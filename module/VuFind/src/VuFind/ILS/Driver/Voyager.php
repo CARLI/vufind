@@ -1136,6 +1136,11 @@ EOT;
         $sqlArrayItems = $this->getHoldingItemsSQL($id);
         $possibleQueries[] = $this->buildSqlFromArray($sqlArrayItems);
 
+        // CARLI EDIT: we need an EITEM query too!
+        $sqlArrayEItems = $this->getHoldingEItemsSQL($id);
+        $possibleQueries[] = $this->buildSqlFromArray($sqlArrayEItems);
+        $thesql = $this->buildSqlFromArray($sqlArrayEItems);
+
         $sqlArrayNoItems = $this->getHoldingNoItemsSQL($id);
         $possibleQueries[] = $this->buildSqlFromArray($sqlArrayNoItems);
 
