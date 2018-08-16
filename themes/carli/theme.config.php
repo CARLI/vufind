@@ -5,6 +5,7 @@ return array(
         'googlefonts.js',
         'carli.js',
         'check_requestable.js',
+        'image-map.js',
     ),
    'css' => array(
         'carli.css',
