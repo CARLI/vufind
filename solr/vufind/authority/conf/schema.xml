@@ -22,6 +22,9 @@
     </fieldType>
   </types>
   <fields>
+    <!-- CARLI -->
+    <field name="searchable" type="boolean" indexed="true" stored="true" multiValued="false"/>
+
     <!-- Required by Solr 4.x -->
     <field name="_version_" type="long" indexed="true" stored="true"/>
     <!-- Core Fields  -->

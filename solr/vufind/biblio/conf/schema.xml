@@ -8,7 +8,7 @@
       <analyzer>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <!-- strip trailing punctuation from facets: -->
-        <filter class="solr.PatternReplaceFilterFactory" pattern="(?&lt;!\b[A-Z])[.\s]*$" replacement="" replace="first"/>
+        <filter class="solr.PatternReplaceFilterFactory" pattern="(?&lt;!\b[A-Z])[.,\s]*$" replacement="" replace="first"/>
       </analyzer>
     </fieldType>
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
@@ -115,9 +115,16 @@
    <field name="spelling" type="textSpell" indexed="true" stored="true" multiValued="true"/>
    <field name="spellingShingle" type="textSpellShingle" indexed="true" stored="true" multiValued="true"/>
    <!-- Institutional Fields -->
-   <field name="institution" type="string" indexed="true" stored="true" multiValued="true"/>
+
+   <!-- CARLI begin -->
+   <field name="searchable" type="boolean" indexed="true" stored="true" multiValued="false"/>
+   <field name="institution" type="string" indexed="true" stored="true" multiValued="false"/>
+   <field name="institutions" type="string" indexed="true" stored="true" multiValued="true"/>
+   <!-- CARLI end -->
+
    <field name="collection" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="building" type="string" indexed="true" stored="true" multiValued="true"/>
+
    <!-- Generic Fields -->
    <field name="language" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="format" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -150,6 +157,13 @@
    <field name="isbn" type="isn" indexed="true" stored="true" multiValued="true"/>
    <field name="issn" type="isn" indexed="true" stored="true" multiValued="true"/>
    <field name="oclc_num" type="string" indexed="true" stored="true" multiValued="true" />
+   <!-- CARLI begin -->
+   <field name="location" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="other_std_num" type="string" indexed="true" stored="true" multiValued="true" />
+   <field name="conf" type="string" indexed="false" stored="true"/>   
+   <field name="cont" type="string" indexed="false" stored="true"/>
+   <field name="gpub" type="string" indexed="false" stored="true"/>   
+   <!-- CARLI end -->
    <field name="callnumber-first" type="string" indexed="true" stored="true"/>
    <field name="callnumber-subject" type="string" indexed="true" stored="true"/>
    <field name="callnumber-label" type="string" indexed="true" stored="true"/>
@@ -180,8 +194,10 @@
    <field name="topic" type="text" indexed="true" stored="true" multiValued="true"/>
    <field name="topic_unstemmed" type="textProper" indexed="true" stored="false" multiValued="true"/>
    <field name="topic_facet" type="textFacet" indexed="true" stored="true" multiValued="true"/>
-   <field name="topic_browse" type="string" indexed="true" stored="false" multiValued="true"/>
-   <field name="author_browse" type="string" indexed="true" stored="false" multiValued="true"/>
+   <!-- CARLI edit: store the topic_browse and author_browse so we can use StoredFieldLeech in Alphabrowse -->
+   <field name="topic_browse" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="author_browse" type="string" indexed="true" stored="true" multiValued="true"/>
+   <!-- CARLI edit: store the topic_browse and author_browse so we can use StoredFieldLeech in Alphabrowse -->
    <field name="genre" type="text" indexed="true" stored="true" multiValued="true"/>
    <field name="genre_facet" type="textFacet" indexed="true" stored="true" multiValued="true"/>
    <field name="geographic" type="text" indexed="true" stored="true" multiValued="true"/>
@@ -254,10 +270,12 @@
  <copyField source="allfields" dest="allfields_unstemmed"/>
  <copyField source="fulltext" dest="fulltext_unstemmed"/>
  <!-- CopyFields for Alphabetic Browse -->
+<!-- CARLI begin-comment-out: we perform our own topic_browse and author_browse indexing in custom scripts now 
  <copyField source="topic" dest="topic_browse"/>
  <copyField source="author" dest="author_browse"/>
  <copyField source="author2" dest="author_browse"/>
  <copyField source="author_corporate" dest="author_browse"/>
+CARLI end-comment-out -->
  <!-- CopyFields for All Fields -->
  <copyField source="format"    dest="allfields"/>
  <copyField source="format"    dest="allfields_unstemmed"/>

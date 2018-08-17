@@ -449,16 +449,19 @@
     <lst name="topic">
       <str name="DBpath">${solr.solr.home:./solr}/alphabetical_browse/topic_browse.db</str>
       <str name="field">topic_browse</str>
+      <str name="normalizer">org.vufind.util.NACONormalizer</str>
     </lst>
 
     <lst name="author">
       <str name="DBpath">${solr.solr.home:./solr}/alphabetical_browse/author_browse.db</str>
       <str name="field">author_browse</str>
+      <str name="normalizer">org.vufind.util.NACONormalizer</str>
     </lst>
 
     <lst name="title">
       <str name="DBpath">${solr.solr.home:./solr}/alphabetical_browse/title_browse.db</str>
       <str name="field">title_fullStr</str>
+      <str name="normalizer">org.vufind.util.NACONormalizer</str>
     </lst>
 
     <lst name="lcc">
