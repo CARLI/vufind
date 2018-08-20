@@ -189,12 +189,16 @@ JS;
  <? if (!$user): ?>
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
     <div id="checkRequestableStatus">
-      <a href="<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true" data-lightbox>Request from I-Share Libraries</a>
     </div>
+    <form class="form-inline">
+      <input class="btn btn-primary" type="button" onClick="window.location='<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true'" data-lightbox value="Request from I-Share Libraries"></input>
+    </form>
   <? else: ?>
     <div id="checkRequestableStatus">
-      <a href="<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true" data-lightbox>Request Item</a>
     </div>
+    <form class="form-inline">
+      <input class="btn btn-primary" type="button" onClick="window.location='<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true'" data-lightbox value="Request Item"></input>
+    </form>
   <? endif; ?>
  <? else: ?>
     <form class="form-inline">
