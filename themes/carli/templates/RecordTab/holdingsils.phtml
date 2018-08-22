@@ -205,17 +205,14 @@ JS;
     <hr>
   <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
     <label class="control-label"><?=$this->translate('carli_rfa_select_item_label', [], 'Select Item(s):')?></label>
-    <br>
-    <select class="form-control" id="checkRequestableItem" size="5" multiple="multiple">
-    <br>
+    <select class="form-control" id="checkRequestableItem" size="<?= $holdingsCount < 5 ? $holdingsCount : 5?>" multiple="multiple">
     <?
-      echo "<option value=\"\" selected>     [select all items]     </option>\n";
+      echo "<option value=\"\" selected>any item</option>\n";
       foreach ($volNumsArr as $volNum => $ignore) {
           echo '<option value="' . $volNum . '">' . $volNum . "</option>\n";
       }
     ?>
      </select>
-     <br>
   <? endif; ?>
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
      <input class="btn btn-primary" type="button" onClick="checkRequestableItems()" value="Request from I-Share Libraries" id="requestFirstAvailableButton"></input>

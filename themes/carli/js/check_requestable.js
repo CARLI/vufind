@@ -139,8 +139,8 @@ function runCheckRequestableItemAjaxForQueue() {
       checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
 
       el.removeClass('disabled')
-        .attr('title', 'Not Requestable')
-        .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Not Requestable');
+        .attr('title', 'Item cannot be requested')
+        .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Item cannot be requested');
       }
   })
   .fail(function checkValidFail(/*response*/) {
@@ -150,8 +150,8 @@ function runCheckRequestableItemAjaxForQueue() {
     checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
 
     el.removeClass('disabled')
-      .attr('title', 'Not Requestable')
-      .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Not Requestable');
+      .attr('title', 'Item cannot be requested')
+      .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Item cannot be requested');
   });
   ///////////////////////////////////////////////////////
 }
