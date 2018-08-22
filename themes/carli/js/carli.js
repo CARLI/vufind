@@ -95,15 +95,15 @@ function carli_checkRequestIsValid(element, requestType) {
       $(element).attr('href', href);
     } else {
       $(element).removeClass('disabled')
-        .attr('title', 'Not Requestable')
-        .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Not Requestable');
+        .attr('title', 'Item cannot be requested')
+        .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Item cannot be requested');
     }
   })
   .fail(function checkValidFail(/*response*/) {
     //$(element).remove();
     $(element).removeClass('disabled')
-      .attr('title', 'Not Requestable')
-      .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Not Requestable');
+      .attr('title', 'Item cannot be requested')
+      .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Item cannot be requested');
   });
 }
 
