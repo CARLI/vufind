@@ -144,7 +144,9 @@ function registerTabEvents() {
     return false;
   });
 
-  setUpCheckRequest();
+  // CARLI BEGIN comment-out setUpCheckRequest()
+  //setUpCheckRequest();
+  // CARLI END comment-out setUpCheckRequest()
 
   VuFind.lightbox.bind('.tab-pane.active');
 }

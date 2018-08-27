@@ -173,8 +173,23 @@ trait ILLRequestsTrait
            $item['name'] = $holdingData['volume'] ? $holdingData['volume'] : 'Copy ' . $holdingData['number'];
            $items[] = $item;
         }
-        usort($items, function($a, $b) { return strcmp($a{'name'}, $b{'name'}); });
-
+        usort($items,
+            function ($a, $b) {
+                $numeric_a = $a{'name'};
+                $numeric_b = $b{'name'};
+                if (preg_match('/^[^\d]*(\d+)/', $numeric_a, $matches)) {
+                    $numeric_a = $matches[1];
+                } else {
+                    $numeric_a = 99999999;
+                }
+                if (preg_match('/^[^\d]*(\d+)/', $numeric_b, $matches)) {
+                    $numeric_b = $matches[1];
+                } else {
+                    $numeric_b = 99999999;
+                }
+                return ($numeric_a > $numeric_b);
+            }
+        );
         // END CARLI lookup items for this bib so patron can ultimately decide at request time
         /////////////////////////////////////////////////////////////////////////////////////////////
 

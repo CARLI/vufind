@@ -12,9 +12,9 @@ var checkRequestableItemStatusURLs = [];
 var checkRequestableItemStatusTimer = null;
 var checkRequestableItemStatusDelay = 200;
 var checkRequestableItemStatusRunning = false;
-var firstItemMatch = true;
-var copyVolume = null;
-var lastCopyVolume = null;
+var copyVolumes = [];
+var copyVolumesListToString = null;
+var lastCopyVolumesListToString = null;
 var statusText = [];
 
 function resetCheckRequestableParameters() {
@@ -22,7 +22,6 @@ function resetCheckRequestableParameters() {
   checkRequestableItemStatusEls = {};
   checkRequestableItemStatusURLs = [];
   checkRequestableItemStatusRunning = false;
-  firstItemMatch = true;
   statusText = [];
 }
 
@@ -51,6 +50,7 @@ function runCheckRequestableItemAjaxForQueue() {
     return;
   }
   checkRequestableItemStatusRunning = true;
+  $('#requestFirstAvailableButton').hide();
 
   var id;
   while (checkRequestableItemStatusIds.length > 0) {
@@ -67,29 +67,44 @@ function runCheckRequestableItemAjaxForQueue() {
   }
   if (! id) {
     showStatusText('There are no more items left to check.<br/>');
+    checkRequestableItemStatusRunning = false;
     $('#requestFirstAvailableButton').show();
     return;
   }
   var url = checkRequestableItemStatusURLs[id];
   var el = checkRequestableItemStatusEls[id];
 
-  var statusText = 'Checking ' + id + ' for ';
-  if (copyVolume) {
-    statusText += ' item: ' + copyVolume;
-  } else {
-    statusText += 'available item';
+  var sText= 'Checking ' + id + ' for ';
+  // special case: "any item"
+  if (copyVolumes.length === 1 && copyVolumes[0] === "") {
+    sText+= 'available item';
+  } else if (copyVolumes.length > 1) {
+    sText+= ' items: ' + copyVolumes[0];
+    for (var inx=1; inx<copyVolumes.length; inx++) {
+      sText+= ', ' + copyVolumes[inx];
+    }
+  } else if (copyVolumes.length > 0) {
+    sText+= ' item: ' + copyVolumes[0];
   }
-  statusText += '...<br/>';
-  showStatusText(statusText);
+  sText+= '...<br/>';
+  showStatusText(sText);
+
+  if (el.attr('href')) {
+    //console.log("already checked for requestability...");
+    showStatusText('Item was found.<br/>');
+    el.trigger('click');
+    checkRequestableItemStatusRunning = false;
+    $('#requestFirstAvailableButton').show();
+    return;
+  }
 
   ///////////////////////////////////////////////////////
-  var vars = deparam(el.attr('href'));
+  var vars = deparam(el.attr('hiddenHref'));
   vars.id = id;
 
   var requestType = 'ILLRequest';
   if (id.startsWith(patronHomeLibrary + '.')) {
     requestType = 'StorageRetrievalRequest';
-  } else {
   }
 
   var url = VuFind.path + '/AJAX/JSON?' + $.param({
@@ -105,63 +120,82 @@ function runCheckRequestableItemAjaxForQueue() {
   })
   .done(function checkValidDone(response) {
     if (response.data.status) {
-      isRequestable = true;
       showStatusText('Item was found.<br/>');
-      $('#requestFirstAvailableButton').show();
+
+      // set href to hiddenHref value so that when clicked it works
+      el.attr('href', el.attr('hiddenHref'));
 
       el.trigger('click');
       checkRequestableItemStatusRunning = false;
+      $('#requestFirstAvailableButton').show();
+
+      el.removeClass('disabled')
+        .attr('title', 'Request This Item')
+        .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Request This Item');
     } else {
       showStatusText('Item not requestable from this holding. Trying the next one...<br/>');
       checkRequestableItemStatusRunning = false;
       clearTimeout(checkRequestableItemStatusTimer);
       checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
-    }
+
+      el.removeClass('disabled')
+        .attr('title', 'Item cannot be requested')
+        .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Item cannot be requested');
+      }
   })
   .fail(function checkValidFail(/*response*/) {
     showStatusText('Item not requestable from this holding. Trying the next one...<br/>');
     checkRequestableItemStatusRunning = false;
     clearTimeout(checkRequestableItemStatusTimer);
     checkRequestableItemStatusTimer = setTimeout(runCheckRequestableItemAjaxForQueue, checkRequestableItemStatusDelay);
+
+    el.removeClass('disabled')
+      .attr('title', 'Item cannot be requested')
+      .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Item cannot be requested');
   });
   ///////////////////////////////////////////////////////
 }
 
 function checkRequestableItemQueueAjax(el) {
   var id = el.attr('hiddenId');
-  var url = el.attr('href');
+  var url = el.attr('hiddenHref');
   if (id.length < 1 || url.length < 1) {
     return;
   }
   // only add bibs that contain this copy/volume; skip all others
   var validBib = true;
   var itemId = null;
-  if (copyVolume) {
-    validBib = false;
-    //console.log('copyVolume is ' + copyVolume);
-    if (vol2Bibs[copyVolume]) {
-       for (var i=0; i<vol2Bibs[copyVolume].length; i++) {
-         var thisCopyVolume = vol2Bibs[copyVolume][i] 
-         //console.log('thisCopyVolume= ' + thisCopyVolume);
-         var bibParts = thisCopyVolume.split('.');
-         if (bibParts.length > 1) {
-           var bib = bibParts[0] + '.' + bibParts[1];
-           if (bib === id) {
-             //console.log('bib matches: ' + bib);
-             if (bibParts.length > 2) {
-               itemId = bibParts[2];
-               var urlItemId = getParameterFromUrl(url, 'item_id');
-               if (itemId === urlItemId) {
-                 validBib = true;
-                 if (firstItemMatch) {
-                   showStatusText('Item ' + copyVolume + '<br/>');
-                   firstItemMatch = false;
-                 }
-                 //console.log('thisCopyVolume=' + thisCopyVolume + ' matches bib=' + bib + '; itemId=' + itemId + ' matches urlItemId=' + urlItemId);
-                 break;
+  // special case: "any item" has empty value
+  if (copyVolumes.length === 1 && copyVolumes[0] === "") {
+    // do nothing
+  } else if (copyVolumes.length > 0) {
+    for (var inx=0; inx<copyVolumes.length; inx++) {
+      var copyVolume = copyVolumes[inx];
+      validBib = false;
+      //console.log('copyVolume is ' + copyVolume);
+      if (vol2Bibs[copyVolume]) {
+         for (var i=0; i<vol2Bibs[copyVolume].length; i++) {
+           var thisCopyVolume = vol2Bibs[copyVolume][i] 
+           //console.log('thisCopyVolume= ' + thisCopyVolume);
+           var bibParts = thisCopyVolume.split('.');
+           if (bibParts.length > 1) {
+             var bib = bibParts[0] + '.' + bibParts[1];
+             if (bib === id) {
+               //console.log('bib matches: ' + bib);
+               if (bibParts.length > 2) {
+                 itemId = bibParts[2];
+                 var urlItemId = getParameterFromUrl(url, 'item_id');
+                 if (itemId === urlItemId) {
+                   validBib = true;
+                   //console.log('thisCopyVolume=' + thisCopyVolume + ' matches bib=' + bib + '; itemId=' + itemId + ' matches urlItemId=' + urlItemId);
+                   break;
+                }
               }
             }
           }
+        }
+        if (validBib) {
+          break;
         }
       }
     }
@@ -184,12 +218,20 @@ function checkRequestableItems(_container) {
 
   $('#requestFirstAvailableButton').hide();
 
-  copyVolume = $('#checkRequestableItem').val();
-  if (lastCopyVolume != null && copyVolume !== lastCopyVolume) {
+  copyVolumes = $('#checkRequestableItem').val();
+  if (copyVolumes == null) {
+    copyVolumes = [];
+  }
+  copyVolumesListToString = "";
+  for (var inx=0; inx<copyVolumes.length; inx++) {
+    copyVolumesListToString += copyVolumes[inx];
+  }
+
+  if (lastCopyVolumesListToString != null && copyVolumesListToString !== lastCopyVolumesListToString) {
     // clear out previously-used cache
     checkRequestableItemStatusIdsUsedAlready = [];
   }
-  lastCopyVolume = copyVolume;
+  lastCopyVolumesListToString = copyVolumesListToString;
   resetCheckRequestableParameters();
 
   var ajaxItems = $(container).find('.ajaxCheckRequestableItem');

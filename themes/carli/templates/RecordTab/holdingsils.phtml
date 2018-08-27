@@ -128,7 +128,6 @@ function js_string_escape($data)
 }
 $atLeastOneAvailableItem = false;
 $volNumsArr = array();
-$volDisplayKeyArr = array();
 $holdingsCount = count($holdings['holdings']);
 $rfaScript .= "  vol2BibsHoldings = " . $holdingsCount . ";\n";
 if ($user) {
@@ -145,27 +144,10 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         if (array_key_exists('volume', $itm) && array_key_exists('item_id', $itm)
         && strlen($itm['volume']) > 0  && strlen($itm['item_id']) > 0
         ) {
-
-            // normalize volumes by picking out only number followed by digit, e.g., v.999
-            // e.g., v.2(1983) => v.2, v2 => v.2, v.2 1983 => v.2
-            if (false && preg_match('/([Vv])(\.*)([0-9\-]+)/', $itm['volume'], $matches)) {
-                $vol = strtolower($matches[1]) . '.' . strtolower($matches[3]);
-                $volDisplay = $vol;
-                if (preg_match('/(\(*[Vv]\.*[0-9\-]+.*)$/', $itm['volume'], $matches)) {
-                    $volDisplay = $matches[1];
-                }
-            } else {
-                $vol = $itm['volume'];
-                $volDisplay = $vol;
+            if (! $itm['availability']) {
+                continue;
             }
-
-            if (! array_key_exists($vol, $volDisplayKeyArr)) {
-                $volDisplayKeyArr[$vol] = $volDisplay;
-            } else {
-                if (strlen($volDisplay) > strlen($volDisplayKeyArr[$vol])) {
-                    $volDisplayKeyArr[$vol] = $volDisplay;
-                }
-            }
+            $vol = $itm['volume'];
 
             if (! array_key_exists($vol, $volNumsArr)) {
                 $volNumsArr[$vol] = 1;
@@ -176,7 +158,23 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         }
     }
 }
-ksort($volNumsArr);
+uksort($volNumsArr,
+    function ($a, $b) {
+        $numeric_a = $a;
+        $numeric_b = $b;
+        if (preg_match('/^[^\d]*(\d+)/', $numeric_a, $matches)) {
+            $numeric_a = $matches[1];
+        } else {
+            $numeric_a = 99999999;
+        }
+        if (preg_match('/^[^\d]*(\d+)/', $numeric_b, $matches)) {
+            $numeric_b = $matches[1];
+        } else {
+            $numeric_b = 99999999;
+        }
+        return ($numeric_a > $numeric_b);
+    }
+);
 ?>
 <?
   $rfaScript .= <<<JS
@@ -187,37 +185,46 @@ JS;
 ?>
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $rfaScript, 'SET'); ?>
 <br/>
-<? if (!$user && $atLeastOneAvailableItem): ?>
-
+<? if ($atLeastOneAvailableItem): ?>
+ <? if (!$user): ?>
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
     <div id="checkRequestableStatus">
-      <a href="<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true" data-lightbox>Request from I-Share Libraries</a>
     </div>
+    <form class="form-inline">
+      <input class="btn btn-primary" type="button" onClick="window.location='<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true'" data-lightbox value="Request from I-Share Libraries"></input>
+    </form>
   <? else: ?>
     <div id="checkRequestableStatus">
-      <a href="<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true" data-lightbox>Request Item</a>
     </div>
+    <form class="form-inline">
+      <input class="btn btn-primary" type="button" onClick="window.location='<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true'" data-lightbox value="Request Item"></input>
+    </form>
   <? endif; ?>
-
-<? elseif ($atLeastOneAvailableItem ): ?>
-  <!-- <div id="checkRequestableStatus"> -->
+ <? else: ?>
+    <form class="form-inline">
+    <hr>
   <? if (count($volNumsArr) > 1 && $holdingsCount > 1) : ?>
-    Select Item: <select id="checkRequestableItem">
+    <label class="control-label"><?=$this->translate('carli_rfa_select_item_label', [], 'Select Item(s):')?></label>
+    <select class="form-control" id="checkRequestableItem" size="<?= $holdingsCount < 5 ? $holdingsCount : 5?>" multiple="multiple">
     <?
-      echo "<option value=\"\">any item</option>\n";
+      echo "<option value=\"\" selected>any item</option>\n";
       foreach ($volNumsArr as $volNum => $ignore) {
-          echo '<option value="' . $volNum . '">' . $volDisplayKeyArr[$volNum] . "</option>\n";
+          echo '<option value="' . $volNum . '">' . $volNum . "</option>\n";
       }
     ?>
-    </select>
+     </select>
   <? endif; ?>
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
-     <input type="button" onClick="checkRequestableItems()" value="Request from I-Share Libraries" id="requestFirstAvailableButton"></input>
+     <input class="btn btn-primary" type="button" onClick="checkRequestableItems()" value="Request from I-Share Libraries" id="requestFirstAvailableButton"></input>
   <? else: ?>
-     <input type="button" onClick="checkRequestableItems()" value="Request Item" id="requestFirstAvailableButton"></input>
+     <input class="btn btn-primary" type="button" onClick="checkRequestableItems()" value="Request Item" id="requestFirstAvailableButton"></input>
   <? endif; ?>
+  <br>
+  </form>
   <div id="checkRequestableStatus">
   </div>
+  <hr>
+ <? endif; ?>
 <? endif; ?>
 <! CARLI END 'Request First Available' !>
 
@@ -315,7 +322,7 @@ CARLI END comment-out original table -->
       $checkILLRequest = isset($row['checkILLRequest']) && $row['checkILLRequest'];
 // CARLI BEGIN force checkILLRequest = false
       // Setting this to false will prevent the 'Check Requestability' Ajax calls, which are extremely resource intensive!!!
-      $checkILLRequest = false;
+      $checkILLRequest = true;
 // CARLI END force checkILLRequest = false
     ?>
     <? if (isset($row['barcode']) && $row['barcode'] != ""): ?>
@@ -339,7 +346,7 @@ CARLI END comment-out original table -->
                 <a class="<?=$checkStorageRetrievalRequest ? 'checkStorageRetrievalRequest ' : ''?> placeStorageRetrievalRequest" data-lightbox href="<?=$this->recordLink()->getRequestUrl($row['storageRetrievalRequestLink'])?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc($checkStorageRetrievalRequest ? "storage_retrieval_request_check_text" : "storage_retrieval_request_place_text")?></a>
               <? endif; ?>
               <? if (isset($row['ILLRequestLink']) && $row['ILLRequestLink']): ?>
-                <a hiddenId="<?=$row['id']?>" class="ajaxCheckRequestableItem <?=$checkILLRequest ? 'checkILLRequest ' : ''?>placeILLRequest" data-lightbox href="<?=$this->recordLink()->getRequestUrl($row['ILLRequestLink'])?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?></a>
+                <a hiddenId="<?=$row['id']?>" class="ajaxCheckRequestableItem <?=$checkILLRequest ? 'checkILLRequest ' : ''?>placeILLRequest" data-lightbox hiddenHref="<?=$this->recordLink()->getRequestUrl($row['ILLRequestLink'])?>"><i class="fa fa-flag" aria-hidden="true"></i>&nbsp;<?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?></a>
               <? endif; ?>
             <? else: ?>
               <? /* Begin Unavailable Items (Recalls) */ ?>
