@@ -975,8 +975,10 @@ EOT;
         $items = [];
 
         $bindParams = [
-            ':enddate' => date('d-m-Y', strtotime('now')),
-            ':startdate' => date('d-m-Y', strtotime('-' . $daysOld . ' day'))
+            #':enddate' => date('d-m-Y', strtotime('now')),
+            ':enddate' => date('d-m-Y H:i:s', strtotime('yesterday 22:00:00')),
+            #':startdate' => date('d-m-Y', strtotime('-' . $daysOld . ' day'))
+            ':startdate' => date('d-m-Y', strtotime('-' . ($daysOld + 1) . ' day'))
 # hardcoded for now because devel server doesn't have any recent data!
 #':startdate' => '01-03-2016',
 #':enddate' => '01-01-2017'
@@ -1001,13 +1003,16 @@ EOT;
 "         ${oracleInstance}.item.on_reserve not in ('Y') and     "  .
 "         substr(${oracleInstance}.bib_text.bib_format,-1,1) in ('a','c','m') and     "  .
 "         ${oracleInstance}.item.create_date between to_date(:startdate, 'dd-mm-yyyy') and     "  .
-"         to_date(:enddate, 'dd-mm-yyyy') and     "  .
+#"         to_date(:enddate, 'dd-mm-yyyy') and     "  .
+"         to_date(:enddate, 'dd-mm-yyyy HH24:MI:SS') and     "  .
 "         ((${oracleInstance}.mfhd_master.create_date between     "  .
 "            to_date(:startdate, 'dd-mm-yyyy') and     "  .
-"            to_date(:enddate, 'dd-mm-yyyy'))  or     "  .
+#"            to_date(:enddate, 'dd-mm-yyyy'))  or     "  .
+"            to_date(:enddate, 'dd-mm-yyyy HH24:MI:SS'))  or     "  .
 "          (${oracleInstance}.mfhd_master.update_date between     "  .
 "            to_date(:startdate, 'dd-mm-yyyy') and     "  .
-"            to_date(:enddate, 'dd-mm-yyyy')))     "  .
+#"            to_date(:enddate, 'dd-mm-yyyy')))     "  .
+"            to_date(:enddate, 'dd-mm-yyyy HH24:MI:SS')))     "  .
 "UNION     "  .
 "select distinct ${oracleInstance}.bib_master.bib_id, ${oracleInstance}.mfhd_master.create_date as cdate     "  .
 "from      ${oracleInstance}.bib_master,     "  .
@@ -1025,7 +1030,8 @@ EOT;
 "         ${oracleInstance}.mfhd_master.suppress_in_opac not in ('Y') and     "  .
 "         ${oracleInstance}.bib_master.suppress_in_opac not in ('Y') and     "  .
 "         ${oracleInstance}.mfhd_master.create_date between to_date(:startdate, 'dd-mm-yyyy') and     "  .
-"         to_date(:enddate, 'dd-mm-yyyy') and     "  .
+#"         to_date(:enddate, 'dd-mm-yyyy') and     "  .
+"         to_date(:enddate, 'dd-mm-yyyy HH24:MI:SS') and     "  .
 "         elink.link is not null)     "  
 ;
 
@@ -1033,7 +1039,7 @@ EOT;
             $sqlStmt = $this->executeSQL($sql, $bindParams);
             $row = $sqlStmt->fetch(PDO::FETCH_ASSOC);
             $items['count'] = $row['COUNT'];
-//file_put_contents("/usr/local/vufind/look.txt", "new items count:\n" . var_export($count, true) . "\n\nbindParmams:\n" . var_export($bindParams, true) . "\n\nsql:\n" . var_export($sql, true) . "\n\n", FILE_APPEND | LOCK_EX);
+//file_put_contents("/usr/local/vufind/look.txt", "new items count:\n" . var_export($items['count'], true) . "\n\nbindParmams:\n" . var_export($bindParams, true) . "\n\nsql:\n" . var_export($sql, true) . "\n\n", FILE_APPEND | LOCK_EX);
         } catch (PDOException $e) {
             throw new ILSException($e->getMessage());
         }
@@ -1063,13 +1069,16 @@ EOT;
 "         ${oracleInstance}.item.on_reserve not in ('Y') and                      "  .
 "         substr(${oracleInstance}.bib_text.bib_format,-1,1) in ('a','c','m') and                      "  .
 "        ${oracleInstance}.item.create_date between to_date(:startdate, 'dd-mm-yyyy') and                      "  .
-"         to_date(:enddate, 'dd-mm-yyyy') and                      "  .
+#"         to_date(:enddate, 'dd-mm-yyyy') and                      "  .
+"         to_date(:enddate, 'dd-mm-yyyy HH24:MI:SS') and                      "  .
 "         ((${oracleInstance}.mfhd_master.create_date between                      "  .
 "            to_date(:startdate, 'dd-mm-yyyy') and                      "  .
-"            to_date(:enddate, 'dd-mm-yyyy'))  or                      "  .
+#"            to_date(:enddate, 'dd-mm-yyyy'))  or                      "  .
+"            to_date(:enddate, 'dd-mm-yyyy HH24:MI:SS'))  or                      "  .
 "          (${oracleInstance}.mfhd_master.update_date between                      "  .
 "            to_date(:startdate, 'dd-mm-yyyy') and                      "  .
-"            to_date(:enddate, 'dd-mm-yyyy')))                      "  .
+#"            to_date(:enddate, 'dd-mm-yyyy')))                      "  .
+"            to_date(:enddate, 'dd-mm-yyyy HH24:MI:SS')))                      "  .
 "UNION                      "  .
 "select distinct ${oracleInstance}.bib_master.bib_id, ${oracleInstance}.mfhd_master.create_date as cdate                      "  .
 "from      ${oracleInstance}.bib_master,                      "  .
@@ -1087,7 +1096,8 @@ EOT;
 "         ${oracleInstance}.mfhd_master.suppress_in_opac not in ('Y') and                      "  .
 "         ${oracleInstance}.bib_master.suppress_in_opac not in ('Y') and                      "  .
 "         ${oracleInstance}.mfhd_master.create_date between to_date(:startdate, 'dd-mm-yyyy') and                      "  .
-"         to_date(:enddate, 'dd-mm-yyyy') and                      "  .
+#"         to_date(:enddate, 'dd-mm-yyyy') and                      "  .
+"         to_date(:enddate, 'dd-mm-yyyy HH24:MI:SS') and                      "  .
 "         elink.link is not null)                      "  .
 "group by bib_id                      "  .
 "order by max(cdate) desc) a                      "  .
