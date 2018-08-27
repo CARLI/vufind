@@ -6,6 +6,85 @@
   $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Checked Out Items') . '</li>';
 ?>
 
+<!-- CARLI EDIT: sort support -->
+<?
+// https://defuse.ca/blog/escaping-string-literals-for-javascript-in-php.html
+function js_string_escape($data)
+{
+    $safe = "";
+    for($i = 0; $i < strlen($data); $i++)
+    {
+        if(ctype_alnum($data[$i]))
+            $safe .= $data[$i];
+        else
+            $safe .= sprintf("\\x%02X", ord($data[$i]));
+    }
+    return $safe;
+}
+
+$sortScript = <<<JS
+function sortResults(selector, sortBy, sortBy2, sortBy3) {
+    var \$parentObj = \$(selector).parent();
+    var \$childrenObjs = \$parentObj.children(\$(selector));
+    \$childrenObjs.sort(function(a,b){
+        var aVal = a.getAttribute('data-' + sortBy + '-sort');
+        var bVal = b.getAttribute('data-' + sortBy + '-sort');
+        if (aVal === null || bVal === null) {
+          return 0;
+        }
+        if (sortBy2 != null) {
+          var aSortBy2val = a.getAttribute('data-' + sortBy2 + '-sort');
+          var bSortBy2val = b.getAttribute('data-' + sortBy2 + '-sort');
+          aVal += aSortBy2val;
+          bVal += bSortBy2val;
+        }
+        if (sortBy3 != null) {
+          var aSortBy3val = a.getAttribute('data-' + sortBy3 + '-sort');
+          var bSortBy3val = b.getAttribute('data-' + sortBy3 + '-sort');
+          aVal += aSortBy3val;
+          bVal += bSortBy3val;
+        }
+        return aVal.localeCompare(bVal);
+    });
+    \$childrenObjs.detach().appendTo(\$parentObj);
+
+    // set the form hidden field
+    \$('#sortBy').val(sortBy);
+}
+
+\$(document).ready(function(){
+JS;
+
+$sortScript .= "\n  var sortBy = '" . js_string_escape($_POST['sortBy']) . "';\n";
+
+$sortScript .= <<<JS
+  \$('select[id=sort_chargeditems_options_1]').change(function(){
+    $('select[id=sort_chargeditems_options_1] option:selected').each(function() {
+      var sortBy = \$(this).val();
+      if (sortBy === "duedate") {
+        sortResults('.result', 'duedate', 'library', 'title');
+      } else if (sortBy == "library") {
+        sortResults('.result', 'library', 'duedate', 'title');
+      } else if (sortBy == "title") {
+        sortResults('.result', 'title', null, null);
+      }
+    });
+  });
+
+  if (sortBy === "duedate") {
+    \$('select[id=sort_chargeditems_options_1]').val(sortBy).trigger('change');
+  } else if (sortBy === "title") {
+    \$('select[id=sort_chargeditems_options_1]').val(sortBy).trigger('change');
+  } else if (sortBy === "library") {
+    \$('select[id=sort_chargeditems_options_1]').val(sortBy).trigger('change');
+  }
+});
+
+JS;
+?>
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $sortScript, 'SET'); ?>
+<!-------------------------------->
+
 <div class="<?=$this->layoutClass('mainbody')?>">
   <h2><?=$this->transEsc('Your Checked Out Items')?></h2>
   <?=$this->flashmessages()?>
@@ -13,8 +92,11 @@
   <?=$this->context($this)->renderInContext('librarycards/selectcard.phtml', ['user' => $this->auth()->isLoggedIn()]); ?>
 
   <? if (!empty($this->transactions)): ?>
+
     <? if ($this->renewForm): ?>
     <form name="renewals" method="post" id="renewals">
+<!-- CARLI EDIT: added 'sortby' hidden field -->
+<input type="hidden" id="sortBy" name="sortBy" value="duedate">
       <div class="toolbar">
         <div class="checkbox">
           <label>
@@ -58,9 +140,27 @@
       <? endif; ?>
     <? endforeach; ?>
 
+<!-- CARLI EDIT: add "sort by" controls -->
+<div class="container-fluid">
+  <div class="form-inline">
+    <div class="pull-right">
+      <label for="sort_chargeditems_options_1">Sort</label>
+      <select id="sort_chargeditems_options_1" name="sort_chargeditems" class="jumpMenu form-control">
+          <option value="duedate" selected="selected">Due Date</option>
+          <option value="title">Title</option>
+          <option value="library">Library</option>
+      </select>
+    </div>
+  </div>
+</div>
+<!----------------------------------------->
+
+    <!-- CARLI EDIT: surround transactions with a container; necessary for sorting! -->
+    <div id="carli-sort-container">
     <? $i = 0; foreach ($this->transactions as $resource): ?>
       <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
-      <div id="record<?=$this->escapeHtmlAttr($resource->getUniqueId())?>" class="result">
+      <!-- CARLI EDIT: add sortable data: duedate, title, library -->
+      <div id="record<?=$this->escapeHtmlAttr($resource->getUniqueId())?>" class="result" data-duedate-sort="<?=$this->escapeHtmlAttr($ilsDetails['duedate_sort'])?>" data-title-sort="<?=$this->escapeHtmlAttr($ilsDetails['title'])?>" data-library-sort="<?=$this->escapeHtmlAttr($ilsDetails['institution_name'])?>" data-titlesort="<?=$this->escapeHtmlAttr($ilsDetails['title'])?>">
         <? if ($this->renewForm): ?>
           <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['renew_details'])): ?>
             <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['renew_details']); ?>
@@ -177,6 +277,8 @@
         </div>
       </div>
     <? endforeach; ?>
+    <!-- CARLI EDIT: surround transactions with a container; necessary for sorting! -->
+    </div> <!-- id="carli-sort-container" -->
     <? if ($this->renewForm): ?></form><? endif; ?>
     <?=$paginator ? $this->paginationControl($paginator, 'Sliding', 'Helpers/pagination.phtml') : ''?>
   <? else: ?>

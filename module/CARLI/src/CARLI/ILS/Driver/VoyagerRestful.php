@@ -443,6 +443,14 @@ EOT;
                     $result['author'] = (string)$chargedItem->author;
                     $result['location'] = (string)$chargedItem->location;
                     $result['renewable'] = (string)$chargedItem->renewable;
+
+                    // Let's sort by due date!!!
+                    // 2018-03-27T23:59:00.000-05:00
+                    // 2018-03-28T23:59:00.000-05:00
+                    // ...
+                    $result['duedate_sort'] = (string)$chargedItem->dueDate;
+                    $result['sort_by'] = $result['duedate_sort'] . $result['institution_name'] . $result['title'];
+
                     $dueDate = (string)$chargedItem->dueDate;
                     try {
                         $newDate = $this->dateFormat->convertToDisplayDate(
@@ -468,6 +476,7 @@ EOT;
                     $finalResult[] = $result;
                 }
             }
+        usort($finalResult, function($a, $b) { return strcmp($a{'sort_by'}, $b{'sort_by'}); });
         return $finalResult;
     }
 
