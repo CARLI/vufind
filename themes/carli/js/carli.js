@@ -39,7 +39,8 @@ function switchCatalog(choiceObj) {
 
 function carli_checkRequestIsValid(element, requestType) {
   // force user to login - otherwise, we will give them false indication of item not being requestable
-  if (!userIsLoggedIn) {
+  // also: we need to make sure the logged-in user is also profiled to backend ILS (patronHomeLibrary must be valid!)
+  if (!userIsLoggedIn || !patronHomeLibrary) {
       var loginURL = window.location.toString();
       if (loginURL.indexOf("?") > 0) {
           loginURL = loginURL.substring(0, loginURL.indexOf("?"));
