@@ -68,7 +68,7 @@ function carli_checkRequestIsValid(element, requestType) {
   var vars = deparam(href);
   vars.id = recordId;
 
-  if (recordId.startsWith(patronHomeLibrary + '.')) {
+  if (recordId.indexOf(patronHomeLibrary + '.') == 0) { // IE
     requestType = 'StorageRetrievalRequest';
   }
   //console.log('carli_checkRequestIsValid requestType = ' + requestType);

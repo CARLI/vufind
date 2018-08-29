@@ -103,7 +103,7 @@ function runCheckRequestableItemAjaxForQueue() {
   vars.id = id;
 
   var requestType = 'ILLRequest';
-  if (id.startsWith(patronHomeLibrary + '.')) {
+  if (id.indexOf(patronHomeLibrary + '.') == 0) { // IE
     requestType = 'StorageRetrievalRequest';
   }
 
