@@ -186,7 +186,7 @@ JS;
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $rfaScript, 'SET'); ?>
 <br/>
 <? if ($atLeastOneAvailableItem): ?>
- <? if (!$user): ?>
+ <? if (!$user || !$user->cat_username): ?>
   <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
     <div id="checkRequestableStatus">
     </div>
