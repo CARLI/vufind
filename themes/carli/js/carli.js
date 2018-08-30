@@ -86,6 +86,7 @@ function carli_checkRequestIsValid(element, requestType) {
   })
   .done(function checkValidDone(response) {
     if (response.data.status) {
+      $(element).removeAttr('disabled');
       $(element).removeClass('disabled')
         .attr('title', response.data.msg)
         .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + response.data.msg);
@@ -94,6 +95,7 @@ function carli_checkRequestIsValid(element, requestType) {
       // set href to hiddenHref value so that when clicked it works
       $(element).attr('href', href);
     } else {
+      $(element).removeAttr('disabled');
       $(element).removeClass('disabled')
         .attr('title', 'Item cannot be requested')
         .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Item cannot be requested');
@@ -101,6 +103,7 @@ function carli_checkRequestIsValid(element, requestType) {
   })
   .fail(function checkValidFail(/*response*/) {
     //$(element).remove();
+    $(element).removeAttr('disabled');
     $(element).removeClass('disabled')
       .attr('title', 'Item cannot be requested')
       .html('<i class="fa fa-flag" aria-hidden="true"></i>&nbsp;' + 'Item cannot be requested');
