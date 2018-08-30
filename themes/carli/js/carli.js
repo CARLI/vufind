@@ -28,11 +28,27 @@ function switchCatalog(choiceObj) {
     if (thiscatalog == 0) {
        if (theaction.search(/\/all/) < 0) {
           choiceObj.form.action = theaction.replace("/vf-", "/all/vf-");
+
+          // remove these filters when switching to I-Share catalog
+          $('.applied-filter').each(function(){
+              var collection = $(this).attr('value');
+              if (collection.match(/^collection:/)) {
+                  $(this).prop('checked', false);
+              }
+          });
        }
     // set it to local catalog, /vf-xxx
     } else {
        if (theaction.search(/\/all/) >= 0) {
           choiceObj.form.action = theaction.replace("/all/vf-", "/vf-");
+
+          // remove these filters when switching to local catalog
+          $('.applied-filter').each(function(){
+              var collection = $(this).attr('value');
+              if (collection.match(/^institutions:/)) {
+                  $(this).prop('checked', false);
+              }
+          });
        }
     }
 }
