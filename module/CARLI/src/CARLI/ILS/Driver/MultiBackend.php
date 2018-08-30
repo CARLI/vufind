@@ -137,10 +137,15 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
                 $sourceDB = $this->getSource($sourceRecord);
                 $driver = $this->getDriver($sourceDB);
                 if ($driver) {
+                  try {
                     $holdings = $driver->getHolding(
                         $this->getLocalId($sourceRecord),
                         $this->stripIdPrefixes($patron, $sourceDB)
                     );
+                  } catch (ILSException $ilse) {
+                     // skip holding records for any local bibs that fail (better to skip one than throw exception for all the rest of those that succeed!)
+                     continue;
+                  }
                     if (preg_match('/^(...)db/', $sourceDB, $matches)) {
                         $item_agency_id_lc3 = strtolower($matches[1]);
                         $item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
