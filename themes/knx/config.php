@@ -2,7 +2,7 @@
 
 $headerImage = 'vufind-knx.jpg';
 
-$headerUrl = 'http://library.knox.edu';
+$headerUrl = 'http://knox.libguides.com/libraryresources';
 
 $headerMap = '';
 

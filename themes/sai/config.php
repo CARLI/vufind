@@ -11,9 +11,23 @@ $headerMap = '
 
 $feedBackLink = 'mailto:flaxman@saic.edu';
 
-$introText = ' 
-';
+$introText = '
+<p>To log into your account, click the icon in the top right-hand corner.</p>
+<p>Use the barcode number on the BACK of your ARTICard, example Library
+23011XXXXXXXXX.</p>
+<p>Short video tutorials are available <a
+href="http://libraryguides.saic.edu/ishare">here</a> with other helpful
+tips.</p>
+'; 
 
 $searchDropText = 'SAIC Flaxman Library';
 
+$loginText = '
+<p>To log into your account, click the icon in the top right-hand corner.</p>
+<p>Use the barcode number on the BACK of your ARTICard, example Library
+23011XXXXXXXXX.</p>
+<p>Short video tutorials are available <a
+href="http://libraryguides.saic.edu/ishare">here</a> with other helpful
+tips.</p>
+'; 
 ?>

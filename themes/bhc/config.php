@@ -1,6 +1,6 @@
 <?
 
-$headerImage = 'vufind-bhc.gif';
+$headerImage = 'vufind-bhc.jpg';
 
 $headerUrl = 'http://www.bhc.edu/academics/academic-resources/library/';
 
