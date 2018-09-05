@@ -111,10 +111,17 @@ CARLI COMMENT OUT END -->
 	} else {	
 	// if there is a custom header image show, otherwise show the defalt CARLI logo //
 	if (isset($headerImage)) {
+	    // H1 needed for accessabilty //
+	  	echo '<h1 class="hidden">VuFind ';
+			if (preg_match('/vf-(...)/', $this->url('home'), $matches)) {
+				$this->libname = $matches[1];
+			}
+		echo $this->translate($this->libname);
+		echo '</h1>';
 		if (!empty($headerUrl)) {
     		echo '<a class="lang-' . $this->layout()->userLang . '" href="' . $headerUrl . '"><img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '"></a>';
 		} elseif (!empty($headerMap)) {
-			echo '<img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '" usemap="#Map">';
+			echo '<img src="/all/vf-' . $inst . '/themes/' . $inst . '/images/' . $headerImage . '" usemap="#Map" alt="VuFind Search page ' . $this->translate($this->libname) .'">';
 			echo '<map name="Map" id="Map">';
 			echo $headerMap;
 			echo '</map>';
