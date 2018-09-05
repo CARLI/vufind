@@ -55,7 +55,7 @@ function sortResults(selector, sortBy, sortBy2, sortBy3) {
 \$(document).ready(function(){
 JS;
 
-$sortScript .= "\n  var sortBy = '" . js_string_escape($_POST['sortBy']) . "';\n";
+$sortScript .= "\n  var sortBy = '" . js_string_escape(array_key_exists('sortBy', $_POST) ? $_POST['sortBy'] : "") . "';\n";
 
 $sortScript .= <<<JS
   \$('select[id=sort_chargeditems_options_1]').change(function(){
@@ -71,6 +71,8 @@ $sortScript .= <<<JS
     });
   });
 
+/************************
+  This is done on the server now:
   if (sortBy === "duedate") {
     \$('select[id=sort_chargeditems_options_1]').val(sortBy).trigger('change');
   } else if (sortBy === "title") {
@@ -78,6 +80,8 @@ $sortScript .= <<<JS
   } else if (sortBy === "library") {
     \$('select[id=sort_chargeditems_options_1]').val(sortBy).trigger('change');
   }
+*************************/
+
 });
 
 JS;
@@ -96,7 +100,7 @@ JS;
     <? if ($this->renewForm): ?>
     <form name="renewals" method="post" id="renewals">
 <!-- CARLI EDIT: added 'sortby' hidden field -->
-<input type="hidden" id="sortBy" name="sortBy" value="duedate">
+<input type="hidden" id="sortBy" name="sortBy" value="<?=array_key_exists('sortBy', $_POST) ? $_POST['sortBy'] : "duedate"?>">
       <div class="toolbar">
         <div class="checkbox">
           <label>
@@ -146,9 +150,9 @@ JS;
     <div class="pull-right">
       <label for="sort_chargeditems_options_1">Sort</label>
       <select id="sort_chargeditems_options_1" name="sort_chargeditems" class="jumpMenu form-control">
-          <option value="duedate" selected="selected">Due Date</option>
-          <option value="title">Title</option>
-          <option value="library">Library</option>
+          <option value="duedate"<?=array_key_exists('sortBy', $_POST) && $_POST['sortBy'] == 'duedate' ? 'selected="selected"'  : ''?>>Due Date</option>
+          <option value="title"<?=array_key_exists('sortBy', $_POST) && $_POST['sortBy'] == 'title' ? 'selected="selected"'  : ''?>>Title</option>
+          <option value="library"<?=array_key_exists('sortBy', $_POST) && $_POST['sortBy'] == 'library' ? 'selected="selected"'  : ''?>>Library</option>
       </select>
     </div>
   </div>
