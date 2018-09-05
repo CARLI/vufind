@@ -65,9 +65,9 @@
   <form id="searchForm" class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
     <?= $this->context($this)->renderInContext('search/searchTabs', ['searchTabs' => $searchTabs['tabs']]); ?>
     <? $placeholder = $this->searchbox()->getPlaceholderText(isset($searchTabs['selected']['id']) ? $searchTabs['selected']['id'] : null); ?>
-    <input id="searchForm_lookfor" class="searchForm_lookfor form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>" type="text" name="lookfor" value="<?=$this->escapeHtmlAttr($this->lookfor)?>"<? if ($placeholder): ?> placeholder="<?=$this->transEsc($placeholder) ?>"<? endif ?> />
+    <input id="searchForm_lookfor" aria-label="search form input field" class="searchForm_lookfor form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>" type="text" name="lookfor" value="<?=$this->escapeHtmlAttr($this->lookfor)?>"<? if ($placeholder): ?> placeholder="<?=$this->transEsc($placeholder) ?>"<? endif ?> />
     <? if ($handlerCount > 1): ?>
-      <select id="searchForm_type" class="searchForm_type form-control" name="type" data-native-menu="false">
+      <select id="searchForm_type" aria-label="choose search type" class="searchForm_type form-control" name="type" data-native-menu="false">
         <? foreach ($handlers as $handler): ?>
           <option value="<?=$this->escapeHtmlAttr($handler['value'])?>"<?=$handler['selected'] ? ' selected="selected"' : ''?>><?=$handler['indent'] ? '-- ' : ''?><?=$this->transEsc($handler['label'])?></option>
         <? endforeach; ?>
@@ -76,6 +76,8 @@
       <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
     <? endif; ?>
 <! CARLI BEGIN !>
+	<? if (getenv('VUFIND_LIBRARY_BASE_PATH') == "/all/vf"): ?>
+	<? else: ?>
           <? if (getenv('VUFIND_LIBRARY_IS_UC')): ?>
               <label for="whichCatalog" class="sr-only">Choose search catalog</label>
               <select class="searchForm_type form-control" id="whichCatalog" data-native-menu="false" onChange="switchCatalog(this)">
@@ -95,6 +97,7 @@
               <! CARLI END Customization !>
               </select>
           <? endif; ?>
+ 	<? endif; ?>
 <! CARLI END !>
     <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> <?=$this->transEsc("Find")?></button>
     <? if ($advSearch): ?>
