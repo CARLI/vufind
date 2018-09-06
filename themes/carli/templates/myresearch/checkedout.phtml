@@ -23,10 +23,124 @@ function js_string_escape($data)
 }
 
 $sortScript = <<<JS
-function sortResults(selector, sortBy, sortBy2, sortBy3) {
+var result_selector = '.result';
+var item_count = 0;
+var items_per_page = 100;
+var all_items;
+
+function collectAllItems() {
+  all_items = \$('.result').toArray();
+  item_count = all_items.length;
+}
+
+function getListItems() {
+    var selector = result_selector;
     var \$parentObj = \$(selector).parent();
     var \$childrenObjs = \$parentObj.children(\$(selector));
-    \$childrenObjs.sort(function(a,b){
+    return \$childrenObjs;
+}
+
+function setListItems(thisPage) {
+    var selector = result_selector;
+    var \$parentObj = \$(selector).parent();
+    var \$childrenObjs = \$parentObj.children(\$(selector));
+    \$childrenObjs.detach();
+    var fromRecords = (thisPage-1)*items_per_page;
+    var toRecords = (thisPage-1)*items_per_page+items_per_page;
+    \$(all_items).slice(fromRecords, toRecords).appendTo(\$parentObj);
+    createPageControl(thisPage, fromRecords+1, toRecords);
+}
+
+function createPageControl(thisPage, from, to) {
+    // set the form hidden field
+    \$('#pageNumber').val(thisPage);
+
+    if (items_per_page > item_count) return;
+
+    var numPages = Math.floor(item_count / items_per_page);
+    if (item_count % items_per_page !== 0) numPages++;
+
+    if (to > item_count) to = item_count;
+    var showingThisMany = 'Showing <strong>' + from + ' - ' + to + '</strong> of <strong>' + item_count + '</strong> Items    ';
+    $('.showing_items').html(showingThisMany);
+
+    var pageControl = '';
+
+    if (thisPage === 1) {
+        pageControl +=
+            '<!-- Previous page link --> ' + "\\n" + 
+            '<li class="disabled"> <span>« Prev</span> ' + "\\n" + 
+                '</li> ' + "\\n";
+
+        pageControl +=
+            '<!-- First page link --> ' + "\\n" + 
+            '<li class="disabled"> <span>First</span> ' + "\\n" + 
+                '</li> ' + "\\n";
+
+    } else {
+        pageControl +=
+            '<!-- Previous page link --> ' + "\\n" + 
+            '<li>' + "\\n" +
+                '<a href="#" onClick="setListItems(' + (thisPage-1) + ')">' + "\\n" +
+            '« Prev      </a>' + "\\n" +
+            '</li>' + "\\n";
+
+        pageControl +=
+            '<!-- First page link --> ' + "\\n" + 
+            '<li>' + "\\n" + 
+                '<a href="#" onClick="setListItems(1)">' + "\\n" + 
+            'First      </a>' + "\\n" + 
+            '</li>' + "\\n";
+    }
+
+    for (var i=1; i <= numPages; i++) {
+
+        if (thisPage === i) {
+            pageControl +=
+                '<!-- Numbered page links --> ' + "\\n" + 
+                '<li class="active"> <span>' + i + '</span> ' + "\\n" + 
+                '</li> ' + "\\n";
+        } else {
+            pageControl +=
+                '<li> ' + "\\n" + 
+                      '<a href="#" onClick="setListItems(' + i + ')"> ' + "\\n" + 
+                i +
+                '        </a> ' + "\\n" + 
+                '</li> ' + "\\n";
+        }
+    }
+
+    if (thisPage === numPages) {
+        pageControl +=
+            '<!-- Last page link --> ' + "\\n" + 
+            '<li class="disabled"> <span>Last</span>' + "\\n" +
+            '</li>' + "\\n" +
+
+            '<!-- Next page link --> ' + "\\n" + 
+            '<li class="disabled"> <span>Next »</span>' + "\\n" + 
+            '</li>' + "\\n";
+
+    } else {
+        pageControl +=
+            '<!-- Last page link --> ' + "\\n" + 
+            '<li> ' + "\\n" + 
+                    '<a href="#" onClick="setListItems(' + numPages + ')"> ' + "\\n" + 
+                'Last      </a> ' + "\\n" + 
+                '</li> ' + "\\n" + 
+
+            '<!-- Next page link --> ' + "\\n" + 
+            '<li> ' + "\\n" + 
+                    '<a href="#" onClick="setListItems(' + (thisPage+1) + ')"> ' + "\\n" + 
+                'Next &gt; ' + "\\n" + 
+              '</a> ' + "\\n" + 
+                '</li> ' + "\\n";
+    }
+
+    $('.pagination').html(pageControl);
+}
+
+function sortResults(sortBy, sortBy2, sortBy3) {
+    all_items.sort(function(a,b){
         var aVal = a.getAttribute('data-' + sortBy + '-sort');
         var bVal = b.getAttribute('data-' + sortBy + '-sort');
         if (aVal === null || bVal === null) {
@@ -46,27 +160,29 @@ function sortResults(selector, sortBy, sortBy2, sortBy3) {
         }
         return aVal.localeCompare(bVal);
     });
-    \$childrenObjs.detach().appendTo(\$parentObj);
+    setListItems(1);
 
     // set the form hidden field
     \$('#sortBy').val(sortBy);
 }
 
 \$(document).ready(function(){
+  collectAllItems();
+  setListItems(\$('#pageNumber').val());
 JS;
 
 $sortScript .= "\n  var sortBy = '" . js_string_escape(array_key_exists('sortBy', $_POST) ? $_POST['sortBy'] : "") . "';\n";
 
 $sortScript .= <<<JS
   \$('select[id=sort_chargeditems_options_1]').change(function(){
-    $('select[id=sort_chargeditems_options_1] option:selected').each(function() {
+    \$('select[id=sort_chargeditems_options_1] option:selected').each(function() {
       var sortBy = \$(this).val();
       if (sortBy === "duedate") {
-        sortResults('.result', 'duedate', 'library', 'title');
+        sortResults('duedate', 'library', 'title');
       } else if (sortBy == "library") {
-        sortResults('.result', 'library', 'duedate', 'title');
+        sortResults('library', 'duedate', 'title');
       } else if (sortBy == "title") {
-        sortResults('.result', 'title', null, null);
+        sortResults('title', null, null);
       }
     });
   });
@@ -101,6 +217,7 @@ JS;
     <form name="renewals" method="post" id="renewals">
 <!-- CARLI EDIT: added 'sortby' hidden field -->
 <input type="hidden" id="sortBy" name="sortBy" value="<?=array_key_exists('sortBy', $_POST) ? $_POST['sortBy'] : "duedate"?>">
+<input type="hidden" id="pageNumber" name="pageNumber" value="<?=array_key_exists('pageNumber', $_POST) ? $_POST['pageNumber'] : "1"?>">
       <div class="toolbar">
         <div class="checkbox">
           <label>
@@ -112,6 +229,9 @@ JS;
         </div>
       </div>
     <? endif; ?>
+
+    <!-- CARLI EDIT: placeholder for showing x of y items -->
+    <div class="showing_items"></div>
 
     <? if ($paginator): ?>
       <?
@@ -283,6 +403,13 @@ JS;
     <? endforeach; ?>
     <!-- CARLI EDIT: surround transactions with a container; necessary for sorting! -->
     </div> <!-- id="carli-sort-container" -->
+
+  <!-- CARLI EDIT: our own custom client-side pagination -->
+  <ul class="pagination">
+  </ul>
+
+
+
     <? if ($this->renewForm): ?></form><? endif; ?>
     <?=$paginator ? $this->paginationControl($paginator, 'Sliding', 'Helpers/pagination.phtml') : ''?>
   <? else: ?>
