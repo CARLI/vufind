@@ -159,7 +159,11 @@
               <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
               <? if ($showStatus): ?>
                 <? if (isset($ilsDetails['dueStatus']) && preg_match('/[Oo]verdue/', $ilsDetails['dueStatus'])): ?>
+<!-- CARLI EDIT: show the actual status!!! -->
+<!--
                   <div class="alert alert-danger"><?=$this->transEsc("renew_item_overdue")?></div>
+-->
+                  <div class="alert alert-danger"><?=$ilsDetails['dueStatus']?></div>
                 <? endif; ?>
               <? endif; ?>
             <? endif; ?>
