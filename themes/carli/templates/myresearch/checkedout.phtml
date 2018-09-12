@@ -25,7 +25,7 @@ function js_string_escape($data)
 $sortScript = <<<JS
 var result_selector = '.result';
 var item_count = 0;
-var items_per_page = 100;
+var items_per_page = 50;
 var all_items;
 
 function collectAllItems() {
@@ -225,7 +225,10 @@ JS;
             <?=$this->transEsc('select_page')?>
           </label>
           <input type="submit" class="btn btn-default" id="renewSelected" name="renewSelected" value="<?=$this->transEsc("renew_selected")?>" />
+          <!-- CARLI EDIT: only show "renew all" if fewer than 51 items total -->
+          <? if (count($this->transactions) < 51): ?>
           <input type="submit" class="btn btn-default" id="renewAll" name="renewAll" value="<?=$this->transEsc('renew_all')?>" />
+          <? endif; ?>
         </div>
       </div>
     <? endif; ?>
