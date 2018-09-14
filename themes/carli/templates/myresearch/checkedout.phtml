@@ -51,6 +51,8 @@ function setListItems(thisPage) {
     createPageControl(thisPage, fromRecords+1, toRecords);
     // clear out the Select Page checkbox
     \$('.checkbox-select-all').removeAttr('checked');
+    \$('.checkbox-select-item').removeAttr('checked');
+
 }
 
 function createPageControl(thisPage, from, to) {
