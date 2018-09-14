@@ -49,6 +49,8 @@ function setListItems(thisPage) {
     var toRecords = (thisPage-1)*items_per_page+items_per_page;
     \$(all_items).slice(fromRecords, toRecords).appendTo(\$parentObj);
     createPageControl(thisPage, fromRecords+1, toRecords);
+    // clear out the Select Page checkbox
+    \$('.checkbox-select-all').removeAttr('checked');
 }
 
 function createPageControl(thisPage, from, to) {
