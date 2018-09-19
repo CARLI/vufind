@@ -1422,27 +1422,49 @@ EOT;
         return $simpleXML;
     }
 
-    // https://github.com/CARLI/vufind/issues/192
+    // https://github.com/CARLI/vufind/issues/341
     //
-    // The 'label' should be taken from the $y.
-    // In the absence of the $y, use the $3.
-    // In the absence of the $y or $3, use the $u.
+    // * If the 856 contains $u only: the $u will be hyperlinked.
+    // link = $u ; label = $u ; text = [empty]
     //
-    // The 'link' is always the URL in the 856 $u.
-    // After the 'link', insert a space and display the 'text' of the 856 $z (which is free text note field).
+    // * If the 856 contains $u and $y: the $y will be hyperlinked.
+    // link = $u ; label = $y ; text = [empty]
+    //
+    // * If the 856 contains $u and $z: the $u will be hyperlinked and the $z will display as text.
+    // link = $u ; label = $u ; text = $z
+    //
+    // * If the 856 contains $u and $3: the $3 will be hyperlinked.
+    // link = $u ; label = $3 ; text = [empty]
+    //
+    // * If the 856 contains $u, $3 and $y: the $3 and the $y will be hyperlinked, in that order, separated by a space.
+    // link = $u ; label = $3 [space] $y ; text = [empty]
+    //
+    // * If the 856 contains $u, $3 and $z: the $3 will be hyperlinked and the $z will display as text.
+    // link = $u ; label = $3 ; text = $z
+    //
+    // * If the 856 contains $u, $y and $z: the $y will be hyperlinked and the $z will display as text.
+    // link = $u ; label = $y ; text = $z
+    //
+    // * If the 856 contains $u, $3, $y and $z: the $3 and $y will be hyperlinked, in that order, with a space between them, and the $z will display as text.
+    // link = $u ; label = $3 [space] $y ; text = $z
     //
     protected function getMFHD856s($record)
     {
         $results = array();
         if ($fields = $record->getFields('856')) {
-            $sfValues = array();
             foreach ($fields as $field) {
+                $sfValues = array();
                 if ($subfields = $field->getSubfields()) {
                     foreach ($subfields as $code => $subfield) {
                         if (!strstr('y3uz', $code)) {
                             continue;
                         }
-                        $sfValues[$code] = $subfield->getData();
+                        $subfieldData = $subfield->getData();
+                        if (array_key_exists($code, $sfValues)) {
+                            $sfValues[$code] .= ' ' . $subfieldData;
+                        } else {
+                            $sfValues[$code] = $subfieldData;
+                        }
                     }
                 }
 
@@ -1455,11 +1477,13 @@ EOT;
                 $the856['link'] = $sfValues['u'];
 
                 $the856['label'] = $sfValues['u'];
-                if (array_key_exists('y', $sfValues)) {
-                    $the856['label'] = $sfValues['y'];
+                if (array_key_exists('3', $sfValues) && array_key_exists('y', $sfValues)) {
+                    $the856['label'] = $sfValues['3'] . ' ' . $sfValues['y'];
                 } else if (array_key_exists('3', $sfValues)) {
                     $the856['label'] = $sfValues['3'];
-                } 
+                } else if (array_key_exists('y', $sfValues)) {
+                    $the856['label'] = $sfValues['y'];
+                }
 
                 $the856['text'] = '';
                 if (array_key_exists('z', $sfValues)) {
