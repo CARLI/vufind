@@ -11,7 +11,8 @@
 ?>
 <h2><?=$this->transEsc('Find New Items')?></h2>
 <!-- CARLI BEGIN --!>
-<p>Select a range, then click the Find button.</p>
+<p>Select a range, then click the Find button. If more than 1000 new items are found, 
+only the most recent 1000 new items will be displayed.</p>
 <!-- CARLI END --!>
 <? if ($offlineMode == "ils-offline"): ?>
   <?=$this->render('Helpers/ils-offline.phtml', ['offlineModeMsg' => 'ils_offline_holdings_message'])?>
