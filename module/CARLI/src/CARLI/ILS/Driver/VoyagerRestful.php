@@ -443,6 +443,21 @@ EOT;
                     $result['author'] = (string)$chargedItem->author;
                     $result['location'] = (string)$chargedItem->location;
                     $result['renewable'] = (string)$chargedItem->renewable;
+
+                    // Let's sort by due date!!!
+                    // 2018-03-27T23:59:00.000-05:00
+                    // 2018-03-28T23:59:00.000-05:00
+                    // ...
+                    $result['duedate_sort'] = (string)$chargedItem->dueDate;
+                    if (array_key_exists('sortBy', $_POST) && $_POST['sortBy'] == 'title') {
+                        $result['sort_by'] = $result['title'];
+                    } else if (array_key_exists('sortBy', $_POST) &&$_POST['sortBy'] == 'library') {
+                        $result['sort_by'] = $result['institution_name'] . $result['duedate_sort'] . $result['title'];
+                    } else {
+                        // duedate - default
+                        $result['sort_by'] = $result['duedate_sort'] . $result['institution_name'] . $result['title'];
+                    }
+
                     $dueDate = (string)$chargedItem->dueDate;
                     try {
                         $newDate = $this->dateFormat->convertToDisplayDate(
@@ -468,6 +483,7 @@ EOT;
                     $finalResult[] = $result;
                 }
             }
+        usort($finalResult, function($a, $b) { return strcmp($a{'sort_by'}, $b{'sort_by'}); });
         return $finalResult;
     }
 
