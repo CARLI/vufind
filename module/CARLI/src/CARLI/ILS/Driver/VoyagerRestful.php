@@ -444,6 +444,10 @@ EOT;
                     $result['location'] = (string)$chargedItem->location;
                     $result['renewable'] = (string)$chargedItem->renewable;
 
+                    $result['enumeration'] = (string)$chargedItem->enumeration;
+                    $result['callNumber'] = (string)$chargedItem->callNumber;
+                    $result['itemBarcode'] = (string)$chargedItem->itemBarcode;
+
                     // Let's sort by due date!!!
                     // 2018-03-27T23:59:00.000-05:00
                     // 2018-03-28T23:59:00.000-05:00
@@ -460,18 +464,14 @@ EOT;
 
                     $dueDate = (string)$chargedItem->dueDate;
                     try {
-                        $newDate = $this->dateFormat->convertToDisplayDate(
-                            'Y-m-d H:i', $dueDate
-                        );
+                        $newDate = date_format(date_create($dueDate), 'F d, Y');
                         $response['new_date'] = $newDate;
                     } catch (DateException $e) {
                         // If we can't parse out the date, use the raw string:
                         $response['new_date'] = $dueDate;
                     }
                     try {
-                        $newTime = $this->dateFormat->convertToDisplayTime(
-                            'Y-m-d H:i', $dueDate
-                        );
+                        $newTime = date_format(date_create($dueDate), 'g:i A');
                         $response['new_time'] = $newTime;
                     } catch (DateException $e) {
                         // If we can't parse out the time, just ignore it:
@@ -792,18 +792,14 @@ EOT;
 
                     $dueDate = (string)$chargedItem->dueDate;
                     try {
-                        $newDate = $this->dateFormat->convertToDisplayDate(
-                            'Y-m-d H:i', $dueDate
-                        );
+                        $newDate = date_format(date_create($dueDate), 'F d, Y');
                         $response['new_date'] = $newDate;
                     } catch (DateException $e) {
                         // If we can't parse out the date, use the raw string:
                         $response['new_date'] = $dueDate;
                     }
                     try {
-                        $newTime = $this->dateFormat->convertToDisplayTime(
-                            'Y-m-d H:i', $dueDate
-                        );
+                        $newTime = date_format(date_create($dueDate), 'g:i A');
                         $response['new_time'] = $newTime;
                     } catch (DateException $e) {
                         // If we can't parse out the time, just ignore it:
