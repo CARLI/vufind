@@ -137,11 +137,13 @@
 
             <!-- CARLI EDIT: if more than one, simply show a "More..." link to detailed record page -->
             <? if (count($urls) > 1): ?>
-                  <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($urls[0]['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link" aria-hidden="true"></i> <?=($urls[0]['url'] == $urls[0]['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($urls[0]['desc'])?></a><br/>
+                  <!-- CARLI EDIT: always use 'Get it online' for description on results page -->
+                  <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($urls[0]['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link" aria-hidden="true"></i> <?=(true || $urls[0]['url'] == $urls[0]['desc']) ? $this->transEsc('Get it online') : $this->escapeHtml($urls[0]['desc'])?></a><br/>
                   <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="fulltext"><i class="fa fa-external-link" aria-hidden="true"></i> (More...)</a><br/>
             <? else: ?>
               <? foreach ($urls as $current): ?>
-                  <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link" aria-hidden="true"></i> <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?></a><br/>
+                  <!-- CARLI EDIT: always use 'Get it online' for description on results page -->
+                  <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link" aria-hidden="true"></i> <?=(true || $current['url'] == $current['desc']) ? $this->transEsc('Get it online') : $this->escapeHtml($current['desc'])?></a><br/>
               <? endforeach; ?>
             <? endif; ?>
             </div>
