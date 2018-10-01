@@ -198,4 +198,6 @@ $(document).ready(function() {
     carli_checkRequestIsValid(this, 'ILLRequest');
   });
 
+  $('#checkRequestableItem').resizable();
+
 });
