@@ -199,5 +199,6 @@ $(document).ready(function() {
   });
 
   $('#checkRequestableItem').resizable();
+  $('#checkRequestableItem').css('max-width', 'inherit');
 
 });
