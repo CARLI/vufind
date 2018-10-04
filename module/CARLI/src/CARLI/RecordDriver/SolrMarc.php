@@ -39,5 +39,26 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
        return parent::getURLs();
     }
 
+    public function getTOC()
+    {
+        // Return empty array if we have no table of contents:
+        $fields = $this->getMarcRecord()->getFields('505');
+        if (!$fields) {
+            return [];
+        }
+
+        // If we got this far, we have a table -- collect it as a string:
+        $tocStr = '';
+        foreach ($fields as $field) {
+            $subfields = $field->getSubfields();
+            foreach ($subfields as $subfield) {
+                $tocStr .= $subfield->getData() . ' ';
+            }
+        }
+        $toc = array();
+        $toc = explode('--', $tocStr);
+        return $toc;
+    }
+
 }
 
