@@ -93,10 +93,8 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             $record = $driver->getSolrRecord($id);
 
             $ucHoldings = $driver->getFormattedMarcDetails($record, 'MarcHoldings');
-
-            // randomize the holdings!!!
-            shuffle($ucHoldings);
-
+            // $ucHoldings:
+            //
             //  0 => 
             //      array (
             //      'availability' => false,
@@ -109,38 +107,52 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             //      'number' => '',
             //      'id' => '264895161',
             //      ),
-            $localLibrary = getenv('VUFIND_LIBRARY_DB');
+
+            // Keep only those with proper 035$a format, e.g., "(Agency) 123"
             $sourceRecords = array();
             $totalCount = 0;
-            $localCount = 0;
-            // bubble these up to the top
-            $highPriority = array();
-            $highPriority[] = $localLibrary;
-            $highPriority[] = "HAT";
-            $highPriority[] = "EBL";
-            $highPriority[] = "OTL";
-            foreach ($highPriority as $priority) {
-                foreach ($ucHoldings as $ucHolding) {
-                    $sourceRecord = $ucHolding['location'];
-                    // Need to parse out the 035$a format, e.g., "(Agency) 123"
-                    if (preg_match('/\(([^\)]+)\)\s*([0-9]+)/', $sourceRecord, $matches)) {
-                        $matched_agency = $matches[1];
-                        $matched_id = $matches[2];
-                        $sourceRecord = $matched_agency . '.' . $matched_id;
-                        // move local library's results to the top
-                        if (strcmp($matched_agency, $priority) == 0) {
-                            if ($totalCount != $localCount) {
-                                $sourceRecords[$totalCount] = $sourceRecords[$localCount];
-                            }
-                            $sourceRecords[$localCount] = $sourceRecord;
-                            $localCount++;
-                        } else {
-                            $sourceRecords[$totalCount] = $sourceRecord;
-                        }
-                        $totalCount++;
-                    }
+            foreach ($ucHoldings as $ucHolding) {
+                $sourceRecord = $ucHolding['location'];
+                // Need to parse out the 035$a format, e.g., "(Agency) 123"
+                if (preg_match('/\(([^\)]+)\)\s*([0-9]+)/', $sourceRecord, $matches)) {
+                    $matched_agency = $matches[1];
+                    $matched_id = $matches[2];
+                    $sourceRecord = $matched_agency . '.' . $matched_id;
+                    $sourceRecords[$totalCount++] = $sourceRecord;
                 }
             }
+
+            // put the prioritized records at the top
+            usort($sourceRecords, 
+                function($a, $b) { 
+                    $aPriority = MultiBackend::getPriorityLevel($a);
+                    $bPriority = MultiBackend::getPriorityLevel($b);
+                    return ($bPriority - $aPriority);
+                }
+            );
+
+            // need to randomize non-prioritized records
+            // while leaving the priorized ones alone (at the top)
+            $firstNonPrioritizedSourceInx = 0;
+            $inx = 0;
+            foreach ($sourceRecords as $sourceRecord) {
+                if (MultiBackend::getPriorityLevel($sourceRecord) == 0) {
+                    $firstNonPrioritizedSourceInx = $inx;
+                    break;
+                }
+                $inx++;
+            }
+
+            if ($firstNonPrioritizedSourceInx > 0) {
+                $prioritizedSourceRecords = array_slice($sourceRecords, 0, $firstNonPrioritizedSourceInx);
+                $nonPrioritizedSourceRecords = array_slice($sourceRecords, $firstNonPrioritizedSourceInx);
+                shuffle($nonPrioritizedSourceRecords);
+                $sourceRecords = array_merge($prioritizedSourceRecords, $nonPrioritizedSourceRecords);
+            } else {
+                // randomize the holdings!!!
+                shuffle($sourceRecords);
+            }
+
             foreach ($sourceRecords as $sourceRecord) {
                 $sourceDB = $this->getSource($sourceRecord);
                 $driver = $this->getDriver($sourceDB);
@@ -205,6 +217,21 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
                }
            }
            return $result;
+        }
+    }
+
+    public static function getPriorityLevel($bibId) {
+        $agency = explode('.', $bibId)[0];
+        $localLibrary = getenv('VUFIND_LIBRARY_DB');
+        $priorityLevel = array();
+        $priorityLevel[$localLibrary] = 10;
+        $priorityLevel["HAT"] = 9;
+        $priorityLevel["EBL"] = 8;
+        $priorityLevel["OTL"] = 7;
+        if (array_key_exists($agency, $priorityLevel)) {
+            return $priorityLevel[$agency];
+        } else {
+            return 0;
         }
     }
 }
