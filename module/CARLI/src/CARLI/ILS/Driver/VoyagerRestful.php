@@ -7,6 +7,44 @@ use VuFind\Config\Locator as ConfigLocator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+
+    protected function getPurchaseHistoryData($id)
+    {
+        $sql = "select LINE_ITEM_COPY_STATUS.MFHD_ID, SERIAL_ISSUES.ENUMCHRON " .
+               "from $this->dbName.SERIAL_ISSUES, $this->dbName.COMPONENT, " .
+               "$this->dbName.ISSUES_RECEIVED, $this->dbName.SUBSCRIPTION, " .
+               "$this->dbName.LINE_ITEM, $this->dbName.LINE_ITEM_COPY_STATUS " .
+               ", $this->dbName.MFHD_MASTER " . # CARLI ADDED
+               "where SERIAL_ISSUES.COMPONENT_ID = COMPONENT.COMPONENT_ID " .
+               "and ISSUES_RECEIVED.ISSUE_ID = SERIAL_ISSUES.ISSUE_ID " .
+               "and ISSUES_RECEIVED.COMPONENT_ID = COMPONENT.COMPONENT_ID " .
+               "and COMPONENT.SUBSCRIPTION_ID = SUBSCRIPTION.SUBSCRIPTION_ID " .
+               "and SUBSCRIPTION.LINE_ITEM_ID = LINE_ITEM.LINE_ITEM_ID " .
+               "and LINE_ITEM_COPY_STATUS.LINE_ITEM_ID = LINE_ITEM.LINE_ITEM_ID " .
+               "and LINE_ITEM_COPY_STATUS.MFHD_ID = MFHD_MASTER.MFHD_ID " . # CARLI ADDED
+               "and MFHD_MASTER.SUPPRESS_IN_OPAC = 'N'  " . # CARLI ADDED
+               "and SERIAL_ISSUES.RECEIVED > 0 " .
+               "and ISSUES_RECEIVED.OPAC_SUPPRESSED = 1 " .
+               "and LINE_ITEM.BIB_ID = :id " .
+               "order by LINE_ITEM_COPY_STATUS.MFHD_ID, SERIAL_ISSUES.ISSUE_ID DESC";
+        try {
+            $sqlStmt = $this->executeSQL($sql, [':id' => $id]);
+        } catch (PDOException $e) {
+            throw new ILSException($e->getMessage());
+        }
+        $raw = $processed = [];
+        // Collect raw data:
+        while ($row = $sqlStmt->fetch(PDO::FETCH_ASSOC)) {
+            $raw[] = $row['MFHD_ID'] . '||' . utf8_encode($row['ENUMCHRON']);
+        }
+        // Deduplicate data and format it:
+        foreach (array_unique($raw) as $current) {
+            list($holdings_id, $issue) = explode('||', $current, 2);
+            $processed[] = compact('issue', 'holdings_id');
+        }
+        return $processed;
+    }
+
     protected function getHoldingEItemsSQL($id)
     {
         // Expressions
