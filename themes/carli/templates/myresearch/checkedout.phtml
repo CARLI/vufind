@@ -357,12 +357,32 @@ JS;
             <? endif; ?>
 
             <? if (!empty($ilsDetails['institution_name']) && (empty($ilsDetails['borrowingLocation']) || $ilsDetails['institution_name'] != $ilsDetails['borrowingLocation'])): ?>
-              <strong><?=$this->transEsc('location_' . $ilsDetails['institution_name'], [], $ilsDetails['institution_name'])?></strong>
+              <i><?=$this->transEsc('location_' . $ilsDetails['institution_name'], [], $ilsDetails['institution_name'])?></i>
               <br />
             <? endif; ?>
 
             <? if (!empty($ilsDetails['borrowingLocation'])): ?>
               <strong><?=$this->transEsc('Borrowing Location')?>:</strong> <?=$this->transEsc('location_' . $ilsDetails['borrowingLocation'], [], $ilsDetails['borrowingLocation'])?>
+              <br />
+            <? endif; ?>
+
+            <? if (!empty($ilsDetails['location'])): ?>
+              <strong><?=$this->transEsc('Location')?>:</strong> <?=$this->escapeHtml($ilsDetails['location'])?>
+              <br />
+            <? endif; ?>
+
+            <? if (!empty($ilsDetails['enumeration'])): ?>
+              <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($ilsDetails['enumeration'])?>
+              <br />
+            <? endif; ?>
+
+            <? if (!empty($ilsDetails['callNumber'])): ?>
+              <strong><?=$this->transEsc('Call Number')?>:</strong> <?=$this->escapeHtml($ilsDetails['callNumber'])?>
+              <br />
+            <? endif; ?>
+
+            <? if (false && !empty($ilsDetails['itemBarcode'])): ?> 
+              <strong><?=$this->transEsc('Barcode')?>:</strong> <?=$this->escapeHtml($ilsDetails['itemBarcode'])?>
               <br />
             <? endif; ?>
 
@@ -380,14 +400,14 @@ JS;
               <? $renewDetails = $this->renewResult[$ilsDetails['item_id']]; ?>
               <? if (isset($renewDetails['success']) && $renewDetails['success']): ?>
                 <? $showStatus = false; ?>
-                <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($renewDetails['new_date'])?> <? if (isset($renewDetails['new_time'])): ?><?=$this->escapeHtml($renewDetails['new_time'])?><? endif; ?></strong>
+                <strong><?=$this->transEsc('Due')?>:</strong> <?=$this->escapeHtml($renewDetails['new_date'])?> <? if (isset($renewDetails['new_time'])): ?><?=$this->escapeHtml($renewDetails['new_time'])?><? endif; ?>
                 <div class="alert alert-success"><?=$this->transEsc('renew_success')?></div>
               <? else: ?>
-                <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
+                <strong><?=$this->transEsc('Due')?>:</strong> <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?>
                 <div class="alert alert-danger"><?=$this->transEsc('renew_fail')?><? if (isset($renewDetails['sysMessage'])): ?>: <?=$this->escapeHtml($renewDetails['sysMessage'])?><? endif; ?></div>
               <? endif; ?>
             <? else: ?>
-              <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
+              <strong><?=$this->transEsc('Due')?>:</strong> <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?>
               <? if ($showStatus): ?>
                 <? if (isset($ilsDetails['dueStatus']) && preg_match('/[Oo]verdue/', $ilsDetails['dueStatus'])): ?>
 <!-- CARLI EDIT: show the actual status!!! -->
