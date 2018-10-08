@@ -213,5 +213,11 @@ $(document).ready(function() {
     }
   });
 
+  $('#checkRequestableItem').css('max-width', 'inherit');
+  // mobile device?
+  if (typeof window.orientation !== "undefined" || navigator.userAgent.indexOf('IEMobile') !== -1) {
+    $('#checkRequestableItem').css('height', '60px');
+  }
+  $('#checkRequestableItem').resizable();
 
 });

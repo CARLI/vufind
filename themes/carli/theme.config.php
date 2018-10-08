@@ -6,9 +6,11 @@ return array(
         'carli.js',
         'check_requestable.js',
         'image-map.js',
+        'vendor/jquery-ui.min.js',
     ),
    'css' => array(
         'carli.css',
+        'vendor/jquery-ui.css',
      ),
     'favicon' => 'carli-favicon.ico',
 );
