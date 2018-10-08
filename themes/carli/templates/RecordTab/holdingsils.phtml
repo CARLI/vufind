@@ -239,6 +239,12 @@ JS;
            echo $this->translate($this->libname);
        }
        $this->lastLibname = $this->libname;
+    } else {
+       $this->libname = $holding['location'];
+       if ($this->lastLibname != $this->libname) {
+           echo $this->translate($this->libname);
+       }
+       $this->lastLibname = $this->libname;
     }
 ?>
 <! CARLI END libname !>
