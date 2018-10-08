@@ -130,11 +130,24 @@
           <?=$openUrl->renderTemplate()?>
         <? endif; ?>
         <? if (!is_array($urls)) $urls = array();
-          if(!$this->driver->isCollection()):
-            foreach ($urls as $current): ?>
-              <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link" aria-hidden="true"></i> <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?></a><br/>
-          <? endforeach; ?>
-        <? endif; ?>
+          if(!$this->driver->isCollection()): ?>
+
+            <!-- CARLI EDIT: add container for 'full text' links; we may need to hide them if SFX link becomes active. -->
+            <div id="carli-full-text-links" data-recordid="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>">
+
+            <!-- CARLI EDIT: if more than one, simply show a "More..." link to detailed record page -->
+            <? if (count($urls) > 1): ?>
+                  <!-- CARLI EDIT: always use 'Get it online' for description on results page -->
+                  <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($urls[0]['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link" aria-hidden="true"></i> <?=(true || $urls[0]['url'] == $urls[0]['desc']) ? $this->transEsc('Get it online') : $this->escapeHtml($urls[0]['desc'])?></a><br/>
+                  <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="fulltext"><i class="fa fa-external-link" aria-hidden="true"></i> (More...)</a><br/>
+            <? else: ?>
+              <? foreach ($urls as $current): ?>
+                  <!-- CARLI EDIT: always use 'Get it online' for description on results page -->
+                  <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link" aria-hidden="true"></i> <?=(true || $current['url'] == $current['desc']) ? $this->transEsc('Get it online') : $this->escapeHtml($current['desc'])?></a><br/>
+              <? endforeach; ?>
+            <? endif; ?>
+            </div>
+          <? endif; ?>
       <? endif; ?>
 
       <div class="result-formats">

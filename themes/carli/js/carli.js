@@ -198,4 +198,20 @@ $(document).ready(function() {
     carli_checkRequestIsValid(this, 'ILLRequest');
   });
 
+  // if SFX links becomes active, hide the 'open text' links
+  $('img[data-recordid]').load(function() {
+    if ($(this).height() > 1) {
+      var thisId = $(this).data('recordid');
+      $('div[data-recordid="' + thisId + '"]').hide();
+    }
+  });
+  // perhaps, it was loaded already ('back' button support)
+  $('img[data-recordid]').each(function() {
+    if ($(this).height() > 1) {
+      var thisId = $(this).data('recordid');
+      $('div[data-recordid="' + thisId + '"]').hide();
+    }
+  });
+
+
 });
