@@ -113,24 +113,32 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             $sourceRecords = array();
             $totalCount = 0;
             $localCount = 0;
-            foreach ($ucHoldings as $ucHolding) {
-                $sourceRecord = $ucHolding['location'];
-                // Need to parse out the 035$a format, e.g., "(Agency) 123"
-                if (preg_match('/\(([^\)]+)\)\s*([0-9]+)/', $sourceRecord, $matches)) {
-                    $matched_agency = $matches[1];
-                    $matched_id = $matches[2];
-                    $sourceRecord = $matched_agency . '.' . $matched_id;
-                    // move local library's results to the top
-                    if (strcmp($matched_agency, $localLibrary) == 0) {
-                        if ($totalCount != $localCount) {
-                            $sourceRecords[$totalCount] = $sourceRecords[$localCount];
+            // bubble these up to the top
+            $highPriority = array();
+            $highPriority[] = $localLibrary;
+            $highPriority[] = "HAT";
+            $highPriority[] = "EBL";
+            $highPriority[] = "OTL";
+            foreach ($highPriority as $priority) {
+                foreach ($ucHoldings as $ucHolding) {
+                    $sourceRecord = $ucHolding['location'];
+                    // Need to parse out the 035$a format, e.g., "(Agency) 123"
+                    if (preg_match('/\(([^\)]+)\)\s*([0-9]+)/', $sourceRecord, $matches)) {
+                        $matched_agency = $matches[1];
+                        $matched_id = $matches[2];
+                        $sourceRecord = $matched_agency . '.' . $matched_id;
+                        // move local library's results to the top
+                        if (strcmp($matched_agency, $priority) == 0) {
+                            if ($totalCount != $localCount) {
+                                $sourceRecords[$totalCount] = $sourceRecords[$localCount];
+                            }
+                            $sourceRecords[$localCount] = $sourceRecord;
+                            $localCount++;
+                        } else {
+                            $sourceRecords[$totalCount] = $sourceRecord;
                         }
-                        $sourceRecords[$localCount] = $sourceRecord;
-                        $localCount++;
-                    } else {
-                        $sourceRecords[$totalCount] = $sourceRecord;
+                        $totalCount++;
                     }
-                    $totalCount++;
                 }
             }
             foreach ($sourceRecords as $sourceRecord) {
