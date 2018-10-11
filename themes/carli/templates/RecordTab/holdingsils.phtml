@@ -61,6 +61,10 @@ $new_holding_id = '';
 $last_holding_id = '';
 foreach ($holdings['holdings'] as $location => $location_val) {
     foreach ($location_val['items'] as $itm) {
+        // Cite this/Text this/etc. requires callnumber; if one doesn't exist, use a dummy value
+        if (!isset($itm['callnumber'])) {
+            $itm['callnumber'] = 'N/A';
+        }
         $new_holding_id = $location . '|' . $itm['id'] . '|' . $itm['holdings_id'];
         if ($new_holding_id != $last_holding_id) {
             $last_holding_id = $new_holding_id;
