@@ -223,7 +223,6 @@ JS;
 <input type="hidden" id="sortBy" name="sortBy" value="<?=array_key_exists('sortBy', $_POST) ? $_POST['sortBy'] : "duedate"?>">
 <input type="hidden" id="pageNumber" name="pageNumber" value="<?=array_key_exists('pageNumber', $_POST) ? $_POST['pageNumber'] : "1"?>">
       <div class="toolbar">
-        <div class="checkbox">
           <label>
             <input type="checkbox" name="selectAll" class="checkbox-select-all"/>
             <?=$this->transEsc('select_page')?>
@@ -233,7 +232,6 @@ JS;
           <? if (count($this->transactions) < 51): ?>
           <input type="submit" class="btn btn-default" id="renewAll" name="renewAll" value="<?=$this->transEsc('renew_all')?>" />
           <? endif; ?>
-        </div>
       </div>
     <? endif; ?>
 
@@ -295,19 +293,18 @@ JS;
         <? if ($this->renewForm): ?>
           <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['renew_details'])): ?>
             <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['renew_details']); ?>
-            <div class="checkbox">
               <label>
                 <input class="checkbox-select-item" type="checkbox" name="renewSelectedIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['renew_details'])?>" id="checkbox_<?=$safeId?>" />
               </label>
               <input type="hidden" name="selectAllIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['renew_details'])?>" />
               <input type="hidden" name="renewAllIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['renew_details'])?>" />
-            </div>
           <? endif; ?>
         <? endif; ?>
 
         <?
           $coverDetails = $this->record($resource)->getCoverDetails('checkedout', 'small', $this->recordLink()->getUrl($resource));
-          $cover = $coverDetails['html'];
+          // CARLI EDIT: never show cover image because Voyager API doesn't reveal bib info for checked-out items (and thus no valid image cover)
+          $cover = false; // hard-coded false; original code: $cover = $coverDetails['html'];
           $thumbnail = false;
           $thumbnailAlignment = $this->record($resource)->getThumbnailAlignment('account');
           if ($cover):
