@@ -19,6 +19,14 @@
 <! CARLI END Customization !>
 
 <? $account = $this->auth()->getManager(); ?>
+<!-- CARLI EDIT: set up logged-in user's name -->
+<?
+$userDisplayName = 'Your Account';
+$userAccount = $this->auth()->isLoggedIn();
+if ($userAccount && $userAccount->firstname && $userAccount->lastname) {
+    $userDisplayName = 'Logged in as ' . $userAccount->firstname . ' ' . $userAccount->lastname;
+}
+?>
 <div class="banner container navbar">
   <div class="navbar-header">
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#header-collapse">
@@ -48,7 +56,8 @@ CARLI COMMENT OUT END -->
           <? endif; ?>
           <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
             <li class="logoutOptions<? if(!$account->isLoggedIn()): ?> hidden<? endif ?>">
-              <a href="<?=$this->url('myresearch-home', array(), array('query' => array('redirect' => 0)))?>"><i class="fa fa-home" aria-hidden="true"></i> <?=$this->transEsc("Your Account")?></a>
+              <!-- CARLI EDIT: Use Logged-in user's first and last name instead of 'Your Account' -->
+              <a href="<?=$this->url('myresearch-home', array(), array('query' => array('redirect' => 0)))?>"><i class="fa fa-home" aria-hidden="true"></i> <?=$userDisplayName?></a>
             </li>
             <li class="logoutOptions<? if(!$account->isLoggedIn()): ?> hidden<? endif ?>">
               <a href="<?=$this->url('myresearch-logout')?>" class="logout"><i class="fa fa-sign-out" aria-hidden="true"></i> <?=$this->transEsc("Log Out")?></a>
