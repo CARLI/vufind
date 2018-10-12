@@ -396,6 +396,26 @@ CARLI END comment-out original table -->
       </tr>
     <? endif; ?>
 
+  <!-- CARLI EDIT: embed purchase history -->
+  <? if (!empty($row['purchase_history'])): ?>
+  <? 
+     if ($row['id'] != $ph_last_id && $row['holdings_id'] != $ph_last_holdings_id) {
+       $ph_last_id = $row['id'];
+       $ph_last_holdings_id = $row['holdings_id'];
+  ?>
+    <tr>
+      <th><?=$this->transEsc("Most Recent Received Issues")?>:</th>
+      <td>
+        <? foreach ($row['purchase_history'] as $current): ?>
+          <?=$this->escapeHtml($current['issue'])?><br/>
+        <? endforeach; ?>
+      </td>
+    </tr>
+  <? 
+      }
+  ?>
+  <? endif; ?>
+
   <? endforeach; ?>
 
 <!-- CARLI: cite/text this/email this/export record/save to list -->
