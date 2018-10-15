@@ -264,6 +264,16 @@ CARLI END comment-out original table -->
 <table class="carli-holdings-unit table table-striped" data-carli-display="5" summary="<?=$this->transEsc('holdings_details_from', ['%%location%%' => $this->transEsc($holding['location'])]) ?>">
 <!-- CARLI END custom table -->
   <? $callNos = $this->tab->getUniqueCallNumbers($holding['items']); if (!empty($callNos)): ?>
+  <!-- CARLI EDIT: don't show dummy (N/A) call numbers -->
+  <? 
+     $numCallNos = 0;
+     foreach ($callNos as $callNo) {
+       if ($callNo != 'N/A') {
+         $numCallNos++;
+       }
+     }
+  ?>
+   <? if ($numCallNos > 0): ?>
   <tr>
     <th><?=$this->transEsc("Call Number")?>: </th>
     <td width="50%">
@@ -277,6 +287,7 @@ CARLI END comment-out original table -->
       <? endforeach; ?>
     </td>
   </tr>
+   <? endif; ?>
   <? endif; ?>
   <? if (isset($holding['textfields'])): foreach ($holding['textfields'] as $textFieldName => $textFields): ?>
     <tr>
