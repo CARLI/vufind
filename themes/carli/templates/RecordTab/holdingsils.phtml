@@ -59,7 +59,22 @@ $split = array();
 $split['blocks'] = $holdings['blocks'];
 $new_holding_id = '';
 $last_holding_id = '';
+
+// MFHDs are already sorted by institution.
+// We want to sort by location, too, but also preserving institution order
+// Therefore, our sort_by key will be prefixed with the insitution count number (padded w/ zeroes)
+$inst_count = 0;
+$last_inst = '';
 foreach ($holdings['holdings'] as $location => $location_val) {
+
+    // keep track of institution count (used for sort_by key)
+    $loc_in_parts = explode("|", $location);
+    $inst = $loc_in_parts[0];
+    $loc = $loc_in_parts[1];
+    if ($inst != $last_inst) {
+        $inst_count++;
+        $last_inst = $inst;
+    }
     foreach ($location_val['items'] as $itm) {
         $new_holding_id = $location . '|' . $itm['id'] . '|' . $itm['holdings_id'];
         if ($new_holding_id != $last_holding_id) {
@@ -84,6 +99,9 @@ foreach ($holdings['holdings'] as $location => $location_val) {
                 $split['holdings'][$new_holding_id]['textfields']['summary'] = $sum;
             }
         }
+        // sort by location (preserving institution order)
+        $split['holdings'][$new_holding_id]['sort_by'] = sprintf('%03d', $inst_count) . $loc;
+
         $split['holdings'][$new_holding_id]['items'][] = $itm;
         $split['holdings'][$new_holding_id]['location'] = $holdings['holdings'][$location]['location'];
         $split['holdings'][$new_holding_id]['locationhref'] = $holdings['holdings'][$location]['locationhref'];
@@ -91,6 +109,7 @@ foreach ($holdings['holdings'] as $location => $location_val) {
     }
 }
 $holdings = $split;
+usort($holdings['holdings'], function($a, $b) { return strcmp($a['sort_by'], $b['sort_by']); });
 ?>
 
 <!--
