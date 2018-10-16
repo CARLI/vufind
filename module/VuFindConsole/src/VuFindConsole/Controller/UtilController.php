@@ -105,8 +105,9 @@ class UtilController extends AbstractBase
      */
     public function indexreservesAction()
     {
-        ini_set('memory_limit', '50M');
-        ini_set('max_execution_time', '3600');
+        // CARLI EDIT: we need to remove these constraints in order to be able to load our catalog!
+        //ini_set('memory_limit', '50M');
+        //ini_set('max_execution_time', '3600');
 
         $request = $this->getRequest();
 
