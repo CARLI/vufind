@@ -238,3 +238,7 @@ footer .carli-landing p {
     font-weight: normal;
     width: 100%;
 }
+
+.checkbox-select-item {
+    width: 30px;
+}
