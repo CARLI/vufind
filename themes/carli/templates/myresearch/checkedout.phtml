@@ -410,10 +410,10 @@ JS;
               <strong><?=$this->transEsc('Due')?>:</strong> <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?>
               <? if ($showStatus): ?>
 <!-- CARLI EDIT: custom status code BEGIN -->
-                <? if (isset($ilsDetails['dueStatusAlert']) && isset($ilsDetails['dueStatus'])): ?>
-                  <div class="alert alert-danger"><?=$ilsDetails['dueStatus']?></div>
+                <? if (isset($ilsDetails['dueStatusAlert'])): ?>
+                  <div class="alert alert-danger"><?=$this->transEsc('Status')?>: <?=$ilsDetails['dueStatusAlert']?></div>
                 <? elseif (isset($ilsDetails['dueStatus'])): ?>
-                  <div><strong><?=$this->transEsc('Status')?>:</strong><?=$ilsDetails['dueStatus']?></div>
+                  <div><strong><?=$this->transEsc('Status')?>: </strong><?=$ilsDetails['dueStatus']?></div>
                 <? endif; ?>
 <!-- CARLI EDIT: custom status code END -->
               <? endif; ?>

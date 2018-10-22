@@ -1641,13 +1641,12 @@ EOT;
    function getChargedStatusCodeAlert($code)
    {
       switch ($code) {
-         case '4':
-         case '5':
-         case '13':
-         case '14':
-             return 1;
+         case '4': return 'Overdue';
+         case '5': return 'Recalled';
+         case '13': return 'Reported Lost by Patron';
+         case '14': return 'Overdue; Assumed Lost';
       }
-      return 0;
+      return null;
    }
 
 
