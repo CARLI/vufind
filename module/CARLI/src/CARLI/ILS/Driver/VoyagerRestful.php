@@ -477,6 +477,7 @@ EOT;
                     $result['item_id'] = (string)$chargedItem->itemId;
                     $result['id'] = $result['institution_id'] . '_' . $result['item_id'];
                     $result['dueStatus'] = $this->getChargedStatusCode((string)$chargedItem->statusCode);
+                    $result['dueStatusAlert'] = $this->getChargedStatusCodeAlert((string)$chargedItem->statusCode);
                     $result['title'] = (string)$chargedItem->title;
                     $result['author'] = (string)$chargedItem->author;
                     $result['location'] = (string)$chargedItem->location;
@@ -1637,36 +1638,48 @@ EOT;
        return true;
    }
 
+   function getChargedStatusCodeAlert($code)
+   {
+      switch ($code) {
+         case '4': return 'Overdue';
+         case '5': return 'Recalled';
+         case '13': return 'Reported Lost by Patron';
+         case '14': return 'Overdue; Assumed Lost';
+      }
+      return null;
+   }
+
+
    function getChargedStatusCode($code)
    {
       switch ($code) {
-         case '1': return 'Available';
+         //case '1': return 'Available';
          case '2': return 'Checked out';
          case '3': return 'Renewed';
          case '4': return 'Overdue';
-         case '5': return 'Recall Request';
-         case '6': return 'Hold Request';
-         case '7': return 'On Hold';
-         case '8': return 'In Transit';
-         case '9': return 'In Transit Discharged';
-         case '10': return 'In Transit On Hold';
-         case '11': return 'Recently checked in';
-         case '12': return 'Missing';
+         case '5': return 'Recalled';
+         //case '6': return 'Hold Request';
+         //case '7': return 'On Hold';
+         //case '8': return 'In Transit';
+         //case '9': return 'In Transit Discharged';
+         //case '10': return 'In Transit On Hold';
+         //case '11': return 'Recently checked in';
+         //case '12': return 'Missing';
          case '13': return 'Reported Lost by Patron';
          case '14': return 'Overdue; Assumed Lost';
-         case '15': return 'Claims Returned';
-         case '16': return 'Damaged';
-         case '17': return 'Withdrawn';
-         case '18': return 'At Bindery';
-         case '19': return 'Cataloging Review';
-         case '20': return 'Circulation Review';
-         case '21': return 'Scheduled';
-         case '22': return 'In Process';
-         case '23': return 'Callslip Request';
-         case '24': return 'Short Loan Request';
-         case '25': return 'Remote Storage Request';
+         //case '15': return 'Claims Returned';
+         //case '16': return 'Damaged';
+         //case '17': return 'Withdrawn';
+         //case '18': return 'At Bindery';
+         //case '19': return 'Cataloging Review';
+         //case '20': return 'Circulation Review';
+         //case '21': return 'Scheduled';
+         //case '22': return 'In Process';
+         //case '23': return 'Callslip Request';
+         //case '24': return 'Short Loan Request';
+         //case '25': return 'Remote Storage Request';
       }
-      return $code;
+      return '';
    }
 
    function ubCodeToLibCode($ubcode) {
