@@ -12,9 +12,11 @@
 ?>
 
 <div class="<?=$this->layoutClass('mainbody')?>">
-  <h3><?=$this->transEsc('Search For Items on Reserve')?></h3>
+<!-- CARLI EDIT labels -->
+  <h3>Course Reserves</h3>
   <form class="form-inline" method="get" name="reservesSearchForm">
-    <label for="reservesSearchForm_lookfor"><?=$this->transEsc("Your search terms")?></label>
+<!-- CARLI EDIT labels -->
+    <label for="reservesSearchForm_lookfor">Search for Instructor, Course, or Department: </label>
     <input id="reservesSearchForm_lookfor" type="text" name="lookfor" size="40" value="<?=$this->escapeHtmlAttr($reservesLookfor)?>" <?=$this->searchOptions('SolrReserves')->autocompleteEnabled() ? ' class="autocomplete searcher:SolrReserves type:Reserves"' : ''?> />
     <input class="btn btn-primary" type="submit" name="submit" value="<?=$this->transEsc("Find")?>"/>
   </form>
