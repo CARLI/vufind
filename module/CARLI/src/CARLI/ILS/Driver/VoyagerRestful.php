@@ -1204,10 +1204,32 @@ EOT;
 
     public function getMyILLRequests($patron)
     {
-        return array_merge(
+        $ret = array_merge(
                        $this->getHoldsFromApi($patron, false),
                        $this->getCallSlips($patron, true) // local callslips too
         );
+
+        foreach ($ret as & $r) {
+            if ($r['type'] == 'H') {
+                if (preg_match('/^Position /', $r['status_text'] ) ||
+                    preg_match('/^In transit to /', $r['status_text'] )) {
+                    $r['status_text'] = 'Requested item in transit';
+                }
+            }
+            elseif ($r['type'] == 'C') {
+                if (preg_match('/^Expired /', $r['status_text'] )) {
+                    $r['status_text'] = 'Request expired';
+                } elseif (preg_match('/^Not Filled/', $r['status_text'] )) {
+                    $r['status_text'] = 'Seeking next available';
+                } elseif (preg_match('/^Printed/', $r['status_text'] )) {
+                    $r['status_text'] = 'Request in process';
+                } elseif (preg_match('/^Accepted/', $r['status_text'] )) {
+                    $r['status_text'] = 'Request submitted';
+                }
+            }
+        }
+
+        return $ret;
     }
 
     protected function getUBRequestDetails($id, $patron)
@@ -1691,5 +1713,162 @@ EOT;
        return $ubcode;
    }
 
+    protected function getCallSlips($patron, $local = false)
+    {
+        // Build Hierarchy
+        $hierarchy = [
+            'patron' =>  $patron['id'],
+            'circulationActions' => 'requests',
+            'callslips' => false
+        ];
+
+        // Add Required Params
+        $params = [
+            'patron_homedb' => $this->ws_patronHomeUbId,
+            'view' => 'full'
+        ];
+
+        $results = $this->makeRequest($hierarchy, $params);
+
+        $replyCode = (string)$results->{'reply-code'};
+        if ($replyCode != 0 && $replyCode != 8) {
+            throw new Exception('System error fetching call slips');
+        }
+        $requests = [];
+        if (isset($results->callslips->institution)) {
+            foreach ($results->callslips->institution as $institution) {
+                if (!$local
+                    && $this->isLocalInst((string)$institution->attributes()->id)
+                ) {
+                    // Unless $local is set, ignore local callslips; we have them
+                    // already....
+                    continue;
+                }
+                foreach ($institution->callslip as $callslip) {
+                    $item = $callslip->requestItem;
+                    $requests[] = [
+                        'id' => '',
+                        'status' => (string)$item->status, // CARLI ADDED
+                        'status_text' => (string)$item->statusText, // CARLI ADDED
+                        'type' => (string)$item->holdType,
+                        'location' => (string)$item->pickupLocation,
+                        'expire' => (string)$item->expiredDate
+                            ? $this->dateFormat->convertToDisplayDate(
+                                'Y-m-d', (string)$item->expiredDate
+                            )
+                            : '',
+                        // Looks like expired date shows creation date for
+                        // call slip requests, but who knows
+                        'create' => (string)$item->expiredDate
+                            ? $this->dateFormat->convertToDisplayDate(
+                                'Y-m-d', (string)$item->expiredDate
+                            )
+                            : '',
+                        'position' => (string)$item->queuePosition,
+                        'available' => (string)$item->status == '4',
+                        'reqnum' => (string)$item->holdRecallId,
+                        'item_id' => (string)$item->itemId,
+                        'volume' => '',
+                        'publication_year' => '',
+                        'title' => (string)$item->itemTitle,
+                        'institution_id' => (string)$institution->attributes()->id,
+                        'institution_name' => (string)$item->dbName,
+                        'institution_dbkey' => (string)$item->dbKey,
+                        'processed' => substr((string)$item->statusText, 0, 6)
+                            == 'Filled'
+                            ? $this->dateFormat->convertToDisplayDate(
+                                'Y-m-d', substr((string)$item->statusText, 7)
+                            )
+                            : '',
+                        'canceled' => substr((string)$item->statusText, 0, 8)
+                            == 'Canceled'
+                            ? $this->dateFormat->convertToDisplayDate(
+                                'Y-m-d', substr((string)$item->statusText, 9)
+                            )
+                            : ''
+                    ];
+                }
+            }
+        }
+        return $requests;
+    }
+
+    protected function getHoldsFromApi($patron, $local)
+    {
+        // Build Hierarchy
+        $hierarchy = [
+            'patron' =>  $patron['id'],
+            'circulationActions' => 'requests',
+            'holds' => false
+        ];
+
+        // Add Required Params
+        $params = [
+            'patron_homedb' => $this->ws_patronHomeUbId,
+            'view' => 'full'
+        ];
+
+        $results = $this->makeRequest($hierarchy, $params);
+
+        if ($results === false) {
+            throw new ILSException('System error fetching remote holds');
+        }
+
+        $replyCode = (string)$results->{'reply-code'};
+        if ($replyCode != 0 && $replyCode != 8) {
+            throw new ILSException('System error fetching remote holds');
+        }
+        $holds = [];
+        if (isset($results->holds->institution)) {
+            foreach ($results->holds->institution as $institution) {
+                // Filter by the $local parameter
+                $isLocal = $this->isLocalInst(
+                    (string)$institution->attributes()->id
+                );
+                if ($local != $isLocal) {
+                    continue;
+                }
+
+                foreach ($institution->hold as $hold) {
+                    $item = $hold->requestItem;
+
+                    $holds[] = [
+                        'id' => '',
+                        'status' => (string)$item->status, // CARLI ADDED
+                        'status_text' => (string)$item->statusText, // CARLI ADDED
+                        'type' => (string)$item->holdType,
+                        'location' => (string)$item->pickupLocation,
+                        'expire' => (string)$item->expiredDate
+                            ? $this->dateFormat->convertToDisplayDate(
+                                'Y-m-d', (string)$item->expiredDate
+                            )
+                            : '',
+                        // Looks like expired date shows creation date for
+                        // UB requests, but who knows
+                        'create' => (string)$item->expiredDate
+                            ? $this->dateFormat->convertToDisplayDate(
+                                'Y-m-d', (string)$item->expiredDate
+                            )
+                            : '',
+                        'position' => (string)$item->queuePosition,
+                        'available' => (string)$item->status == '2',
+                        'reqnum' => (string)$item->holdRecallId,
+                        'item_id' => (string)$item->itemId,
+                        'volume' => '',
+                        'publication_year' => '',
+                        'title' => (string)$item->itemTitle,
+                        'institution_id' => (string)$institution->attributes()->id,
+                        'institution_name' => (string)$item->dbName,
+                        'institution_dbkey' => (string)$item->dbKey,
+                        'in_transit' => (substr((string)$item->statusText, 0, 13)
+                            == 'In transit to')
+                          ? substr((string)$item->statusText, 14)
+                          : ''
+                    ];
+                }
+            }
+        }
+        return $holds;
+    }
 }
 
