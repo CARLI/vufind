@@ -220,7 +220,7 @@ JS;
     <div id="checkRequestableStatus">
     </div>
     <form class="form-inline">
-      <input class="btn btn-primary" type="button" onClick="window.location='<?=$this->recordLink()->getTabUrl($this->driver, 'Holdings')?>?login=true&amp;catalogLogin=true'" data-lightbox value="Request Item"></input>
+      <input data-toggle="modal" data-target="#mustBeLoggedInFirst" class="btn btn-primary" type="button" value="Request Item"></input>
     </form>
   <? endif; ?>
  <? else: ?>
