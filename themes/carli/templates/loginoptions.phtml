@@ -1,0 +1,31 @@
+<! CARLI BEGIN Customization !>
+<? // CARLI customization information //
+
+	// get the 3 letter institution code //
+	$inst = getenv('VUFIND_LIBRARY');
+
+	// path to the individual institution customization variables//
+	$configInclude =  "/usr/local/vufind/themes/$inst/config.php";
+
+	// Setenv VUFIND_LIBRARY_BASE_PATH /all/vf-uiu
+	$is_uc = getenv('VUFIND_LIBRARY_IS_UC');
+  
+	// include individual institution customization file //
+	if (file_exists($configInclude)) {
+		include $configInclude;
+	}
+
+?>
+<! CARLI END Customization !>
+
+<! CARLI BEGIN Customization !>
+<? if (isset($loginButtonText)) : ?>
+    <a href="<?=$this->url('myresearch-userlogin')?>"><i class="fa fa-sign-in" aria-hidden="true"></i> <? echo $loginButtonText ?></a>
+    <? if (isset($loginLinkHelp)) : ?>
+        <? echo '<span class="loginLinkHelp"><a href="/vf-' . $inst . '/MyResearch/UserLogin?auth_method=ILS">' . $loginLinkHelp . '</a></span>' ?>
+    <? endif; ?>
+<? else: ?>           
+    <a href="<?=$this->url('myresearch-userlogin')?>" data-lightbox><i class="fa fa-sign-in" aria-hidden="true"></i> <?=$this->transEsc("Login")?></a>
+<? endif; ?>
+<! CARLI END Customization !>             
+
