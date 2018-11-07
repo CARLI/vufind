@@ -22,7 +22,7 @@
 <? if (isset($loginButtonText)) : ?>
     <a href="<?=$this->url('myresearch-userlogin')?>"><i class="fa fa-sign-in" aria-hidden="true"></i> <? echo $loginButtonText ?></a>
     <? if (isset($loginLinkHelp)) : ?>
-        <? echo '<span class="loginLinkHelp"><a href="/vf-' . $inst . '/MyResearch/UserLogin?auth_method=ILS">' . $loginLinkHelp . '</a></span>' ?>
+        <? echo '<span class="loginLinkHelp"><a href="' . ($is_uc ? '/all' : '') . '/vf-' . $inst . '/MyResearch/UserLogin?auth_method=ILS">' . $loginLinkHelp . '</a></span>' ?>
     <? endif; ?>
 <? else: ?>           
     <a href="<?=$this->url('myresearch-userlogin')?>" data-lightbox><i class="fa fa-sign-in" aria-hidden="true"></i> <?=$this->transEsc("Login")?></a>

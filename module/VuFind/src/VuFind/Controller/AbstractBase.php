@@ -597,6 +597,11 @@ class AbstractBase extends AbstractActionController
         // If the referer lives outside of VuFind, don't store it! We only
         // want internal post-login redirects.
         $baseUrl = $this->getServerUrl('home');
+        // CARLI EDIT: just make sure it's from the same server (only)
+        if (preg_match('/^(http[s]*:\/\/[^\/]*)/', $baseUrl, $matches)) {
+            $baseUrl = $matches[1];
+        }
+
         $baseUrlNorm = $this->normalizeUrlForComparison($baseUrl);
         if (0 !== strpos($refererNorm, $baseUrlNorm)) {
             return;
