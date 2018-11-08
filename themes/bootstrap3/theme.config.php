@@ -32,8 +32,8 @@ return array(
             'layoutclass' => 'VuFind\View\Helper\Bootstrap3\Factory::getLayoutClass',
             'recaptcha' => 'VuFind\View\Helper\Bootstrap3\Factory::getRecaptcha',
             'summaries' => 'VuFind\View\Helper\Root\Factory::getSummaries',
-        ],
-        'invokables' => [
+        ),
+        'invokables' => array(
             'highlight' => 'VuFind\View\Helper\Bootstrap3\Highlight',
             'search' => 'VuFind\View\Helper\Bootstrap3\Search'
         )
