@@ -120,7 +120,7 @@
 
 <! CARLI BEGIN !>
             <? if (!empty($ilsDetails['institution_name']) && (empty($ilsDetails['borrowingLocation']) || $ilsDetails['institution_name'] != $ilsDetails['borrowingLocation'])): ?>
-              <strong><?=$ilsDetails['type']=='H' ? 'Pickup Library: ' : ($ilsDetails['type']=='C' ? 'Requested from: ' : '')?></strong><?=$this->transEsc('location_' . $ilsDetails['institution_name'], array(), $ilsDetails['institution_name'])?>
+              <strong><?=$ilsDetails['type']=='H' || $ilsDetails['type']=='R' ? 'Pickup Library: ' : ($ilsDetails['type']=='C' ? 'Requested from: ' : '')?></strong><?=$this->transEsc('location_' . $ilsDetails['institution_name'], array(), $ilsDetails['institution_name'])?>
               <br />
             <? endif; ?>
 <! CARLI END !>
