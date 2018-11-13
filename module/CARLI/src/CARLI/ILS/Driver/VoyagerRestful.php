@@ -1227,6 +1227,11 @@ EOT;
                     $r['status_text'] = 'Request submitted';
                 }
             }
+            elseif ($r['type'] == 'R') {
+                if (preg_match('/^Position [^:]*: /', $r['status_text'] )) {
+                    $r['status_text'] = preg_replace('/^Position [^:]*: /', '', $r['status_text']);
+                }
+            }
         }
 
         return $ret;
