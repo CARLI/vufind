@@ -1,12 +1,16 @@
+<? $includes520 = false; ?>
 <? foreach ($this->driver->getSummary() as $summary): ?>
+  <? $includes520 = true; ?>
   <?=$this->escapeHtml($summary) ?><br />
 <? endforeach; ?>
 
 <? $isbn = $this->driver->getCleanISBN(); ?>
 <? foreach ($this->summaries($isbn) as $provider => $content): ?>
-  <hr>
+  <? if ($includes520): ?>
+    <hr>
+  <? endif; ?>
   <? foreach ($content as $summary): ?>
-    <?=$summary?>
+    <p><?=$summary?></p>
   <? endforeach; ?>
-  <?= $provider == "Syndetics" ? 'Descriptive content provided by Syndetics™, a Bowker service.' : ('Provider: ' . $provider)  ?>
+  <p><?= $provider == "Syndetics" ? 'Descriptive content provided by Syndetics™, a Bowker service.' : ('Provider: ' . $provider)  ?></p>
 <? endforeach; ?>
