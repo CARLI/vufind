@@ -120,7 +120,7 @@
 
 <! CARLI BEGIN !>
             <? if (!empty($ilsDetails['institution_name']) && (empty($ilsDetails['borrowingLocation']) || $ilsDetails['institution_name'] != $ilsDetails['borrowingLocation'])): ?>
-              <strong><?=$ilsDetails['type']=='H' ? 'Pickup Library: ' : ($ilsDetails['type']=='C' ? 'Requested from: ' : '')?><?=$this->transEsc('location_' . $ilsDetails['institution_name'], array(), $ilsDetails['institution_name'])?></strong>
+              <strong><?=$ilsDetails['type']=='H' ? 'Pickup Library: ' : ($ilsDetails['type']=='C' ? 'Requested from: ' : '')?></strong><?=$this->transEsc('location_' . $ilsDetails['institution_name'], array(), $ilsDetails['institution_name'])?>
               <br />
             <? endif; ?>
 <! CARLI END !>
@@ -182,12 +182,13 @@ CARLI COMMENT OUT END -->
             <? endif; ?>
 -->
 <!-- CARLI EDIT: -->
-            <? if ($ilsDetails['type'] == "H" || $ilsDetails['type'] == "C"): ?>
+            <? if ($ilsDetails['type'] == "H" || $ilsDetails['type'] == "C" || $ilsDetails['type'] == "R"): ?>
               <strong>Request status:</strong> <?=$this->escapeHtml($ilsDetails['status_text'])?>
             <? endif; ?>
 
 
-            <? if (isset($ilsDetails['canceled']) && $ilsDetails['canceled']): ?>
+            <!-- CARLI EDIT: don't show superfluous canceled msg -->
+            <? if (false && isset($ilsDetails['canceled']) && $ilsDetails['canceled']): ?>
               <div class="text-success"><?=$this->transEsc("ill_request_canceled") . (is_string($ilsDetails['canceled']) ? ': ' . $ilsDetails['canceled'] : '') ?></div>
             <? endif; ?>
             <? if (isset($ilsDetails['cancel_link'])): ?>
