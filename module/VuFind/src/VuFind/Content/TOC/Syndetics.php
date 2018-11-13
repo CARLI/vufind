@@ -127,6 +127,12 @@ class Syndetics extends \VuFind\Content\AbstractSyndetics
                             $li .= $nodeList->item(0)->nodeValue;
                         }
 
+                        // Statements of responsibility.
+                        $nodeList = $node->getElementsByTagName('c');
+                        if ($nodeList->length > 0) {
+                            $li .= sprintf(" / %s ", $nodeList->item(0)->nodeValue);
+                        }
+
                         $toc[] = preg_replace(
                             '/<a>|<a [^>]*>|<\/a>/', '',
                             html_entity_decode($li)

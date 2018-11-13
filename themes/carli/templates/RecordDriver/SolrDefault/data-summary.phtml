@@ -1,0 +1,12 @@
+<? foreach ($this->driver->getSummary() as $summary): ?>
+  <?=$this->escapeHtml($summary) ?><br />
+<? endforeach; ?>
+
+<? $isbn = $this->driver->getCleanISBN(); ?>
+<? foreach ($this->summaries($isbn) as $provider => $content): ?>
+  <hr>
+  <? foreach ($content as $summary): ?>
+    <?=$summary?>
+  <? endforeach; ?>
+  <?= $provider == "Syndetics" ? 'Descriptive content provided by Syndetics™, a Bowker service.' : ('Provider: ' . $provider)  ?>
+<? endforeach; ?>
