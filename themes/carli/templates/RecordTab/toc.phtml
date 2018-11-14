@@ -22,6 +22,7 @@
       <? endforeach; ?>
       </ul>
     <? endif; ?>
+    <p><?= $provider == "Syndetics" ? 'Descriptive content provided by Syndetics™, a Bowker service.' : ('Provider: ' . $provider)  ?></p>
   <? endforeach; ?>
 <? else: ?>
   <?=$this->transEsc('Table of Contents unavailable')?>.
