@@ -53,7 +53,7 @@
           <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $resource->getUniqueId()); ?>
 
           <!-- CARLI EDIT: do not present checkbox for items on hold; they shouldn't be cancelable -->
-          <? if ($ilsDetails['type'] != "H" && $ilsDetails['status'] != 5 && $ilsDetails['status'] != 7): ?>
+          <? if ($ilsDetails['type'] != "H" && $ilsDetails['status'] != 5 && $ilsDetails['status'] != 6 && $ilsDetails['status'] != 7): ?>
           <div class="checkbox">
             <input type="hidden" name="cancelAllIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['cancel_details']) ?>" />
             <label>
