@@ -118,6 +118,13 @@
               <br />
             <? endif; ?>
 
+<! CARLI BEGIN !>
+            <? if (!empty($ilsDetails['institution_name']) && (empty($ilsDetails['borrowingLocation']) || $ilsDetails['institution_name'] != $ilsDetails['borrowingLocation'])): ?>
+              <strong><?=$ilsDetails['type']=='H' || $ilsDetails['type']=='R' ? 'Pickup Library: ' : ($ilsDetails['type']=='C' ? 'Requested from: ' : '')?></strong><?=$this->transEsc('location_' . $ilsDetails['institution_name'], array(), $ilsDetails['institution_name'])?>
+              <br />
+            <? endif; ?>
+<! CARLI END !>
+
             <? /* Depending on the ILS driver, the "location" value may be a string or an ID; figure out the best
                value to display... */ ?>
             <? $pickupDisplay = ''; ?>
@@ -141,25 +148,16 @@
               <br />
             <? endif; ?>
 
-<! CARLI BEGIN !>
-            <? if (!empty($ilsDetails['institution_name']) && (empty($ilsDetails['borrowingLocation']) || $ilsDetails['institution_name'] != $ilsDetails['borrowingLocation'])): ?>
-              <strong><?=$this->transEsc('location_' . $ilsDetails['institution_name'], array(), $ilsDetails['institution_name'])?></strong>
-              <br />
-            <? endif; ?>
-<! CARLI END !>
-
+<!-- CARLI COMMENT OUT BEGIN
             <? if (!empty($ilsDetails['create'])): ?>
               <strong><?=$this->transEsc('Created') ?>:</strong> <?=$this->escapeHtml($ilsDetails['create']) ?>
-<!-- CARLI COMMENT OUT BEGIN
               <? if (!empty($ilsDetails['expire'])): ?>|<? endif; ?>
-CARLI COMMENT OUT END -->
             <? endif; ?>
-<!-- CARLI COMMENT OUT BEGIN
             <? if (!empty($ilsDetails['expire'])): ?>
               <strong><?=$this->transEsc('Expires') ?>:</strong> <?=$this->escapeHtml($ilsDetails['expire']) ?>
             <? endif; ?>
-CARLI COMMENT OUT END -->
             <br />
+CARLI COMMENT OUT END -->
 
             <? if (isset($this->cancelResults['items'])): ?>
               <? foreach ($this->cancelResults['items'] as $itemId=>$cancelResult): ?>
@@ -169,16 +167,28 @@ CARLI COMMENT OUT END -->
               <? endforeach; ?>
             <? endif; ?>
 
+<!--
             <? if (isset($ilsDetails['in_transit']) && $ilsDetails['in_transit']): ?>
               <div class="text-success"><?=$this->transEsc("request_in_transit") . (is_string($ilsDetails['in_transit']) ? ': ' . $this->transEsc('institution_' . $ilsDetails['in_transit'], [], $ilsDetails['in_transit']) : '') ?></div>
             <? endif; ?>
+-->
             <? if (isset($ilsDetails['processed']) && $ilsDetails['processed']): ?>
               <div class="text-success"><?=$this->transEsc("ill_request_processed") . (is_string($ilsDetails['processed']) ? ': ' . $ilsDetails['processed'] : '') ?></div>
             <? endif; ?>
+
+<!--
             <? if (isset($ilsDetails['available']) && $ilsDetails['available']): ?>
               <div class="text-success"><?=$this->transEsc("ill_request_available") ?></div>
             <? endif; ?>
-            <? if (isset($ilsDetails['canceled']) && $ilsDetails['canceled']): ?>
+-->
+<!-- CARLI EDIT: -->
+            <? if ($ilsDetails['type'] == "H" || $ilsDetails['type'] == "C" || $ilsDetails['type'] == "R"): ?>
+              <strong>Request status:</strong> <?=$this->escapeHtml($ilsDetails['status_text'])?>
+            <? endif; ?>
+
+
+            <!-- CARLI EDIT: don't show superfluous canceled msg -->
+            <? if (false && isset($ilsDetails['canceled']) && $ilsDetails['canceled']): ?>
               <div class="text-success"><?=$this->transEsc("ill_request_canceled") . (is_string($ilsDetails['canceled']) ? ': ' . $ilsDetails['canceled'] : '') ?></div>
             <? endif; ?>
             <? if (isset($ilsDetails['cancel_link'])): ?>
