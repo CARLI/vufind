@@ -1,0 +1,13 @@
+<? $isbn = $this->driver->getCleanISBN(); ?>
+<? $authorNotes = empty($isbn) ? [] : $this->authorNotes($isbn); if (!empty($authorNotes)): ?>
+  <? foreach ($authorNotes as $provider => $list): ?>
+    <p>
+    <? foreach ($list as $field): ?>
+      <p>
+      <?=$field['Content']?><br />
+      </p>
+    <? endforeach; ?>
+    </p>
+    <p><?= $provider == "Syndetics" ? 'Descriptive content provided by Syndetics™, a Bowker service.' : ('Provider: ' . $provider)  ?></p>
+  <? endforeach; ?>
+<? endif; ?>
