@@ -9,6 +9,87 @@
 <div class="<?=$this->layoutClass('mainbody')?>">
   <h2><?=$this->transEsc('Interlibrary Loan Requests') ?></h2>
 
+<!-- CARLI EDIT: add "sort by" controls -->
+<div class="container-fluid">
+  <div class="form-inline">
+    <div class="pull-right">
+      <label for="sort_requesteditems_options_1">Sort</label>
+      <select id="sort_requesteditems_options_1" name="sort_requesteditems" class="jumpMenu form-control">
+          <option value="status" selected="selected">Request Status</option>
+          <option value="title">Title (Ascending)</option>
+          <option value="title_desc">Title (Descending)</option>
+      </select>
+    </div>
+  </div>
+</div>
+<!----------------------------------------->
+
+<?
+$sortScript = <<<JS
+var result_selector = '.result';
+var item_count = 0;
+var all_items;
+
+function collectAllItems() {
+  all_items = \$('.result').toArray();
+  item_count = all_items.length;
+}
+
+function setListItems() {
+    var selector = result_selector;
+    var \$parentObj = \$(selector).parent();
+    var \$childrenObjs = \$parentObj.children(\$(selector));
+    // \$childrenObjs.detach();
+    \$(all_items).appendTo(\$parentObj);
+
+}
+
+function sortResults(reverseIt, sortBy, sortBy2) {
+    all_items.sort(function(a,b){
+        var aVal = a.getAttribute('data-' + sortBy + '-sort');
+        var bVal = b.getAttribute('data-' + sortBy + '-sort');
+        if (aVal === null || bVal === null) {
+          return 0;
+        }
+        if (sortBy2 != null) {
+          var aSortBy2val = a.getAttribute('data-' + sortBy2 + '-sort');
+          var bSortBy2val = b.getAttribute('data-' + sortBy2 + '-sort');
+          aVal += aSortBy2val;
+          bVal += bSortBy2val;
+        }
+        return aVal.localeCompare(bVal);
+    });
+    if (reverseIt) {
+        all_items.reverse();
+    }
+    setListItems();
+}
+
+\$(document).ready(function(){
+  collectAllItems();
+  setListItems();
+
+  \$('select[id=sort_requesteditems_options_1]').change(function(){
+    \$('select[id=sort_requesteditems_options_1] option:selected').each(function() {
+      var sortBy = \$(this).val();
+      if (sortBy === "status") {
+        sortResults(0, 'status', 'title');
+      } else if (sortBy == "title") {
+        sortResults(0, 'title', null);
+      } else if (sortBy == "title_desc") {
+        sortResults(1, 'title', null);
+      }
+    });
+  });
+
+});
+
+JS;
+?>
+
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $sortScript, 'SET'); ?>
+
+
   <?=$this->flashmessages()?>
 
   <?=$this->context($this)->renderInContext('librarycards/selectcard.phtml', ['user' => $this->auth()->isLoggedIn()]); ?>
@@ -43,12 +124,8 @@
     <? foreach ($this->recordList as $resource): ?>
       <? $iteration++; ?>
       <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
-<?
-//echo "<pre>";
-//print_r($ilsDetails);
-//echo "</pre>";
-?>
-      <div id="record<?=$this->escapeHtmlAttr($resource->getUniqueId()) ?>" class="result">
+      <div id="record<?=$this->escapeHtmlAttr($resource->getUniqueId()) ?>" class="result" data-status-sort="<?=$this->escapeHtmlAttr($ilsDetails['status_sort_data'])?>" data-title-sort="<?=$this->escapeHtmlAttr($ilsDetails['title'])?>">
+
         <? if ($this->cancelForm && isset($ilsDetails['cancel_details'])): ?>
           <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $resource->getUniqueId()); ?>
 
@@ -186,6 +263,12 @@ CARLI COMMENT OUT END -->
               <strong>Request status:</strong> <?=$this->escapeHtml($ilsDetails['status_text'])?>
             <? endif; ?>
 
+<?
+//echo "<pre>";
+//print_r($ilsDetails);
+//echo "</pre>";
+//echo "<br>";
+?>
 
             <!-- CARLI EDIT: don't show superfluous canceled msg -->
             <? if (false && isset($ilsDetails['canceled']) && $ilsDetails['canceled']): ?>
