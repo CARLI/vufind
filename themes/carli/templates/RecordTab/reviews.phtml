@@ -26,7 +26,7 @@
       <?=isset($review['Copyright']) ? $review['Copyright'] : ''?>
       <hr/>
     <? endforeach; ?>
-    <p><?= $provider == "Syndetics" ? 'Descriptive content provided by Syndetics™, a Bowker service.' : ('Provider: ' . $provider)  ?></p>
+    <p><?= $provider == "Syndetics" ? 'Descriptive content provided by Syndetics™, a Bowker service.' : '' ?></p>
   <? endforeach; ?>
 <? else: ?>
   <?=$this->transEsc('No reviews were found for this record')?>.
