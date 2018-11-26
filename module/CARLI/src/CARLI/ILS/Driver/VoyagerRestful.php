@@ -1209,6 +1209,33 @@ EOT;
                        $this->getCallSlips($patron, true) // local callslips too
         );
 
+        $sort_priority_map = array (
+           'R2' => '00',
+           'H2' => '00',
+
+           'H1' => '01',
+
+           'C2' => '02',
+           'C3' => '02',
+
+           'C1' => '03',
+           'C5' => '04',
+           'R1' => '05',
+           'H' => '06',
+           'R6' => '07',
+           'H6' => '08',
+           'C6' => '09',
+           'R5' => '10',
+           'H5' => '11',
+           'C7' => '12',
+           'R3' => '13',
+           'H3' => '14',
+           'C8' => '15',
+           'C9' => '16',
+           'R4' => '17',
+           'H4' => '18',
+        );
+
         foreach ($ret as & $r) {
             if ($r['type'] == 'H') {
                 if (preg_match('/^Position /', $r['status_text'] ) ||
@@ -1226,13 +1253,23 @@ EOT;
                 } elseif (preg_match('/^Accepted/', $r['status_text'] )) {
                     $r['status_text'] = 'Request submitted';
                 }
+
+                if ($r['status'] == '2' || $r['status'] == '3') {
+                    $r['status_text'] = 'Request in process';
+                }
             }
             elseif ($r['type'] == 'R') {
                 if (preg_match('/^Position [^:]*: /', $r['status_text'] )) {
                     $r['status_text'] = preg_replace('/^Position [^:]*: /', '', $r['status_text']);
                 }
             }
+
+            $sort_by_str = $r['type'] . $r['status'];
+            $sort_by_val = array_key_exists($sort_by_str, $sort_priority_map) ? $sort_priority_map[$sort_by_str] : '99';
+            $r['status_sort_data'] = $sort_by_val;
+            $r['sort_by'] = $sort_by_val . $r['title'];
         }
+        usort($ret, function($a, $b) { return strcmp($a{'sort_by'}, $b{'sort_by'}); });
 
         return $ret;
     }
