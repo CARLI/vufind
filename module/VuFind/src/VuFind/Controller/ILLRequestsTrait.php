@@ -211,6 +211,13 @@ trait ILLRequestsTrait
                     ? $checkRequests['helpText'] : null
             ]
         );
+
+        // CARLI added:
+        // we store 2 values in home_library: pickup ID and pickup Library (UBID)
+        list ($homeLibrary, $actualHomeLibrary) = explode('|', $this->getUser()->home_library);
+        $view->homeLibrary = $homeLibrary;
+        $view->actualHomeLibrary = $actualHomeLibrary;
+
         $view->setTemplate('record/illrequest');
         return $view;
     }
