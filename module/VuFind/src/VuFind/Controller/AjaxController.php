@@ -1298,7 +1298,9 @@ class AjaxController extends AbstractBase
                         if (empty($actualHomeLibrary) || $actualHomeLibrary === "") {
                             // backwards-compatibility for home_library having a value of only pickup location
                             // e.g., 153 instead of 153|1@UIUDB2002...
-                            $result['isDefault'] = $result['id'] === $homeLibrary;
+                            if (!empty($homeLibrary) || $homeLibrary !== "") {
+                                $result['isDefault'] = $result['id'] === $homeLibrary;
+                            }
                         } elseif ($actualHomeLibrary === $pickupLib) {
                             $result['isDefault'] = $result['id'] === $homeLibrary;
                         }
