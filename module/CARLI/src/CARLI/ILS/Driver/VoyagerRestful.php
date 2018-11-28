@@ -1641,42 +1641,36 @@ EOT;
         list($source, $id) = explode('.', $id, 2);
 
         ///////////////////////////////////////////////////////
-        // NEW CODE ///////////////////////////////////////////
-        //
-        // this code simply builds a list of *all* libraries taken from the VoyagerRestful.ini ILLRequestSources
-        // instead of relying on VXWS calls which sometimes do not return all library info
+        // if $id (bib ID) is empty, simply return *all* libraries
         //
         // default is set to patron's library (based on $patron param)
-        // this new code ignores the bib ID ($id param)
         //
         ///////////////////////////////////////////////////////
-        list($source, $patronId) = explode('.', $patron['id'], 2);
+        if (empty($id) || $id === '') {
+            list($source, $patronId) = explode('.', $patron['id'], 2);
 
-        if (isset($this->config['ILLRequestSources'][$source])) {
-            $defaultUbid = $this->config['ILLRequestSources'][$source];
-            $results = array();
-            foreach ($this->config['ILLRequestSources'] as $code => $ubid) {
-                $result = array();
-                if (preg_match('/^[1@]*(.+)[Dd][Bb]/', $ubid, $matches)) {
-                    $item_agency_id = $this->ubCodeToLibCode($ubid);
-                    if ($item_agency_id === $this->translate($item_agency_id)) {
-                        continue; // skip any that don't have English translations (probably out-of-date ub codes)
+            if (isset($this->config['ILLRequestSources'][$source])) {
+                $defaultUbid = $this->config['ILLRequestSources'][$source];
+                $results = array();
+                foreach ($this->config['ILLRequestSources'] as $code => $ubid) {
+                    $result = array();
+                    if (preg_match('/^[1@]*(.+)[Dd][Bb]/', $ubid, $matches)) {
+                        $item_agency_id = $this->ubCodeToLibCode($ubid);
+                        if ($item_agency_id === $this->translate($item_agency_id)) {
+                            continue; // skip any that don't have English translations (probably out-of-date ub codes)
+                        }
+                        $result['id'] = $ubid;
+                        $result['name'] = $this->translate($item_agency_id);
+                        $result['isDefault'] = $item_agency_id === $source;
+                        $results[] = $result;
                     }
-                    $result['id'] = $ubid;
-                    $result['name'] = $this->translate($item_agency_id);
-                    $result['isDefault'] = $item_agency_id === $source;
-                    $results[] = $result;
                 }
             }
+            usort($results, function($a, $b) { return strcmp($a{'name'}, $b{'name'}); });
+            return $results;
         }
-        usort($results, function($a, $b) { return strcmp($a{'name'}, $b{'name'}); });
-        return $results;
         ///////////////////////////////////////////////////////
 
-
-        ///////////////////////////////////////////////////////
-        // OLD CODE ///////////////////////////////////////////
-        /**** OLD CODE ****
         // we stripped out source library because parent class deals only with local bib IDs (numerals only)
         $results = parent::getILLPickupLibraries($id, $patron);
         if ($results === false) {
@@ -1716,8 +1710,6 @@ EOT;
         }
 
         return $results;
-        ************************/
-        ///////////////////////////////////////////////////////
     }
 
 

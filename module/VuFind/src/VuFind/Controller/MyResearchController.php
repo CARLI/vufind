@@ -420,7 +420,7 @@ class MyResearchController extends AbstractBase
         // CARLI added:
         // Get pickup libraries
         $puLibs= $catalog->getILLPickupLibraries(
-            $patron['id'], $patron
+            '', $patron
         );
         $view->pickupLibraries = $puLibs;
         list ($homeLibrary, $actualHomeLibrary) = explode('|', $user->home_library);

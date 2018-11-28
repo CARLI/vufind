@@ -116,10 +116,10 @@
 
     $js = <<<JS
         if ($.isReady) {
-            setUpILLRequestForm('123');
+            setUpILLRequestForm('');
         } else {
             $(document).ready(function(){
-                setUpILLRequestForm('123');
+                setUpILLRequestForm('');
             });
         }
 JS;
