@@ -149,5 +149,12 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         return $toc;
     }
 
+    public function getSummary()
+    {
+        return $this->getFieldArray('520', ['a', 'c'], true);
+    }
+
+
+
 }
 
