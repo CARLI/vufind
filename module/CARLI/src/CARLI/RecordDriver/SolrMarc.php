@@ -151,7 +151,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
     public function getSummary()
     {
-        return $this->getFieldArray('520', ['a', 'c'], true);
+        return $this->getFieldArray('520', ['3', 'a', 'b', 'c'], true);
     }
 
 
