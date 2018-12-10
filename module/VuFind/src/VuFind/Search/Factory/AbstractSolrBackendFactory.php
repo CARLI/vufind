@@ -319,7 +319,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         // we need to be able to show them these saved records while the patron is in
         // either one.
         //
-        $debug_it = 1;
+        $debug_it = 0;
         $debug = '';
         if ($debug_it) {
             $debug .= 'REQUEST_URI = ' . $_SERVER['REQUEST_URI'] . "\n";
