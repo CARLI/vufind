@@ -310,6 +310,43 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
             }
         }
 
+        ///////////////////////////////////////////////////////////////////////////////////
+        //
+        // CARLI EDIT: For "direct-access" searches (e.g., simply loading records by id:), 
+        // clear out any filters. We do this in order to allow local catalogs (e.g., /vf-xxx)
+        // the ability to load universal catalog bibs (e.g., /all/vf-xxx). We need this
+        // capability because patrons may save records in one catalog or the other, but
+        // we need to be able to show them these saved records while the patron is in
+        // either one.
+        //
+        $debug_it = 1;
+        $debug = '';
+        if ($debug_it) {
+            $debug .= 'REQUEST_URI = ' . $_SERVER['REQUEST_URI'] . "\n";
+            $debug .= 'Filters before = ' . var_export($hf, true) . "\n";
+        }
+        if (preg_match('/\/Record\//', $_SERVER['REQUEST_URI']) ||
+            preg_match('/\/MyResearch\//', $_SERVER['REQUEST_URI'])) {
+            if ($debug_it) {
+                $debug .= 'REQUEST_URI contains /Record/ or /MyResearch/' . "\n";
+            }
+            $new_hf = [];
+            /*** For now, clear *all* filters; not just particular filters *******
+            foreach ($hf as $inx => $fltr) {
+                if (!preg_match('/^institutions:/', $fltr) &&
+                    !preg_match('/^merged_child_boolean:/', $fltr)) {
+                    $new_hf[$inx] = $fltr;
+                }
+            }
+            ***/
+            $hf = $new_hf;
+        }
+        if ($debug_it) {
+            $debug .= 'Filters after = ' . var_export($hf, true) . "\n";
+            file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+        }
+        ///////////////////////////////////////////////////////////////////////////////////
+
         return $hf;
     }
 
