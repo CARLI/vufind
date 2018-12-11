@@ -61,6 +61,7 @@ function displayItemStatus(result, $item) {
     // CARLI edit:
     if (result.callnumber === 'Multiple Call Numbers') {
       linkToRec = $item.find('.getFull').attr('href');
+      linkToRec += '/Holdings#tabnav';
       $item.find('.callnumber').empty().append('<a href="' + linkToRec + '">Click for details</a>' + '<br/>');
     } else {
     ///////////////////////////////////////
@@ -70,6 +71,7 @@ function displayItemStatus(result, $item) {
     // CARLI edit:
     if (result.location === 'Multiple Locations') {
       linkToRec = $item.find('.getFull').attr('href');
+      linkToRec += '/Holdings#tabnav';
       $item.find('.location').empty().append('<a href="' + linkToRec + '">Click for details</a>' + '<br/>');
     } else {
     ///////////////////////////////////////
