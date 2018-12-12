@@ -145,7 +145,6 @@ class SimilarBuilder implements SimilarBuilderInterface
         if ($this->searchConfig != null) { 
             if ($this->searchConfig->RawHiddenFilters != null) { 
                foreach ($this->searchConfig->RawHiddenFilters  as $filter) {
-                 $debug .= ' searchConfig = filter ' . $filter .  "\n";
                  $params->add('fq', $filter);
                 }
             }
