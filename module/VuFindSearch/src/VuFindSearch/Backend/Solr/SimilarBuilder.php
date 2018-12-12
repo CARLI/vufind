@@ -77,6 +77,9 @@ class SimilarBuilder implements SimilarBuilderInterface
      */
     protected $count = 5;
 
+    // CARLI edit: keep pointer to search config
+    protected $searchConfig = null;
+
     /**
      * Constructor.
      *
@@ -89,6 +92,9 @@ class SimilarBuilder implements SimilarBuilderInterface
     public function __construct(\Zend\Config\Config $searchConfig = null,
         $uniqueKey = 'id'
     ) {
+        // CARLI edit: keep pointer to search config
+        $this->searchConfig = $searchConfig;
+
         $this->uniqueKey = $uniqueKey;
         if (isset($searchConfig->MoreLikeThis)) {
             $mlt = $searchConfig->MoreLikeThis;
@@ -131,6 +137,19 @@ class SimilarBuilder implements SimilarBuilderInterface
         if (null === $params->get('rows')) {
             $params->set('rows', $this->count);
         }
+
+        // CARLI edit: Re-apply RawHiddenFilters to Similar Items searches because...
+        // in GitHub Issue #378, we sometimes need to strip these out in order to be able to
+        // load records outside this scope; however we never want these filters stripped
+        // out of Similar Items searches! This is a workaround to a workaround! :-O
+        if ($this->searchConfig != null) { 
+            if ($this->searchConfig->RawHiddenFilters != null) { 
+               foreach ($this->searchConfig->RawHiddenFilters  as $filter) {
+                 $params->add('fq', $filter);
+                }
+            }
+        }
+
         return $params;
     }
 }
