@@ -213,7 +213,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         //  to pass the source in the ID because we need this info!)
         list($source, $id) = explode('.', $id, 2);
 
-
+        $isDone = false;
         if (preg_match('/^[1@]*(.+)[Dd][Bb]/', $pickupLib, $matches)) {
             //$item_agency_id_lc3 = strtolower($matches[1]);
             //$item_agency_id = strtoupper($item_agency_id_lc3) . 'db';
@@ -223,7 +223,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
             // It's an AAA scenario! (callslip)
             if ($source == $item_agency_id && $item_agency_id == $patronUbId) {
                 $results = parent::getPickUpLocations($patron, NULL);
-
+                $isDone = true;
                 $ILLresults = array();
                 foreach ($results as $result) {
                     $ILLresult = array();
@@ -231,21 +231,29 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                     $ILLresult['name'] = $result['locationDisplay'];
                     $ILLresults[] = $ILLresult;
                 }
-                return $ILLresults;
+                $results = &$ILLresults;
             }
         }
 
-        try {
-            $results =  parent::getILLPickupLocations($id, $pickupLib, $patron);
-        } catch (ILSException $e) {
-                $ILLresults = array();
-                $ILLresult = array();
-                $ILLresult['id'] = '-1';
-                $ILLresult['name'] = $this->translate($e->getMessage());
-                $ILLresults[] = $ILLresult;
-                return $ILLresults;
-            //throw new ILSException($e->getMessage());
+        if(! $isDone) {
+            try {
+                $results =  parent::getILLPickupLocations($id, $pickupLib, $patron);
+            } catch (ILSException $e) {
+                $results = array();
+                $result = array();
+                $result['id'] = '-1';
+                $result['name'] = $this->translate($e->getMessage());
+                return $results;
+                //throw new ILSException($e->getMessage());
+            }
         }
+
+        // look up system-wide default
+        $dpul = $this->getDefaultPickUpLocation($patron);
+        foreach ($results as &$result) {
+            $result['isDefault'] = ($dpul === $result['id']);
+        }
+
         return $results;
     }
 
@@ -1631,6 +1639,37 @@ EOT;
         // (We purposely overrode MultiBackend::getILLPickupLibraries()
         //  to pass the source in the ID because we need this info!
         list($source, $id) = explode('.', $id, 2);
+
+        ///////////////////////////////////////////////////////
+        // if $id (bib ID) is empty, simply return *all* libraries
+        //
+        // default is set to patron's library (based on $patron param)
+        //
+        ///////////////////////////////////////////////////////
+        if (empty($id) || $id === '') {
+            list($source, $patronId) = explode('.', $patron['id'], 2);
+
+            if (isset($this->config['ILLRequestSources'][$source])) {
+                $defaultUbid = $this->config['ILLRequestSources'][$source];
+                $results = array();
+                foreach ($this->config['ILLRequestSources'] as $code => $ubid) {
+                    $result = array();
+                    if (preg_match('/^[1@]*(.+)[Dd][Bb]/', $ubid, $matches)) {
+                        $item_agency_id = $this->ubCodeToLibCode($ubid);
+                        if ($item_agency_id === $this->translate($item_agency_id)) {
+                            continue; // skip any that don't have English translations (probably out-of-date ub codes)
+                        }
+                        $result['id'] = $ubid;
+                        $result['name'] = $this->translate($item_agency_id);
+                        $result['isDefault'] = $item_agency_id === $source;
+                        $results[] = $result;
+                    }
+                }
+            }
+            usort($results, function($a, $b) { return strcmp($a{'name'}, $b{'name'}); });
+            return $results;
+        }
+        ///////////////////////////////////////////////////////
 
         // we stripped out source library because parent class deals only with local bib IDs (numerals only)
         $results = parent::getILLPickupLibraries($id, $patron);

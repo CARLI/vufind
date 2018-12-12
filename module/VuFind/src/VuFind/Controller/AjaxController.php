@@ -1287,20 +1287,24 @@ class AjaxController extends AbstractBase
                     }
                 }
 
-///////////// BEGIN CARLI EDIT: Ere Maijala's suggestion below worked!!! ////////////////////
-                $wsConfig = $catalog->getConfig('WebServices', $patron);
-                if (!empty($wsConfig['patronHomeUbId']) && $wsConfig['patronHomeUbId'] === $pickupLib) {
+///////////// BEGIN CARLI EDIT: /////////////////////////////////////////////////////////////
                     $homeLibrary = $this->getUser()->home_library;
 
-                    // If patron hasn't chosen a default pickup location, use the system-wide default
-                    if (empty($homeLibrary) || $homeLibrary == "") {
-                        $homeLibrary = $catalog->getDefaultPickUpLocation($patron);
-                    }
+                    // remember that we store homeLibrary (pickup ID) followed by '|' followed by Library ID
+                    // e.g., 353|1@UIUDB2002...
+                    list ($homeLibrary, $actualHomeLibrary) = explode('|', $homeLibrary);
 
                     foreach ($results as &$result) {
-                        $result['isDefault'] = $result['id'] === $homeLibrary;
+                        if (empty($actualHomeLibrary) || $actualHomeLibrary === "") {
+                            // backwards-compatibility for home_library having a value of only pickup location
+                            // e.g., 153 instead of 153|1@UIUDB2002...
+                            if (!empty($homeLibrary) || $homeLibrary !== "") {
+                                $result['isDefault'] = $result['id'] === $homeLibrary;
+                            }
+                        } elseif ($actualHomeLibrary === $pickupLib) {
+                            $result['isDefault'] = $result['id'] === $homeLibrary;
+                        }
                     }
-                }
 /////////////////////////////////////////////////////////////////////////////////////
 
                 return $this->output(['locations' => $results], self::STATUS_OK);

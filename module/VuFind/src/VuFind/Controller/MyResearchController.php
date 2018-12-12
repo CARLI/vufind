@@ -394,6 +394,17 @@ class MyResearchController extends AbstractBase
         // Process home library parameter (if present):
         $homeLibrary = $this->params()->fromPost('home_library', false);
         if (!empty($homeLibrary)) {
+            ////////////////////////////////////////////////
+            // CARLI added:
+            // Store 2 values in home_library column (originally, it stored just 1. pickup ID number): 
+            // 1) pickup ID number (e.g, 353) 
+            // 2) Library ID (i.e., Voyager UBID, e.g, 1@UIUDB200..9)
+            $actualHomeLibrary = $this->params()->fromPost('pickupLibrary', false);
+            if (!empty($actualHomeLibrary)) {
+                $homeLibrary .=  '|' . $actualHomeLibrary;
+            }
+            ////////////////////////////////////////////////
+
             $user->changeHomeLibrary($homeLibrary);
             $this->getAuthManager()->updateSession($user);
             $this->flashMessenger()->addMessage('profile_update', 'success');
@@ -404,9 +415,26 @@ class MyResearchController extends AbstractBase
 
         // Obtain user information from ILS:
         $catalog = $this->getILS();
+
+        ////////////////////////////////////////////////
+        // CARLI added:
+        // Get pickup libraries
+        $puLibs= $catalog->getILLPickupLibraries(
+            '', $patron
+        );
+        $view->pickupLibraries = $puLibs;
+        list ($homeLibrary, $actualHomeLibrary) = explode('|', $user->home_library);
+        $view->homeLibrary = $homeLibrary;
+        $view->actualHomeLibrary = $actualHomeLibrary;
+        ////////////////////////////////////////////////
+
         $this->addAccountBlocksToFlashMessenger($catalog, $patron);
         $profile = $catalog->getMyProfile($patron);
-        $profile['home_library'] = $user->home_library;
+        ////////////////////////////////////////////////
+        // CARLI edit: 
+        //$profile['home_library'] = $user->home_library;
+        $profile['home_library'] = $homeLibrary;
+        ////////////////////////////////////////////////
         $view->profile = $profile;
         try {
             $view->pickup = $catalog->getPickUpLocations($patron);
