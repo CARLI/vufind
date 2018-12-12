@@ -325,7 +325,9 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
             $debug .= 'REQUEST_URI = ' . $_SERVER['REQUEST_URI'] . "\n";
             $debug .= 'Filters before = ' . var_export($hf, true) . "\n";
         }
+        $VUFIND_LIBRARY_BASE_PATH = $_SERVER['VUFIND_LIBRARY_BASE_PATH'] . '/';
         if (preg_match('/\/Record\//', $_SERVER['REQUEST_URI']) ||
+            $_SERVER['REQUEST_URI'] === $VUFIND_LIBRARY_BASE_PATH ||
             preg_match('/\/MyResearch\//', $_SERVER['REQUEST_URI'])) {
             if ($debug_it) {
                 $debug .= 'REQUEST_URI contains /Record/ or /MyResearch/' . "\n";
