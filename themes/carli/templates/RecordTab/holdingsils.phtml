@@ -75,6 +75,10 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         $inst_count++;
         $last_inst = $inst;
     }
+
+    // only display the first set of eresource data (i.e., one set per MFHD, not every ITEM)
+    $eresource_per_mfhd = array();
+
     foreach ($location_val['items'] as $itm) {
         // Cite this/Text this/etc. requires callnumber; if one doesn't exist, use a dummy value
         if (!isset($itm['callnumber'])) {
@@ -105,6 +109,18 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         }
         // sort by location (preserving institution order)
         $split['holdings'][$new_holding_id]['sort_by'] = sprintf('%03d', $inst_count) . $loc;
+
+        // only display the first set of eresource data (i.e., one set per MFHD, not every ITEM)
+        if (count($itm['eresource']) > 0) {
+            if (array_key_exists($itm['holdings_id'], $eresource_per_mfhd)) {
+                $eresource_per_mfhd[$itm['holdings_id']]++;
+            } else {
+                $eresource_per_mfhd[$itm['holdings_id']] = 1;
+            }
+        }
+        if (array_key_exists($itm['holdings_id'], $eresource_per_mfhd) && $eresource_per_mfhd[$itm['holdings_id']] > 1) {
+            $itm['eresource'] = array(); // clear it out
+        }
 
         $split['holdings'][$new_holding_id]['items'][] = $itm;
         $split['holdings'][$new_holding_id]['location'] = $holdings['holdings'][$location]['location'];
