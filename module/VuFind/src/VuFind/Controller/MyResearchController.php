@@ -423,9 +423,11 @@ class MyResearchController extends AbstractBase
             '', $patron
         );
         $view->pickupLibraries = $puLibs;
-        list ($homeLibrary, $actualHomeLibrary) = explode('|', $user->home_library);
-        $view->homeLibrary = $homeLibrary;
-        $view->actualHomeLibrary = $actualHomeLibrary;
+        if (!empty($user->home_library)) {
+            list ($homeLibrary, $actualHomeLibrary) = explode('|', $user->home_library);
+            $view->homeLibrary = $homeLibrary;
+            $view->actualHomeLibrary = $actualHomeLibrary;
+        }
         ////////////////////////////////////////////////
 
         $this->addAccountBlocksToFlashMessenger($catalog, $patron);

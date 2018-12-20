@@ -1638,7 +1638,9 @@ EOT;
         // Parse out the source library, e.g., UIUdb.123 => 123
         // (We purposely overrode MultiBackend::getILLPickupLibraries()
         //  to pass the source in the ID because we need this info!
-        list($source, $id) = explode('.', $id, 2);
+        if (!empty($id) && preg_match('/\./', $id, $matches)) {
+            list($source, $id) = explode('.', $id, 2);
+        }
 
         ///////////////////////////////////////////////////////
         // if $id (bib ID) is empty, simply return *all* libraries
