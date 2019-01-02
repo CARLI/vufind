@@ -129,7 +129,11 @@ foreach ($holdings['holdings'] as $location => $location_val) {
     }
 }
 $holdings = $split;
-usort($holdings['holdings'], function($a, $b) { return strcmp($a['sort_by'], $b['sort_by']); });
+if (array_key_exists('holdings', $holdings) && count($holdings) > 0) {
+    usort($holdings['holdings'], function($a, $b) { return strcmp($a['sort_by'], $b['sort_by']); });
+} else {
+    $holdings['holdings'] = array();
+}
 ?>
 
 <!--

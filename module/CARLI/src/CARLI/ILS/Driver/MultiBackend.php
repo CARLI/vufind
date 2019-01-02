@@ -192,6 +192,12 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             return $flattenedResults;
         } else {
            $result = parent::getHolding($id, $patron);
+
+           // No holdings situation is possible
+           if (! $result) { 
+               return $result;
+           }
+
            $agency =  $this->getSource($result[0]['id']);
            if (preg_match('/^(...)db/', $agency, $matches)) {
                $item_agency_id_lc3 = strtolower($matches[1]);
