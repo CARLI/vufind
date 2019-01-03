@@ -154,7 +154,321 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         return $this->getFieldArray('520', ['3', 'a', 'b', 'c'], true);
     }
 
+    public function getTargetAudienceNotes()
+    {
+        return array_merge($this->getFieldArray('521', ['a', '3']), $this->getFieldArray('385', ['a', 'm', '3']));
+    }
 
+    public function getSeries()
+    {
+        $matches = [];
+
+        // First check the 440, 800 and 830 fields for series information:
+        $primaryFields = [
+            '440' => ['a', 'n', 'p'],
+            '800' => ['a', 'b', 'c', 'd', 'f', 'p', 'q', 't'],
+            '830' => ['a', 'n', 'p']
+        ];
+        $matches = $this->getSeriesFromMARC($primaryFields);
+        if (!empty($matches)) {
+            return $matches;
+        }
+
+        // Now check 490 and display it only if 440/800/830 were empty:
+        $secondaryFields = ['490' => ['a']];
+        $matches = $this->getSeriesFromMARC($secondaryFields);
+        if (!empty($matches)) {
+            return $matches;
+        }
+
+        // Still no results found?  Resort to the Solr-based method just in case!
+        return parent::getSeries();
+    }
+
+    public function getGeneralNotes()
+    {
+        $ret = $this->getFieldArray('500', [ 'a', '3' ]);
+        $ret = array_merge($ret, $this->getFieldArray('515', [ 'a' ]));
+        $ret = array_merge($ret, $this->getFieldArray('550', [ 'a' ]));
+        return $ret;
+    }
+
+    /**
+     * Get access restriction notes for the record.
+     *
+     * @return array
+     */
+    public function getAccessRestrictions()
+    {
+        return $this->getFieldArray('506', [ 'a', 'b', 'c', 'd', 'e', 'f' ]);
+    }
+
+    /**
+     * Get an array of technical details on the item represented by the record.
+     *
+     * @return array
+     */
+    public function getSystemDetails()
+    {
+        return $this->getFieldArray('538', [ 'a', '3' ]);
+    }
+
+    /**
+     * Get award notes for the record.
+     *
+     * @return array
+     */
+    public function getAwards()
+    {
+        return $this->getFieldArray('586', ['a', '3']);
+    }
+
+    /**
+     * Get notes on finding aids related to the record.
+     *
+     * @return array
+     */
+    public function getFindingAids()
+    {
+        return $this->getFieldArray('555', ['a', 'b', 'c', 'd', 'u', '3']);
+    }
+
+    //////////////////////////////////////////
+    // CARLI-specific methods:
+    /**
+     * Get an array of scale information.
+     *
+     * @return array
+     */
+    public function getScale()
+    {
+        return $this->getFieldArray('255', ['a', 'b', 'c', 'd', 'e', 'f', 'g']);
+    }
+
+    /**
+     * Get an array of creator characteristics information.
+     *
+     * @return array
+     */
+    public function getCreatorCharacteristics()
+    {
+        return $this->getFieldArray('386', ['a', 'i', 'm', '3']);
+    }
+
+    /**
+     * Get an array of dissertation note information.
+     *
+     * @return array
+     */
+    public function getDissertationNote()
+    {
+        return $this->getFieldArray('502', ['a', 'b', 'c', 'd', 'g', 'o']);
+    }
+
+    /**
+     * Get an array of language notes information.
+     *
+     * @return array
+     */
+    public function getLanguageNotes()
+    {
+        return $this->getFieldArray('546', ['a', 'b', '3']);
+    }
+
+    /**
+     * Get an array of performer note information.
+     *
+     * @return array
+     */
+    public function getPerformerNote()
+    {
+        return $this->getFieldArray('511', ['a']);
+    }
+
+    /**
+     * Get an array of event notes information.
+     *
+     * @return array
+     */
+    public function getEvent()
+    {
+        return $this->getFieldArray('518', ['a', 'd', 'o', 'p', '3']);
+    }
+
+    /**
+     * Get an array of references notes information.
+     *
+     * @return array
+     */
+    public function getReferences()
+    {
+        return $this->getFieldArray('510', ['a', 'b', 'c', '3']);
+    }
+
+    /**
+     * Get an array of publications notes information.
+     *
+     * @return array
+     */
+    public function getPublications()
+    {
+        return $this->getFieldArray('581', ['a', '3']);
+    }
+
+    /**
+     * Get an array of meeting name notes information.
+     *
+     * @return array
+     */
+    public function getMeetingName()
+    {
+        return $this->getFieldArray('111', ['a', 'c', 'd', 'e', 'f', 'g', 'j', 'k', 'l', 'n', 'p', 'q', 't', 'u']);
+    }
+
+    public function getUniformTitle()
+    {
+        $results = $this->getFieldArray('130', ['a', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't']);
+        $results = array_merge($results, $this->getFieldArrayWithIndicatorValue('240', ['a', 'b', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's'], [1], null));
+        return $results;
+    }
+
+    public function getDescriptionOfWork()
+    {
+        $results = $this->getFieldArray('383', ['a', 'b', 'c', 'd', 'e', '3']);
+        $results = array_merge($results, $this->getFieldArray('384', ['a', '3']));
+        $results = array_merge($results, $this->getFieldArray('380', ['a', '3']));
+        $results = array_merge($results, $this->getFieldArray('381', ['a']));
+        $results = array_merge($results, $this->getFieldArrayWithIndicatorValue('382', ['a', 'b', 'd', 'e', 'n', 'p', 'r', 's', 't', 'v', '3'], [1], null));
+        return $results;
+    }
+
+    public function getHostItem()
+    {
+        $results = $this->getFieldArrayWithIndicatorValue('773', ['a', 'b', 'd', 'g', 'h', 'i', 'k', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'x', 'y', 'z', '3'], [0], null);
+        return $results;
+    }
+
+    public function getMainAuthor()
+    {
+        $results = $this->getFieldArray('100', ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'j', 'k', 'l', 'n', 'p', 'q', 't', 'u']);
+        $results = array_merge($results, $this->getFieldArray('110', ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'k', 'l', 'n', 'p', 'q', 't', 'u']));
+        return $results;
+    }
+
+    public function getOtherNotes()
+    {
+        $results = $this->getFieldArray('501', ['a']);
+        $results = array_merge($results, $this->getFieldArray('533', ['a']));
+        $results = array_merge($results, $this->getFieldArray('544', ['a', 'b', 'c', 'd', 'e', 'n', '3']));
+        $results = array_merge($results, $this->getFieldArray('590', ['a', '3']));
+        $results = array_merge($results, $this->getFieldArray('591', ['a']));
+        $results = array_merge($results, $this->getFieldArray('592', ['a']));
+        $results = array_merge($results, $this->getFieldArray('593', ['a']));
+        $results = array_merge($results, $this->getFieldArray('594', ['a']));
+        $results = array_merge($results, $this->getFieldArray('595', ['a']));
+        $results = array_merge($results, $this->getFieldArray('596', ['a']));
+        $results = array_merge($results, $this->getFieldArray('597', ['a']));
+        $results = array_merge($results, $this->getFieldArray('598', ['a']));
+        $results = array_merge($results, $this->getFieldArray('599', ['a']));
+        return $results;
+    }
+
+    public function getPreferredCitation()
+    {
+        return  $this->getFieldArray('524', ['a', '3']);
+    }
+
+    public function getSupplementNote()
+    {
+        return  $this->getFieldArray('525', ['a']);
+    }
+
+    public function getUseRestrictions()
+    {
+        return  $this->getFieldArray('540', ['a', 'b', 'c', 'd', 'u', '3']);
+    }
+
+    public function getSourceOfAcquisition()
+    {
+        return $this->getFieldArrayWithIndicatorValue('541', ['a', 'b', 'c', 'd', 'e', 'f', 'n', 'o', '3'], [1], null);
+    }
+
+    public function getBioHistoricalData()
+    {
+        return $this->getFieldArray('545', ['a', 'b', 'u']);
+    }
+
+    public function getOwnershipHistory()
+    {
+        return $this->getFieldArrayWithIndicatorValue('561', ['a', '3'], [1], null);
+    }
+
+    public function getCopyIDNote()
+    {
+        return $this->getFieldArray('562', ['a', 'b', 'c', 'd', '3']);
+    }
+
+    public function getBindingInformation()
+    {
+        return $this->getFieldArray('563', ['a', '3']);
+    }
+
+    public function getActionNote()
+    {
+        return $this->getFieldArrayWithIndicatorValue('583', ['a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'j', 'k', 'l', 'n', 'o', 'u', 'z', '3'], [1], null);
+    }
+
+    public function getExhibitionNote()
+    {
+        return $this->getFieldArray('585', ['a', '3']);
+    }
+
+    //////////////////////////////////////////
+
+    // HELPER method
+    protected function getFieldArrayWithIndicatorValue($fieldValue, $validSubfields, $ind1Array, $ind2Array)
+    {
+        $results = array();
+
+        if ($fields = $this->getMarcRecord()->getFields($fieldValue)) {
+            foreach ($fields as $field) {
+
+                $ind1Valid = false;
+                if (is_null($ind1Array)) {
+                    $ind1Valid = true;
+                } else {
+                    if (in_array($field->getIndicator(1), $ind1Array)) {
+                        $ind1Valid = true;
+                    }
+                }
+
+                $ind2Valid = false;
+                if (is_null($ind2Array)) {
+                    $ind2Valid = true;
+                } else {
+                    if (in_array($field->getIndicator(2), $ind2Array)) {
+                        $ind2Valid = true;
+                    }
+                }
+
+                if ($ind1Valid && $ind2Valid) {
+                    $valStr = '';
+                    if ($subfields = $field->getSubfields()) {
+                        foreach ($subfields as $code => $subfield) {
+                            if (in_array($code, $validSubfields)) {
+                                $valStr .= ' '. $subfield->getData();
+                            }
+                        }
+                    }
+                    if (strlen($valStr) > 0) {
+                        $results[] = ltrim($valStr);
+                    }
+                }
+            }
+        }
+
+        return $results;
+    }
 
 }
 

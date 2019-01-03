@@ -13,5 +13,10 @@ return array(
         'vendor/jquery-ui.css',
      ),
     'favicon' => 'carli-favicon.ico',
+    'helpers' => array(
+        'factories' => array(
+            'recorddataformatter' => 'CARLI\View\Helper\Root\RecordDataFormatterFactory',
+        ),
+    ),
 );
 
