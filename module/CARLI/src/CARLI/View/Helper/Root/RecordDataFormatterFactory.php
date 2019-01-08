@@ -261,14 +261,13 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('Index/Finding Aids', 'getFindingAids'); // CARLI edited label "Finding Aid" -> "Index/Finding Aids"
         $spec->setLine('Publication_Place', 'getHierarchicalPlaceNames');
         if ($isLocal) {
-            $spec->setLine('Other Notes', 'getOtherNotes'); // CARLI added new method
-            $spec->setLine('Preferred Citation of Materials', 'getPreferredCitation'); // CARLI added new method
-            $spec->setLine('Supplement Note', 'getSupplementNote'); // CARLI added new method
+            $spec->setLine('Specific Notes', 'getOtherNotes'); // CARLI added new method
+            $spec->setLine('Cite As', 'getPreferredCitation'); // CARLI added new method
+            $spec->setLine('Supplement', 'getSupplementNote'); // CARLI added new method
             $spec->setLine('Use Restrictions', 'getUseRestrictions'); // CARLI added new method
             $spec->setLine('Source of Acquisition', 'getSourceOfAcquisition'); // CARLI added new method
             $spec->setLine('Biographical/Historical Note', 'getBioHistoricalData'); // CARLI added new method
             $spec->setLine('Ownership History', 'getOwnershipHistory'); // CARLI added new method
-            $spec->setLine('Copy Identification Note', 'getCopyIDNote'); // CARLI added new method
             $spec->setLine('Binding Information', 'getBindingInformation'); // CARLI added new method
             $spec->setLine('Action Note', 'getActionNote'); // CARLI added new method
             $spec->setLine('Exhibition', 'getExhibitionNote'); // CARLI added new method

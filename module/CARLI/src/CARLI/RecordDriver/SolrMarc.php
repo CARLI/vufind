@@ -156,7 +156,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
     public function getTargetAudienceNotes()
     {
-        return array_merge($this->getFieldArray('521', ['a', '3']), $this->getFieldArray('385', ['a', 'm', '3']));
+        return array_merge($this->getFieldArray('385', ['a', 'm', '3']), $this->getFieldArray('521', ['a', '3']));
     }
 
     public function getSeries()
@@ -328,7 +328,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     public function getUniformTitle()
     {
         $results = $this->getFieldArray('130', ['a', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't']);
-        $results = array_merge($results, $this->getFieldArrayWithIndicatorValue('240', ['a', 'b', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's'], [1], null));
+        $results = array_merge($results, $this->getFieldArrayWithIndicatorValue('240', ['a', 'd', 'f', 'g', 'h', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's'], [1], null));
         return $results;
     }
 
@@ -338,7 +338,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         $results = array_merge($results, $this->getFieldArray('384', ['a', '3']));
         $results = array_merge($results, $this->getFieldArray('380', ['a', '3']));
         $results = array_merge($results, $this->getFieldArray('381', ['a']));
-        $results = array_merge($results, $this->getFieldArrayWithIndicatorValue('382', ['a', 'b', 'd', 'e', 'n', 'p', 'r', 's', 't', 'v', '3'], [1], null));
+        $results = array_merge($results, $this->getFieldArray('382', ['a', 'b', 'd', 'e', 'n', 'p', 'r', 's', 't', 'v', '3']));
         return $results;
     }
 
@@ -360,6 +360,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         $results = $this->getFieldArray('501', ['a']);
         $results = array_merge($results, $this->getFieldArray('533', ['a']));
         $results = array_merge($results, $this->getFieldArray('544', ['a', 'b', 'c', 'd', 'e', 'n', '3']));
+        $results = array_merge($results, $this->getFieldArray('562', ['a', 'b', 'c', 'd', '3']));
         $results = array_merge($results, $this->getFieldArray('590', ['a', '3']));
         $results = array_merge($results, $this->getFieldArray('591', ['a']));
         $results = array_merge($results, $this->getFieldArray('592', ['a']));
@@ -401,11 +402,6 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     public function getOwnershipHistory()
     {
         return $this->getFieldArrayWithIndicatorValue('561', ['a', '3'], [1], null);
-    }
-
-    public function getCopyIDNote()
-    {
-        return $this->getFieldArray('562', ['a', 'b', 'c', 'd', '3']);
     }
 
     public function getBindingInformation()
