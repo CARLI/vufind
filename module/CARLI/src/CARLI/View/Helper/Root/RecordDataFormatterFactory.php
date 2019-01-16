@@ -241,6 +241,7 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('General Notes', 'getGeneralNotes'); // CARLI edited label "Item Description" -> "General Notes"
         $spec->setLine('Physical Description', 'getPhysicalDescriptions');
         $spec->setLine('Scale', 'getScale'); // CARLI added new method
+        $spec->setLine('Technical Specifications', 'getTechnicalSpecifications'); // CARLI added new method
         $spec->setLine('Performer', 'getPerformerNote'); // CARLI added new method
         $spec->setLine('Event', 'getEvent'); // CARLI added new method
         $spec->setLine('References', 'getReferences'); // CARLI added new method
