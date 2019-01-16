@@ -419,6 +419,11 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         return $this->getFieldArray('585', ['a', '3']);
     }
 
+    public function getISBNsForDescriptionTab()
+    {
+        return $this->getFieldArray('020', ['a', 'q']);
+    }
+
     //////////////////////////////////////////
 
     // HELPER method

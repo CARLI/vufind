@@ -253,7 +253,7 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('Awards', 'getAwards');
         $spec->setLine('Production Credits', 'getProductionCredits');
         $spec->setLine('Bibliography', 'getBibliographyNotes');
-        $spec->setLine('ISBN', 'getISBNs');
+        $spec->setLine('ISBN', 'getISBNsForDescriptionTab'); // CARLI added new method
         $spec->setLine('ISSN', 'getISSNs');
         $spec->setLine('DOI', 'getCleanDOI');
         $spec->setLine('Related Items', 'getRelationshipNotes');
