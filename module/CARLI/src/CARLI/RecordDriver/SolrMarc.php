@@ -424,9 +424,12 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         $results = $this->getFieldArray('344', ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
         $results = array_merge($results, $this->getFieldArray('345', ['a', 'b', '3']));
         $results = array_merge($results, $this->getFieldArray('346', ['a', 'b', '3']));
-        $results = array_merge($results, $this->getFieldArray('347', ['a', 'b', 'c', 'd', 'e', 'f']));
-        $results = array_merge($results, $this->getFieldArray('348', ['a', 'b', '3']));
         return $results;
+    }
+
+    public function getDigitalCharacteristics()
+    {
+        return $this->getFieldArray('347', ['a', 'b', 'c', 'd', 'e', 'f']);
     }
 
     //////////////////////////////////////////
