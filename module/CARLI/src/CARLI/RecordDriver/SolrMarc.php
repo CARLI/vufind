@@ -5,6 +5,21 @@ namespace CARLI\RecordDriver;
 class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 {
 
+    // CARLI overriding this property
+    protected $subjectFields = [
+        '600' => 'personal name',
+        '610' => 'corporate name',
+        '611' => 'meeting name',
+        '630' => 'uniform title',
+        '648' => 'chronological',
+        '650' => 'topic',
+        '651' => 'geographic',
+        '653' => '',
+        '655' => 'genre/form',
+        '656' => 'occupation',
+        '690' => 'local' // CARLI added
+    ];
+
     /**************************
 
     GitHub Issue #234 
@@ -422,6 +437,19 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     public function getISBNsForDescriptionTab()
     {
         return $this->getFieldArray('020', ['a', 'q']);
+    }
+
+    public function getTechnicalSpecifications()
+    {
+        $results = $this->getFieldArray('344', ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
+        $results = array_merge($results, $this->getFieldArray('345', ['a', 'b', '3']));
+        $results = array_merge($results, $this->getFieldArray('346', ['a', 'b', '3']));
+        return $results;
+    }
+
+    public function getDigitalCharacteristics()
+    {
+        return $this->getFieldArray('347', ['a', 'b', 'c', 'd', 'e', 'f']);
     }
 
     //////////////////////////////////////////
