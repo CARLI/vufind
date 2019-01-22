@@ -436,7 +436,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
     public function getISBNsForDescriptionTab()
     {
-        return $this->getFieldArray('020', ['a', 'q']);
+        return $this->getFieldArrayWithRequiredSubfields('020', ['a'], ['a', 'q']);
     }
 
     public function getTechnicalSpecifications()
@@ -497,6 +497,43 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         }
 
         return $results;
+    }
+
+
+    protected function getFieldArrayWithRequiredSubfields($field, $subfieldsThatMustExist = null, $subfields = null, $concat = true,
+        $separator = ' '
+    ) {
+
+        // Default to subfield a if nothing is specified.
+        if (!is_array($subfields)) {
+            $subfields = ['a'];
+        }
+
+        // Initialize return array
+        $matches = [];
+
+        // Try to look up the specified field, return empty array if it doesn't
+        // exist.
+        $fields = $this->getMarcRecord()->getFields($field);
+        if (!is_array($fields)) {
+            return $matches;
+        }
+
+        // Extract all the requested subfields, if applicable.
+        foreach ($fields as $currentField) {
+            $validSubfieldCheck = $this
+                ->getSubfieldArray($currentField, $subfieldsThatMustExist, false, $separator);
+
+            if (count($validSubfieldCheck) != count($subfieldsThatMustExist)) {
+                continue;
+            }
+
+            $next = $this
+                ->getSubfieldArray($currentField, $subfields, $concat, $separator);
+            $matches = array_merge($matches, $next);
+        }
+
+        return $matches;
     }
 
 }
