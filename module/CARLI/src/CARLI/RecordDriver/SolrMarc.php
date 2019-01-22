@@ -5,6 +5,21 @@ namespace CARLI\RecordDriver;
 class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 {
 
+    // CARLI overriding this property
+    protected $subjectFields = [
+        '600' => 'personal name',
+        '610' => 'corporate name',
+        '611' => 'meeting name',
+        '630' => 'uniform title',
+        '648' => 'chronological',
+        '650' => 'topic',
+        '651' => 'geographic',
+        '653' => '',
+        '655' => 'genre/form',
+        '656' => 'occupation',
+        '690' => 'local' // CARLI added
+    ];
+
     /**************************
 
     GitHub Issue #234 
