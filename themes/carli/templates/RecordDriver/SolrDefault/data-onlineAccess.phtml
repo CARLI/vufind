@@ -1,0 +1,28 @@
+<?
+  $openUrl = $this->openUrl($this->driver, 'record');
+  $openUrlActive = $openUrl->isActive();
+  // Account for replace_other_urls setting
+  //$urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
+  $the856s = $this->driver->get856s();
+?>
+
+<? if (!empty($the856s) || $openUrlActive) : ?>
+
+<? $count = 0; ?>
+
+  <? foreach ($the856s as $the856): ?>
+
+    <? // HACK: we need to somehow manipulate our container template. see core.phtml for the table we are 'busting out of' ?>
+    <? if($count++ > 0): ?>
+      </td></tr>
+      <tr><th><?=$this->escapeHtml($the856['label'])?></th><td>
+    <? endif; ?>
+
+    <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($the856['link']))?>"><?=$this->escapeHtml($the856['hyperlink_text'])?></a>&nbsp;&nbsp;<?=$this->escapeHtml($the856['text'])?><br/>
+
+  <? endforeach; ?>
+
+  <? if ($openUrlActive): ?>
+    <?=$openUrl->renderTemplate()?><br/>
+  <? endif; ?>
+<? endif; ?>

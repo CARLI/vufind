@@ -361,15 +361,15 @@ CARLI END comment-out original table -->
        $er_cnt = count($row['eresource']);
        if ($er_cnt > 0) {
           for($er_cnt = 0; $er_cnt < count($row['eresource']); ++$er_cnt) {
-              $er_label = $row['eresource'][$er_cnt];
-              if (array_key_exists('eresource_label', $row) && $row['eresource_label'][$er_cnt]) {
-                  $er_label = $row['eresource_label'][$er_cnt];
+              $er_hyperlink_text = $row['eresource'][$er_cnt];
+              if (array_key_exists('eresource_hyperlink_text', $row) && $row['eresource_hyperlink_text'][$er_cnt]) {
+                  $er_hyperlink_text = $row['eresource_hyperlink_text'][$er_cnt];
               }
               $er_text = '';
               if (array_key_exists('eresource_text', $row) && $row['eresource_text'][$er_cnt]) {
                   $er_text = ' ' . $row['eresource_text'][$er_cnt];
               }
-              echo '<tr><td>E-Resource</td><td><a href="' . $row['eresource'][$er_cnt] . '">' . $er_label . "</a>" . $er_text . "</td></tr>\n";
+              echo '<tr><th>' . $row['eresource_label'][$er_cnt] . '</th><td><a href="' . $row['eresource'][$er_cnt] . '">' . $er_hyperlink_text . "</a>" . $er_text . "</td></tr>\n";
           }
        }
    }
