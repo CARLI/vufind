@@ -62,7 +62,8 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setTemplateLine(
             'Subjects', 'getAllSubjectHeadings', 'data-allSubjectHeadings.phtml'
         );
-        $spec->setTemplateLine('Online Access', true, 'data-onlineAccess.phtml');
+
+        //$spec->setTemplateLine('Online Access', true, 'data-onlineAccess.phtml');
         $spec->setTemplateLine(
             'Related Items', 'getAllRecordLinks', 'data-allRecordLinks.phtml'
         );
@@ -209,7 +210,15 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
             'child_records', 'getChildRecordCount', 'data-childRecords.phtml',
             ['allowZero' => false]
         );
-        $spec->setTemplateLine('Online Access', true, 'data-onlineAccess.phtml');
+        $spec->setTemplateLine('Online Access', 'get856s', 'data-onlineAccess.phtml',
+            [
+                'useCache' => true,
+                'labelFunction' => function ($data) {
+                    return count($data) > 0
+                        ? rtrim($data[0]['label'],':') : 'Online Access';
+                },
+            ]
+        );
         $spec->setTemplateLine(
             'Related Items', 'getAllRecordLinks', 'data-allRecordLinks.phtml'
         );
