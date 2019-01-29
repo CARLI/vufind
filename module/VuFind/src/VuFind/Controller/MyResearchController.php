@@ -424,9 +424,11 @@ class MyResearchController extends AbstractBase
         );
         $view->pickupLibraries = $puLibs;
         if (!empty($user->home_library)) {
-            list ($homeLibrary, $actualHomeLibrary) = explode('|', $user->home_library);
-            $view->homeLibrary = $homeLibrary;
-            $view->actualHomeLibrary = $actualHomeLibrary;
+            if (preg_match('/\|/', $user->home_library)) {
+                list ($homeLibrary, $actualHomeLibrary) = explode('|', $user->home_library);
+                $view->homeLibrary = $homeLibrary;
+                $view->actualHomeLibrary = $actualHomeLibrary;
+            }
         }
         ////////////////////////////////////////////////
 

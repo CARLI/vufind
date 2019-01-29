@@ -1414,17 +1414,20 @@ EOT;
             );
             if ($record = $marc->next()) {
                 $labels = array();
+                $hyperlink_texts = array();
                 $links = array();
                 $texts = array();
-                $the856s = $this->getMFHD856s($record);
+                $the856s = \CARLI\RecordDriver\SolrMarc::get856s_from_MARC($record);
                 foreach ($the856s as $the856) {
                    $labels[] = $the856['label'];
+                   $hyperlink_texts[] = $the856['hyperlink_text'];
                    $links[] = $the856['link'];
                    $texts[] = $the856['text'];
                 }
-                $row['eresource_text'] = $texts;
                 $row['eresource_label'] = $labels;
+                $row['eresource_hyperlink_text'] = $hyperlink_texts;
                 $row['eresource'] = $links;
+                $row['eresource_text'] = $texts;
             }
         } catch (\Exception $e) {
             trigger_error(
@@ -1442,7 +1445,7 @@ EOT;
                $eitem_caption = $sqlRow['EITEM_CAPTION'];
            }
            $row['eresource_text'][] = '';
-           $row['eresource_label'][] = $eitem_caption;
+           $row['eresource_hyperlink_text'][] = $eitem_caption;
            $row['eresource'][] = $eitem_link;
        }
 
@@ -1543,80 +1546,6 @@ EOT;
 //file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\nsimpleXML:\n\n" . var_export($simpleXML, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
 
         return $simpleXML;
-    }
-
-    // https://github.com/CARLI/vufind/issues/341
-    //
-    // * If the 856 contains $u only: the $u will be hyperlinked.
-    // link = $u ; label = $u ; text = [empty]
-    //
-    // * If the 856 contains $u and $y: the $y will be hyperlinked.
-    // link = $u ; label = $y ; text = [empty]
-    //
-    // * If the 856 contains $u and $z: the $u will be hyperlinked and the $z will display as text.
-    // link = $u ; label = $u ; text = $z
-    //
-    // * If the 856 contains $u and $3: the $3 will be hyperlinked.
-    // link = $u ; label = $3 ; text = [empty]
-    //
-    // * If the 856 contains $u, $3 and $y: the $3 and the $y will be hyperlinked, in that order, separated by a space.
-    // link = $u ; label = $3 [space] $y ; text = [empty]
-    //
-    // * If the 856 contains $u, $3 and $z: the $3 will be hyperlinked and the $z will display as text.
-    // link = $u ; label = $3 ; text = $z
-    //
-    // * If the 856 contains $u, $y and $z: the $y will be hyperlinked and the $z will display as text.
-    // link = $u ; label = $y ; text = $z
-    //
-    // * If the 856 contains $u, $3, $y and $z: the $3 and $y will be hyperlinked, in that order, with a space between them, and the $z will display as text.
-    // link = $u ; label = $3 [space] $y ; text = $z
-    //
-    protected function getMFHD856s($record)
-    {
-        $results = array();
-        if ($fields = $record->getFields('856')) {
-            foreach ($fields as $field) {
-                $sfValues = array();
-                if ($subfields = $field->getSubfields()) {
-                    foreach ($subfields as $code => $subfield) {
-                        if (!strstr('y3uz', $code)) {
-                            continue;
-                        }
-                        $subfieldData = $subfield->getData();
-                        if (array_key_exists($code, $sfValues)) {
-                            $sfValues[$code] .= ' ' . $subfieldData;
-                        } else {
-                            $sfValues[$code] = $subfieldData;
-                        }
-                    }
-                }
-
-                if (! array_key_exists('u', $sfValues)) {
-                    continue;
-                }
-
-                $the856 = array();
-
-                $the856['link'] = $sfValues['u'];
-
-                $the856['label'] = $sfValues['u'];
-                if (array_key_exists('3', $sfValues) && array_key_exists('y', $sfValues)) {
-                    $the856['label'] = $sfValues['3'] . ' ' . $sfValues['y'];
-                } else if (array_key_exists('3', $sfValues)) {
-                    $the856['label'] = $sfValues['3'];
-                } else if (array_key_exists('y', $sfValues)) {
-                    $the856['label'] = $sfValues['y'];
-                }
-
-                $the856['text'] = '';
-                if (array_key_exists('z', $sfValues)) {
-                    $the856['text'] = $sfValues['z'];
-                }
-
-                $results[] = $the856;
-            }
-        }
-        return $results;
     }
 
     // Disable the Holds & Recalls actions, since we show this information already in Requested Items

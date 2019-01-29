@@ -62,7 +62,8 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setTemplateLine(
             'Subjects', 'getAllSubjectHeadings', 'data-allSubjectHeadings.phtml'
         );
-        $spec->setTemplateLine('Online Access', true, 'data-onlineAccess.phtml');
+
+        //$spec->setTemplateLine('Online Access', true, 'data-onlineAccess.phtml');
         $spec->setTemplateLine(
             'Related Items', 'getAllRecordLinks', 'data-allRecordLinks.phtml'
         );
@@ -209,7 +210,15 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
             'child_records', 'getChildRecordCount', 'data-childRecords.phtml',
             ['allowZero' => false]
         );
-        $spec->setTemplateLine('Online Access', true, 'data-onlineAccess.phtml');
+        $spec->setTemplateLine('Online Access', 'get856s', 'data-onlineAccess.phtml',
+            [
+                'useCache' => true,
+                'labelFunction' => function ($data) {
+                    return count($data) > 0
+                        ? rtrim($data[0]['label'],':') : 'Online Access';
+                },
+            ]
+        );
         $spec->setTemplateLine(
             'Related Items', 'getAllRecordLinks', 'data-allRecordLinks.phtml'
         );
@@ -241,6 +250,8 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('General Notes', 'getGeneralNotes'); // CARLI edited label "Item Description" -> "General Notes"
         $spec->setLine('Physical Description', 'getPhysicalDescriptions');
         $spec->setLine('Scale', 'getScale'); // CARLI added new method
+        $spec->setLine('A/V Characteristics', 'getTechnicalSpecifications'); // CARLI added new method
+        $spec->setLine('Digital Characteristics', 'getDigitalCharacteristics'); // CARLI added new method
         $spec->setLine('Performer', 'getPerformerNote'); // CARLI added new method
         $spec->setLine('Event', 'getEvent'); // CARLI added new method
         $spec->setLine('References', 'getReferences'); // CARLI added new method
@@ -253,7 +264,7 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('Awards', 'getAwards');
         $spec->setLine('Production Credits', 'getProductionCredits');
         $spec->setLine('Bibliography', 'getBibliographyNotes');
-        $spec->setLine('ISBN', 'getISBNs');
+        $spec->setLine('ISBN', 'getISBNsForDescriptionTab'); // CARLI added new method
         $spec->setLine('ISSN', 'getISSNs');
         $spec->setLine('DOI', 'getCleanDOI');
         $spec->setLine('Related Items', 'getRelationshipNotes');
