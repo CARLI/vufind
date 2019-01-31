@@ -18,4 +18,5 @@ $loginButtonText = 'Login with your <span class="text-transform-none">BUnetID</s
 
 $catEstablishAccount = 'Your barcode that begins with 202 can be found on your Bradley ID card.';  
 
+
 ?>
