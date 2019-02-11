@@ -68,9 +68,14 @@ $last_inst = '';
 foreach ($holdings['holdings'] as $location => $location_val) {
 
     // keep track of institution count (used for sort_by key)
-    $loc_in_parts = explode("|", $location);
-    $inst = $loc_in_parts[0];
-    $loc = $loc_in_parts[1];
+    if (preg_match('/\|/', $location)) {
+        $loc_in_parts = explode("|", $location);
+        $inst = $loc_in_parts[0];
+        $loc = $loc_in_parts[1];
+    } else {
+        $inst = ' ';
+        $loc = $location;
+    }
     if ($inst != $last_inst) {
         $inst_count++;
         $last_inst = $inst;
