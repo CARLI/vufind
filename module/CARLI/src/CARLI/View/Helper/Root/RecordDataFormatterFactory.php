@@ -190,6 +190,7 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
                 ],
             ]
         );
+        $spec->setLine('Description of Work', 'getDescriptionOfWork'); // CARLI added new method
         $spec->setLine(
             'Format', 'getFormats', 'RecordHelper',
             ['helperMethod' => 'getFormatList']
@@ -241,7 +242,6 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('Main Author', 'getMainAuthor'); // CARLI added new method
         $spec->setLine('Meeting Name', 'getMeetingName'); // CARLI added new method
         $spec->setLine('Uniform Title', 'getUniformTitle'); // CARLI added new method
-        $spec->setLine('Description of Work', 'getDescriptionOfWork'); // CARLI added new method
         $spec->setLine('In', 'getHostItem'); // CARLI added new method
         $spec->setTemplateLine('Summary', true, 'data-summary.phtml');
         $spec->setLine('Published', 'getDateSpan');
