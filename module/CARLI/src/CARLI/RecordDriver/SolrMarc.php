@@ -452,6 +452,16 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         return $this->getFieldArray('347', ['a', 'b', 'c', 'd', 'e', 'f']);
     }
 
+    /**
+     * Get an array of credits information.
+     *
+     * @return array
+     */
+    public function getCredits()
+    {
+        return $this->getFieldArray('508', ['a']);
+    }
+
     //////////////////////////////////////////
 
     // HELPER method

@@ -252,6 +252,7 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('Scale', 'getScale'); // CARLI added new method
         $spec->setLine('A/V Characteristics', 'getTechnicalSpecifications'); // CARLI added new method
         $spec->setLine('Digital Characteristics', 'getDigitalCharacteristics'); // CARLI added new method
+        $spec->setLine('Credits', 'getCredits'); // CARLI added new method
         $spec->setLine('Performer', 'getPerformerNote'); // CARLI added new method
         $spec->setLine('Event', 'getEvent'); // CARLI added new method
         $spec->setLine('References', 'getReferences'); // CARLI added new method
