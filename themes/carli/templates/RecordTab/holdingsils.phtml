@@ -339,6 +339,7 @@ CARLI END comment-out original table -->
   </tr>
    <? endif; ?>
   <? endif; ?>
+
   <? if (isset($holding['textfields'])): foreach ($holding['textfields'] as $textFieldName => $textFields): ?>
     <tr>
       <? // Translation for summary is a special case for backwards-compatibility ?>
@@ -390,6 +391,29 @@ CARLI END comment-out original table -->
       $checkILLRequest = true;
 // CARLI END force checkILLRequest = false
     ?>
+
+
+  <!-- CARLI EDIT: embed purchase history -->
+  <? if (!empty($row['purchase_history'])): ?>
+  <? 
+     if ($row['id'] != $ph_last_id && $row['holdings_id'] != $ph_last_holdings_id) {
+       $ph_last_id = $row['id'];
+       $ph_last_holdings_id = $row['holdings_id'];
+  ?>
+    <tr>
+      <th><?=$this->transEsc("Most Recent Received Issues")?>:</th>
+      <td>
+        <? foreach ($row['purchase_history'] as $current): ?>
+          <?=$this->escapeHtml($current['issue'])?><br/>
+        <? endforeach; ?>
+      </td>
+    </tr>
+  <? 
+      }
+  ?>
+  <? endif; ?>
+
+
     <? if (isset($row['barcode']) && $row['barcode'] != ""): ?>
       <tr vocab="http://schema.org/" typeof="Offer">
         <th><?=$this->transEsc("Copy")?> <?=$this->escapeHtml($row['number'])?></th>
@@ -462,26 +486,6 @@ CARLI END comment-out original table -->
         </td>
       </tr>
     <? endif; ?>
-
-  <!-- CARLI EDIT: embed purchase history -->
-  <? if (!empty($row['purchase_history'])): ?>
-  <? 
-     if ($row['id'] != $ph_last_id && $row['holdings_id'] != $ph_last_holdings_id) {
-       $ph_last_id = $row['id'];
-       $ph_last_holdings_id = $row['holdings_id'];
-  ?>
-    <tr>
-      <th><?=$this->transEsc("Most Recent Received Issues")?>:</th>
-      <td>
-        <? foreach ($row['purchase_history'] as $current): ?>
-          <?=$this->escapeHtml($current['issue'])?><br/>
-        <? endforeach; ?>
-      </td>
-    </tr>
-  <? 
-      }
-  ?>
-  <? endif; ?>
 
   <? endforeach; ?>
 
