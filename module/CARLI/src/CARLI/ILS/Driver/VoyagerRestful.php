@@ -38,9 +38,12 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 
                 $data = $this->getValidatedMFHDData(
                     $record,
+                    /* CARLI edit: hard-code the 866az!
                     isset($this->config['Holdings']['summary'])
                     ? $this->config['Holdings']['summary']
                     : '866a',
+                    */
+                    '866az',
                     function($field_) {
                         // these need to be suppressed
                         $ind2 = $field_->getIndicator(2);
@@ -52,7 +55,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                     null
                 );
 
-                $data = array_merge(is_array($data) ? $data : [ $data ], $this->mfhd_library_has_volumes($record, '853', '863')); // CARLI added
+                $data = array_merge($data ? (is_array($data) ? $data : [ $data ]) : [], $this->mfhd_library_has_volumes($record, '853', '863')); // CARLI added
                 if ($data) {
                     $marcDetails['summary'] = $data;
                 }
@@ -63,7 +66,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                         $record,
                         $this->config['Holdings']['supplements']
                     );
-                    $data = array_merge(is_array($data) ? $data : [ $data ], $this->mfhd_library_has_volumes($record, '854', '864')); // CARLI added
+                    $data = array_merge($data ? (is_array($data) ? $data : [ $data ]) : [], $this->mfhd_library_has_volumes($record, '854', '864')); // CARLI added
                     if ($data) {
                         $marcDetails['supplements'] = $data;
                     }
@@ -75,7 +78,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                         $record,
                         $this->config['Holdings']['indexes']
                     );
-                    $data = array_merge(is_array($data) ? $data : [ $data ], $this->mfhd_library_has_volumes($record, '855', '865')); // CARLI added
+                    $data = array_merge($data ? (is_array($data) ? $data : [ $data ]) : [], $this->mfhd_library_has_volumes($record, '855', '865')); // CARLI added
                     if ($data) {
                         $marcDetails['indexes'] = $data;
                     }
@@ -166,7 +169,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         $len = count($captions);
         for ($i=0; $i<$len; $i++) {
             if ($values[$i]) {
-                if ($must_have_caption[$fields[$i]] && $captions[$i]) {
+                if ($must_have_caption[$fields[$i]] && ! $captions[$i]) {
                     continue;
                 }
                 $ret = '';
