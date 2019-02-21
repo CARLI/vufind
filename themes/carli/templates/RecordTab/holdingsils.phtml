@@ -350,6 +350,10 @@ CARLI END comment-out original table -->
       </td>
     </tr>
   <? endforeach; endif; ?>
+  <?
+       $ph_last_id = '';
+       $ph_last_holdings_id = '';
+  ?>
   <? foreach ($holding['items'] as $row): ?>
 <! CARLI BEGIN fixrequestlink !>
 <?
