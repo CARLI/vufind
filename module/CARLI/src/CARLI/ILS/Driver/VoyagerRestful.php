@@ -4,9 +4,116 @@ namespace CARLI\ILS\Driver;
 
 use File_MARC, Yajra\Pdo\Oci8, PDO, PDOException, VuFind\Exception\ILS as ILSException;
 use VuFind\Config\Locator as ConfigLocator;
+use Zend\Validator\EmailAddress as EmailAddressValidator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+
+    public function getMyProfile($patron)
+    {
+        $sql = 
+"select  pat.patron_id, pat.last_name, pat.first_name, pat.expire_date, PermAddress.Address_Line1 as ADDRESS_LINE1, PermAddress.Address_Line2 as ADDRESS_LINE2, " . "\n" . 
+"PermAddress.Address_Line3 as ADDRESS_LINE3, PermAddress.City as CITY, PermAddress.State_Province as STATE_PROVINCE, PermAddress.Zip_Postal as ZIP_POSTAL, TempAddress.Address_Line1 as TEMP_ADDRESS_LINE1, TempAddress.Address_Line2 as TEMP_ADDRESS_LINE2, " . "\n" . 
+"TempAddress.Address_Line3 as TEMP_ADDRESS_LINE3, TempAddress.City as TEMP_CITY, TempAddress.State_Province as TEMP_STATE_PROVINCE, TempAddress.Zip_Postal as TEMP_ZIP_POSTAL, EmailAddress.address_line1 as EMAIL From $this->dbName.patron pat, " . "\n" . 
+"    (select patron_address.patron_id, patron_address.address_line1, " . "\n" . 
+"            patron_address.address_line2, patron_address.address_line3, " . "\n" . 
+"            patron_address.city, patron_address.state_province, " . "\n" . 
+"            patron_address.zip_postal " . "\n" . 
+"       from $this->dbName.patron_address " . "\n" . 
+"      where patron_address.address_type='1') PermAddress, " . "\n" . 
+"    (select patron_address.patron_id, patron_address.address_line1, " . "\n" . 
+"            patron_address.address_line2, patron_address.address_line3, " . "\n" . 
+"            patron_address.city, patron_address.state_province, " . "\n" . 
+"            patron_address.zip_postal " . "\n" . 
+"       from $this->dbName.patron_address " . "\n" . 
+"      where patron_address.address_type='2' " . "\n" . 
+"        and ((patron_address.expire_date)>sysdate OR (patron_address.expire_date is null)) " . "\n" . 
+"        and (patron_address.effect_date)<sysdate) TempAddress, " . "\n" . 
+"    (select patron_address.patron_id, patron_address.address_line1 " . "\n" . 
+"       from $this->dbName.patron_address " . "\n" . 
+"      where patron_address.address_type='3' " . "\n" . 
+"        and ((patron_address.expire_date)>sysdate OR (patron_address.expire_date is null)) " . "\n" . 
+"        and (patron_address.effect_date)<sysdate) EmailAddress  " . "\n" . 
+"where pat.patron_id=PermAddress.patron_id(+) " . "\n" . 
+" and pat.patron_id=TempAddress.patron_id(+) " . "\n" . 
+" and pat.patron_id=EmailAddress.patron_id(+) " . "\n" . 
+" and pat.patron_id=:id"
+;
+
+
+//$debug = ' sql :::::: ' . "\n" . var_export($sql, true) . "\n";
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+
+
+        try {
+            $sqlStmt = $this->executeSQL($sql, [':id' => $patron['id']]);
+            $patron = [];
+            while ($row = $sqlStmt->fetch(PDO::FETCH_ASSOC)) {
+//$debug = ' row :::::: ' . "\n" . var_export($row, true) . "\n";
+//file_put_contents("/usr/local/vufind/look.txt", "\n\n******************************\n" . var_export($debug, true) . "\n******************************\n\n", FILE_APPEND | LOCK_EX);
+
+                if (!empty($row['EXPIRE_DATE'])) {
+                    $patron['expiration_date'] = utf8_encode($row['EXPIRE_DATE']);
+                }
+                if (!empty($row['FIRST_NAME'])) {
+                    $patron['firstname'] = utf8_encode($row['FIRST_NAME']);
+                }
+                if (!empty($row['LAST_NAME'])) {
+                    $patron['lastname'] = utf8_encode($row['LAST_NAME']);
+                }
+                if (!empty($row['EMAIL'])) {
+                    $patron['email'] = utf8_encode($row['EMAIL']);
+                }
+
+                if (!empty($row['ADDRESS_LINE1'])) {
+                    $patron['address1'] = utf8_encode($row['ADDRESS_LINE1']);
+                }
+                if (!empty($row['ADDRESS_LINE2'])) {
+                    $patron['address2'] = utf8_encode($row['ADDRESS_LINE2']);
+                }
+                if (!empty($row['ADDRESS_LINE3'])) {
+                    $patron['address3'] = utf8_encode($row['ADDRESS_LINE3']);
+                }
+                if (!empty($row['ZIP_POSTAL'])) {
+                    $patron['zip'] = utf8_encode($row['ZIP_POSTAL']);
+                }
+                if (!empty($row['CITY'])) {
+                    $patron['city'] = utf8_encode($row['CITY']);
+                }
+                if (!empty($row['STATE_PROVINCE'])) {
+                    $patron['state'] = utf8_encode($row['STATE_PROVINCE']);
+                }
+        
+                if (!empty($row['TEMP_ADDRESS_LINE1'])) {
+                    $patron['temp_address1'] = utf8_encode($row['TEMP_ADDRESS_LINE1']);
+                }
+                if (!empty($row['TEMP_ADDRESS_LINE2'])) {
+                    $patron['temp_address2'] = utf8_encode($row['TEMP_ADDRESS_LINE2']);
+                }
+                if (!empty($row['TEMP_ADDRESS_LINE3'])) {
+                    $patron['temp_address3'] = utf8_encode($row['TEMP_ADDRESS_LINE3']);
+                }
+                if (!empty($row['TEMP_ZIP_POSTAL'])) {
+                    $patron['temp_zip'] = utf8_encode($row['TEMP_ZIP_POSTAL']);
+                }
+                if (!empty($row['TEMP_CITY'])) {
+                    $patron['temp_city'] = utf8_encode($row['TEMP_CITY']);
+                }
+                if (!empty($row['TEMP_STATE_PROVINCE'])) {
+                    $patron['temp_state'] = utf8_encode($row['TEMP_STATE_PROVINCE']);
+                }
+        
+                if (!empty($row['PATRON_GROUP_NAME'])) {
+                    $patron['group'] = utf8_encode($row['PATRON_GROUP_NAME']);
+                }
+            }
+
+            return (empty($patron) ? null : $patron);
+        } catch (PDOException $e) {
+            throw new ILSException($e->getMessage());
+        }
+    }
+
 
     protected function getPurchaseHistoryData($id)
     {
