@@ -45,7 +45,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
 
     **************************/
-    public function get856s()
+    public function get856_URLs()
     {
         $results = array();
         if ($fields = $this->getMarcRecord()->getFields('856')) {
@@ -140,7 +140,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
           return null;
        }
 
-       return $this->get856s();
+       return $this->get856_URLs();
     }
 
     public function getTOC()
@@ -452,6 +452,16 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         return $this->getFieldArray('347', ['a', 'b', 'c', 'd', 'e', 'f']);
     }
 
+    /**
+     * Get an array of credits information.
+     *
+     * @return array
+     */
+    public function getCredits()
+    {
+        return $this->getFieldArray('508', ['a']);
+    }
+
     //////////////////////////////////////////
 
     // HELPER method
@@ -535,6 +545,216 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
         return $matches;
     }
+
+    // https://github.com/CARLI/vufind/issues/341
+    //
+    // * If the 856 contains $u only: the $u will be hyperlinked.
+    // link = $u ; hyperlink_text = $u ; text = [empty]
+    //
+    // * If the 856 contains $u and $y: the $y will be hyperlinked.
+    // link = $u ; hyperlink_text = $y ; text = [empty]
+    //
+    // * If the 856 contains $u and $z: the $u will be hyperlinked and the $z will display as text.
+    // link = $u ; hyperlink_text = $u ; text = $z
+    //
+    // * If the 856 contains $u and $3: the $3 will be hyperlinked.
+    // link = $u ; hyperlink_text = $3 ; text = [empty]
+    //
+    // * If the 856 contains $u, $3 and $y: the $3 and the $y will be hyperlinked, in that order, separated by a space.
+    // link = $u ; hyperlink_text = $3 [space] $y ; text = [empty]
+    //
+    // * If the 856 contains $u, $3 and $z: the $3 will be hyperlinked and the $z will display as text.
+    // link = $u ; hyperlink_text = $3 ; text = $z
+    //
+    // * If the 856 contains $u, $y and $z: the $y will be hyperlinked and the $z will display as text.
+    // link = $u ; hyperlink_text = $y ; text = $z
+    //
+    // * If the 856 contains $u, $3, $y and $z: the $3 and $y will be hyperlinked, in that order, with a space between them, and the $z will display as text.
+    // link = $u ; hyperlink_text = $3 [space] $y ; text = $z
+    //
+//
+// NEW label spec, January 2019:
+//
+/*
+
+If the First Indicator is (blank), 0, 1, 2, 3, or 4
+And the Second Indicator is 0 or 1
+Label = Online Access:
+
+If the First Indicator is 0 or 4
+And the Second Indicator is (blank) or 2
+Label = Related Information:
+
+If the First Indicator is 2 or 3
+And the Second Indicator is (blank) or 2
+Label = Connect:
+
+If the First Indicator is 1
+And the Second Indicator is (blank) or 2
+Label = Download
+
+If the First Indicator is 7
+Regardless of Second Indicator
+Label = Connect via subf2:
+
+Full list: (where b is blank)
+
+856 b0    Online Access:
+856 b1    Online Access:
+856 00    Online Access:
+856 01    Online Access:
+856 10    Online Access:
+856 11    Online Access:
+856 20    Online Access:
+856 21    Online Access:
+856 30    Online Access:
+856 31    Online Access:
+856 40    Online Access:
+856 41    Online Access:
+856 0b    Related Information:
+856 02    Related Information:
+856 42    Related Information:
+856 4b    Related Information:
+856 22    Connect:
+856 2b    Connect:
+856 32    Connect:
+856 3b    Connect:
+856 12    Download:
+856 1b    Download:
+856 7b    Connect via subf2:
+856 70    Connect via subf2:
+856 71    Connect via subf2:
+856 72    Connect via subf2:
+
+*/
+//
+    public function get856s() {
+        $record = $this->getMarcRecord();
+        return $this->get856s_from_MARC($record);
+    }
+
+    static public function get856s_from_MARC($record) {
+        $results = array();
+        if ($fields = $record->getFields('856')) {
+            foreach ($fields as $field) {
+
+                $ind1 = $field->getIndicator(1);
+                $ind2 = $field->getIndicator(2);
+
+                $sfValues = array();
+                if ($subfields = $field->getSubfields()) {
+                    foreach ($subfields as $code => $subfield) {
+                        if (!strstr('y23uz', $code)) {
+                            continue;
+                        }
+                        $subfieldData = $subfield->getData();
+                        if (array_key_exists($code, $sfValues)) {
+                            $sfValues[$code] .= ' ' . $subfieldData;
+                        } else {
+                            $sfValues[$code] = $subfieldData;
+                        }
+                    }
+                }
+
+                if (! array_key_exists('u', $sfValues)) {
+                    continue;
+                }
+
+                $the856 = array();
+
+                $the856['link'] = $sfValues['u'];
+
+                $the856['hyperlink_text'] = $sfValues['u'];
+                if (array_key_exists('3', $sfValues) && array_key_exists('y', $sfValues)) {
+                    $the856['hyperlink_text'] = $sfValues['3'] . ' ' . $sfValues['y'];
+                } else if (array_key_exists('3', $sfValues)) {
+                    $the856['hyperlink_text'] = $sfValues['3'];
+                } else if (array_key_exists('y', $sfValues)) {
+                    $the856['hyperlink_text'] = $sfValues['y'];
+                }
+
+                $the856['label'] = $sfValues['u'];
+                if (
+                       (
+                        $ind1 === ' ' || 
+                        $ind1 === '0' || 
+                        $ind1 === '1' || 
+                        $ind1 === '2' || 
+                        $ind1 === '3' || 
+                        $ind1 === '4'
+                       )
+                    &&
+                       (
+                        $ind2 === '0' || 
+                        $ind2 === '1'
+                       )
+                ) {
+                    $the856['label'] = 'Online Access:';
+                }
+
+                elseif (
+                       (
+                        $ind1 === '0' || 
+                        $ind1 === '4'
+                       )
+                    &&
+                       (
+                        $ind2 === ' ' || 
+                        $ind2 === '2'
+                       )
+                ) {
+                    $the856['label'] = 'Related Information:';
+                }
+
+                elseif (
+                       (
+                        $ind1 === '2' || 
+                        $ind1 === '3'
+                       )
+                    &&
+                       (
+                        $ind2 === ' ' || 
+                        $ind2 === '2'
+                       )
+                ) {
+                    $the856['label'] = 'Connect:';
+                }
+
+                elseif (
+                       (
+                        $ind1 === '1'
+                       )
+                    &&
+                       (
+                        $ind2 === ' ' || 
+                        $ind2 === '2'
+                       )
+                ) {
+                    $the856['label'] = 'Download';
+                }
+
+                elseif (
+                       (
+                        $ind1 === '7'
+                       )
+                ) {
+                    if (array_key_exists('2', $sfValues)) {
+                        $the856['label'] = 'Connect via ' . $sfValues['2'] . ':';
+                    }
+                }
+
+
+                $the856['text'] = '';
+                if (array_key_exists('z', $sfValues)) {
+                    $the856['text'] = $sfValues['z'];
+                }
+
+                $results[] = $the856;
+            }
+        }
+        return $results;
+    }
+
 
 }
 

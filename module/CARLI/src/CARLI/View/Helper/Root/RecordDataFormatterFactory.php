@@ -62,7 +62,8 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setTemplateLine(
             'Subjects', 'getAllSubjectHeadings', 'data-allSubjectHeadings.phtml'
         );
-        $spec->setTemplateLine('Online Access', true, 'data-onlineAccess.phtml');
+
+        //$spec->setTemplateLine('Online Access', true, 'data-onlineAccess.phtml');
         $spec->setTemplateLine(
             'Related Items', 'getAllRecordLinks', 'data-allRecordLinks.phtml'
         );
@@ -189,6 +190,7 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
                 ],
             ]
         );
+        $spec->setLine('Description of Work', 'getDescriptionOfWork'); // CARLI added new method
         $spec->setLine(
             'Format', 'getFormats', 'RecordHelper',
             ['helperMethod' => 'getFormatList']
@@ -209,7 +211,15 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
             'child_records', 'getChildRecordCount', 'data-childRecords.phtml',
             ['allowZero' => false]
         );
-        $spec->setTemplateLine('Online Access', true, 'data-onlineAccess.phtml');
+        $spec->setTemplateLine('Online Access', 'get856s', 'data-onlineAccess.phtml',
+            [
+                'useCache' => true,
+                'labelFunction' => function ($data) {
+                    return count($data) > 0
+                        ? rtrim($data[0]['label'],':') : 'Online Access';
+                },
+            ]
+        );
         $spec->setTemplateLine(
             'Related Items', 'getAllRecordLinks', 'data-allRecordLinks.phtml'
         );
@@ -232,7 +242,6 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('Main Author', 'getMainAuthor'); // CARLI added new method
         $spec->setLine('Meeting Name', 'getMeetingName'); // CARLI added new method
         $spec->setLine('Uniform Title', 'getUniformTitle'); // CARLI added new method
-        $spec->setLine('Description of Work', 'getDescriptionOfWork'); // CARLI added new method
         $spec->setLine('In', 'getHostItem'); // CARLI added new method
         $spec->setTemplateLine('Summary', true, 'data-summary.phtml');
         $spec->setLine('Published', 'getDateSpan');
@@ -243,6 +252,7 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('Scale', 'getScale'); // CARLI added new method
         $spec->setLine('A/V Characteristics', 'getTechnicalSpecifications'); // CARLI added new method
         $spec->setLine('Digital Characteristics', 'getDigitalCharacteristics'); // CARLI added new method
+        $spec->setLine('Credits', 'getCredits'); // CARLI added new method
         $spec->setLine('Performer', 'getPerformerNote'); // CARLI added new method
         $spec->setLine('Event', 'getEvent'); // CARLI added new method
         $spec->setLine('References', 'getReferences'); // CARLI added new method
