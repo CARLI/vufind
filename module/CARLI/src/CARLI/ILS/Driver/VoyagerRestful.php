@@ -25,40 +25,92 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                 File_MARC::SOURCE_STRING
             );
             if ($record = $marc->next()) {
-                // Get Notes
                 $data = $this->getMFHDData(
                     $record,
-                    isset($this->config['Holdings']['notes'])
-                    ? $this->config['Holdings']['notes']
-                    : '852z'
+                    '506abcdefu3'
                 );
                 if ($data) {
-                    $marcDetails['notes'] = $data;
+                    $marcDetails['textfields_Restrictions'] = $data;
                 }
 
-                $data = $this->getValidatedMFHDData(
+                $data = $this->getMFHDData(
                     $record,
-                    /* CARLI edit: hard-code the 866az!
-                    isset($this->config['Holdings']['summary'])
-                    ? $this->config['Holdings']['summary']
-                    : '866a',
-                    */
-                    '866az',
-                    function($field_) {
-                        // these need to be suppressed
-                        $ind2 = $field_->getIndicator(2);
-                        if ($ind2 == '2' || $ind2 == '3') {
-                            return false;
-                        }
-                        return true;
-                    },
-                    null
+                    '562abcde3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Copy Specific Note'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '538aiu3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_System Details Note'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '541abcdefhno3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Source of Material'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '561au3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Former Ownership History'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '563au3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Binding Note'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '583abcdefhijlnou3z'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Action Note'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '843abcdefmn3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Reproduction Note'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '845abcdu3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Terms of Use'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '866az'
                 );
 
-                $data = array_merge($data ? (is_array($data) ? $data : [ $data ]) : [], $this->mfhd_library_has_volumes($record, '853', '863')); // CARLI added
                 if ($data) {
-                    $marcDetails['summary'] = $data;
+                    $marcDetails['textfields_Library Has (Summary)'] = $data;
                 }
+
+                $data = $this->mfhd_library_has_volumes($record, '853', '863'); // CARLI added
+                if ($data) {
+                    $marcDetails['textfields_Library Has (Volumes)'] = $data;
+                }
+
 
                 // Get Supplements
                 if (isset($this->config['Holdings']['supplements'])) {
@@ -68,7 +120,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                     );
                     $data = array_merge($data ? (is_array($data) ? $data : [ $data ]) : [], $this->mfhd_library_has_volumes($record, '854', '864')); // CARLI added
                     if ($data) {
-                        $marcDetails['supplements'] = $data;
+                        $marcDetails['textfields_Supplements'] = $data;
                     }
                 }
 
@@ -80,7 +132,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                     );
                     $data = array_merge($data ? (is_array($data) ? $data : [ $data ]) : [], $this->mfhd_library_has_volumes($record, '855', '865')); // CARLI added
                     if ($data) {
-                        $marcDetails['indexes'] = $data;
+                        $marcDetails['textfields_Indexes'] = $data;
                     }
                 }
             }

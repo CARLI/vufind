@@ -92,22 +92,18 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         $new_holding_id = $location . '|' . $itm['id'] . '|' . $itm['holdings_id'];
         if ($new_holding_id != $last_holding_id) {
             $last_holding_id = $new_holding_id;
-            // Notes, Summary, etc. need special care:
-            $special_fields = array(
-                'notes',
-                'summary',
-                'supplements',
-                'indexes',
-            );
-            foreach ($special_fields as $special_field) {
-                if (isset($itm[$special_field])) { 
+
+            // populate 'textfields'
+            foreach (array_keys($itm) as $itm_key) {
+                if (preg_match('/^textfields_(.*)$/', $itm_key, $matches)) {
+                    $textfieldVal = $matches[1];
                     $special_itm = array();
-                    if (! is_array($itm[$special_field])) {
-                        $special_itm[] = $itm[$special_field];
+                    if (! is_array($itm[$itm_key])) {
+                        $special_itm[] = $itm[$itm_key];
                     } else {
-                        $special_itm = $itm[$special_field];
+                        $special_itm = $itm[$itm_key];
                     }
-                    $split['holdings'][$new_holding_id]['textfields'][$special_field] = $special_itm;
+                    $split['holdings'][$new_holding_id]['textfields'][$textfieldVal] = $special_itm;
                 }
             }
 
