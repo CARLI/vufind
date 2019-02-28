@@ -92,25 +92,22 @@ foreach ($holdings['holdings'] as $location => $location_val) {
         $new_holding_id = $location . '|' . $itm['id'] . '|' . $itm['holdings_id'];
         if ($new_holding_id != $last_holding_id) {
             $last_holding_id = $new_holding_id;
-            // Notes and Summary need special care:
-            if (isset($itm['notes'])) { 
-                $notes = array();
-                if (! is_array($itm['notes'])) {
-                    $notes[] = $itm['notes'];
-                } else {
-                    $notes = $itm['notes'];
+
+            // populate 'textfields'
+            foreach (array_keys($itm) as $itm_key) {
+                if (preg_match('/^textfields_(.*)$/', $itm_key, $matches)) {
+                    $textfieldVal = $matches[1];
+                    $special_itm = array();
+                    if (! is_array($itm[$itm_key])) {
+                        $special_itm[] = $itm[$itm_key];
+                    } else {
+                        $special_itm = $itm[$itm_key];
+                    }
+                    $split['holdings'][$new_holding_id]['textfields'][$textfieldVal] = $special_itm;
                 }
-                $split['holdings'][$new_holding_id]['textfields']['holdings_notes'] = $notes;
             }
-            if (isset($itm['summary'])) { 
-                $sum = array();
-                if (! is_array($itm['summary'])) {
-                    $sum[] = $itm['summary'];
-                } else {
-                    $sum = $itm['summary'];
-                }
-                $split['holdings'][$new_holding_id]['textfields']['summary'] = $sum;
-            }
+
+
         }
         // sort by location (preserving institution order)
         $split['holdings'][$new_holding_id]['sort_by'] = sprintf('%03d', $inst_count) . $loc;

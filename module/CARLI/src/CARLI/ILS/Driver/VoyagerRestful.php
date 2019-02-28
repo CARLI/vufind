@@ -8,6 +8,745 @@ use Zend\Validator\EmailAddress as EmailAddressValidator;
 
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
+    /**
+     * Protected support method for getHolding.
+     *
+     * @param array $recordSegment A Marc Record Segment obtained from an SQL query
+     *
+     * @return array Keyed data
+     */
+    protected function processRecordSegment($recordSegment)
+    {
+        $marcDetails = [];
+
+        try {
+            $marc = new File_MARC(
+                str_replace(["\n", "\r"], '', $recordSegment),
+                File_MARC::SOURCE_STRING
+            );
+            if ($record = $marc->next()) {
+                $data = $this->getMFHDData(
+                    $record,
+                    '852z'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Notes'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '506abcdefu3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Restrictions'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '562abcde3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Copy Specific Note'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '538aiu3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_System Details Note'] = $data;
+                }
+
+                $data = $this->getValidatedMFHDData(
+                    $record,
+                    '541abcdefhno3',
+                    function ($field_) { 
+                        $ind2 = $field_->getIndicator(1);
+                        if ($ind2 == '1') {
+                            return true;
+                        }
+                        return false;
+                    },
+                    null
+                );
+                if ($data) {
+                    $marcDetails['textfields_Source of Material'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '561au3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Former Ownership History'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '563au3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Binding Note'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '583abcdefhijlnou3z'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Action Note'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '843abcdefmn3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Reproduction Note'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '845abcdu3'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Terms of Use'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
+                    '866az'
+                );
+
+                if ($data) {
+                    $marcDetails['textfields_Library Has (Summary)'] = $data;
+                }
+
+                $data = $this->mfhd_library_has_volumes($record, '853', '863'); // CARLI added
+                if ($data) {
+                    $marcDetails['textfields_Library Has (Volumes)'] = $data;
+                }
+
+
+                // Get Supplements
+                if (isset($this->config['Holdings']['supplements'])) {
+                    $data = $this->getMFHDData(
+                        $record,
+                        $this->config['Holdings']['supplements']
+                    );
+                    $data = array_merge($data ? (is_array($data) ? $data : [ $data ]) : [], $this->mfhd_library_has_volumes($record, '854', '864')); // CARLI added
+                    if ($data) {
+                        $marcDetails['textfields_Supplements'] = $data;
+                    }
+                }
+
+                // Get Indexes
+                if (isset($this->config['Holdings']['indexes'])) {
+                    $data = $this->getMFHDData(
+                        $record,
+                        $this->config['Holdings']['indexes']
+                    );
+                    $data = array_merge($data ? (is_array($data) ? $data : [ $data ]) : [], $this->mfhd_library_has_volumes($record, '855', '865')); // CARLI added
+                    if ($data) {
+                        $marcDetails['textfields_Indexes'] = $data;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            trigger_error(
+                'Poorly Formatted MFHD Record', E_USER_NOTICE
+            );
+        }
+        return $marcDetails;
+    }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    protected function getValidatedMFHDData($record, $fieldSpecs, $validateFieldFunc, $validateSubfieldFunc)
+    {
+        if (!is_array($fieldSpecs)) {
+            $fieldSpecs = explode(':', $fieldSpecs);
+        }
+        $results = '';
+        foreach ($fieldSpecs as $fieldSpec) {
+            $fieldCode = substr($fieldSpec, 0, 3);
+            $subfieldCodes = substr($fieldSpec, 3);
+            if ($fields = $record->getFields($fieldCode)) {
+                foreach ($fields as $field) {
+
+                    if ($validateFieldFunc) {
+                        if (! $validateFieldFunc($field)) {
+                            continue;
+                        }
+                    }
+
+                    if ($subfields = $field->getSubfields()) {
+                        $line = '';
+                        foreach ($subfields as $code => $subfield) {
+                            if (!strstr($subfieldCodes, $code)) {
+                                continue;
+                            }
+
+                            if ($validateSubfieldFunc) {
+                                if (! $validateSubfieldFunc($code, $subfield)) {
+                                    continue;
+                                }
+                            }
+
+                            if ($line) {
+                                $line .= ' ';
+                            }
+                            $line .= $subfield->getData();
+                        }
+                        if ($line) {
+                            if (!$results) {
+                                $results = $line;
+                            } else {
+                                if (!is_array($results)) {
+                                    $results = [$results];
+                                }
+                                $results[] = $line;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $results;
+    }
+
+    protected function library_has_volumes_process_default($captions, $values, $fields)
+    {
+        $parts = array();
+        $must_have_caption = array(
+            'a' => 1,
+            'b' => 1,
+            'c' => 1,
+            'd' => 1,
+            'e' => 1,
+            'f' => 1,
+            'g' => 1,
+            'h' => 1,
+            'i' => 1,
+            'j' => 1,
+            'k' => 1,
+            'l' => 1,
+            'm' => 1,
+            't' => 1,
+        );
+        $len = count($captions);
+        for ($i=0; $i<$len; $i++) {
+            if ($values[$i]) {
+                if ($must_have_caption[$fields[$i]] && ! $captions[$i]) {
+                    continue;
+                }
+                $ret = '';
+                if ($fields[$i] == 'g') {
+                    $ret .= '= ';
+                }
+                if (!preg_match('/^\(.*\)$/', $captions[$i])) {
+                    if ($fields[$i] != 'o') {
+                        $ret .= $captions[$i];
+                    }
+                }
+               if ($captions[$i] != '' && !preg_match('/\.$/', $captions[$i])) {
+                  if ($fields[$i] != 'o') {
+                     $ret .= ' ';
+                  }
+               }
+               $val = $values[$i];
+               if ($fields[$i] == 'o') {
+                  $val = '"' . $val . '"';
+               }
+               $ret .= $val;
+               $parts[] = $ret;
+            }
+        }
+        return $parts;
+    }
+    protected function library_has_volumes_process_enum($captions, $values, $fields)
+    {
+        $parts = array();
+
+        $is_range = 0;
+        $enum1 = '';
+        $enum2 = '';
+
+        $cap = $captions[0];
+        if (preg_match('/^\(.*\)$/', $cap)) {
+            $cap = '';
+        } else {
+            if (!preg_match('/\.$/', $cap)) {
+                $cap .= ' ';
+            }
+        }
+
+        $no_left = count($values);
+
+        # is this a range?
+        if ($no_left > 1 && preg_match('/\d+-\d+/', $values[1]) && preg_match('/(\d+)-(\d+)/', $values[0], $matches)) {
+            $enum1 = $cap . $matches[1];
+            $enum2 = $cap . $matches[2];
+            $is_range = 1;
+        } else {
+            $enum1 = $cap . $values[0];
+        }
+
+        $len = count($captions);
+        for ($i=1; $i<$len; $i++) {
+
+            # is this subpart a range too?
+            if (preg_match('/(\d+)-(\d+)/', $values[$i], $matches)) {
+                $val1 = $matches[1];
+                $val2 = $matches[2];
+
+                $cap = $captions[$i];
+                if (preg_match('/^\(.*\)$/', $cap)) {
+                    $cap = '';
+                } else {
+                    if (!preg_match('/\.$/', $cap)) {
+                        $cap .= ' ';
+                    }
+                }
+                if ($fields[$i] == 'g') {
+                    $cap = '= ' . $cap;
+                }
+
+                if ($is_range) {
+                    if ($enum1) {
+                        $enum1 .= ':';
+                    }
+                    $enum1 .= $cap . $val1;
+                    if ($enum2) {
+                        $enum2 .= ':';
+                    }
+                    $enum2 .= $cap . $val2;
+                } else {
+                    if ($enum1) {
+                        $enum1 .= ':';
+                    }
+                    $enum1 .= $cap . $val1 . '-' . $val2;
+                }
+
+            } else {
+                $val = $values[$i];
+
+                $cap = $captions[$i];
+                if (preg_match('/^\(.*\)$/', $cap)) {
+                    $cap = '';
+                } else {
+                    if (!preg_match('/\.$/', $cap)) {
+                        $cap .= ' ';
+                    }
+                }
+                if ($fields[$i] == 'g') {
+                    $cap = '= ' . $cap;
+                }
+                $val =  $cap . $val;
+
+                if ($enum1) {
+                    $enum1 .= ':';
+                }
+                $enum1 .= $val;
+                if ($is_range) {
+                    if ($enum2) {
+                        $enum2 .= ':';
+                    }
+                    $enum2 .= $val;
+                }
+            }
+
+        }
+
+        $ret = $enum1;
+        $parts[] = $enum1;
+        if ($is_range) {
+            $parts[] = $enum2;
+        }
+
+        return $parts;
+    }
+    protected function xlate_chrono_value($caption, $value)
+    {
+        $new_value = $value;
+        if ($caption == '(month)' || $caption == '(month/month)') {
+            if ($value == '01') {
+                $new_value = 'Jan.';
+            } else if($value == '02') {
+                $new_value = 'Feb.';
+            } else if($value == '03') {
+                 $new_value = 'Mar.';
+            } else if($value == '04') {
+                 $new_value = 'Apr.';
+            } else if($value == '05') {
+                 $new_value = 'May';
+            } else if($value == '06') {
+                 $new_value = 'June';
+            } else if($value == '07') {
+                 $new_value = 'July';
+            } else if($value == '08') {
+                 $new_value = 'Aug.';
+            } else if($value == '09') {
+                 $new_value = 'Sept.';
+            } else if($value == '10') {
+                 $new_value = 'Oct.';
+            } else if($value == '11') {
+                 $new_value = 'Nov.';
+            } else if($value == '12') {
+                 $new_value = 'Dec.';
+            }
+        } else if ($caption == '(season)') {
+            if ($value == '21') {
+                $new_value = 'Spring';
+            } else if ($value == '22') {
+                $new_value = 'Summer';
+            } else if ($value == '23') {
+                $new_value = 'Autumn';
+            } else if ($value == '24') {
+                $new_value = 'Winter';
+            }
+        }
+        return $new_value;
+    }
+    protected function library_has_volumes_process_chrono($captions, $values, $fields)
+    {
+        $parts = array();
+
+        $is_range = 0;
+        $date1 = '';
+        $date2 = '';
+
+        $no_left = count($values);
+
+        # is this a range?
+        if ($no_left > 1 && preg_match('/(\d+)-(\d+)/', $values[0], $matches)) {
+            $date1 = $matches[1];
+            $date2 = $matches[2];
+            $is_range = 1;
+        } else {
+            $date1 = $values[0];
+        }
+        $date1 =  $this->xlate_chrono_value($captions[0], $date1);
+        if ($is_range) {
+            $date2 =  $this->xlate_chrono_value($captions[0], $date2);
+        }
+
+        $len = count($captions);
+        for ($i=1; $i<$len; $i++) {
+
+            $colon_or_space = ':';
+            if ($captions[$i-1] == '(month)'
+             && $captions[$i] == '(day)' ) {
+               $colon_or_space = ' ';
+            }
+
+            # is this subpart a range too?
+            if (preg_match('/(\d+)-(\d+)/', $values[$i], $matches)) {
+                $val1 = $matches[1];
+                $val2 = $matches[2];
+                $val1 = $this->xlate_chrono_value($captions[$i], $val1);
+                $val2 = $this->xlate_chrono_value($captions[$i], $val2);
+
+                if ($is_range) {
+                    if ($date1) {
+                        $date1 .= $colon_or_space;
+                    }
+                    $date1 .= $val1;
+                    if ($date2) {
+                        $date2 .= $colon_or_space;
+                    }
+                    $date2 .= $val2;
+                } else {
+                    if ($date1) {
+                        $date1 .= $colon_or_space;
+                    }
+                    $date1 .= $val1 . '-' . $val2;
+                }
+
+            } else {
+                $val = $values[$i];
+                $val = $this->xlate_chrono_value($captions[$i], $val);
+                if ($date1) {
+                    $date1 .= $colon_or_space;
+                }
+                $date1 .= $val;
+                if ($is_range) {
+                    if ($date2) {
+                        $date2 .= $colon_or_space;
+                    }
+                    $date2 .= $val;
+                }
+            }
+
+        }
+
+        $ret = $date1;
+        $parts[] = $date1;
+        if ($is_range) {
+            $parts[] = $date2;
+        }
+
+        return $parts;
+     }
+
+    protected function mfhd_library_has_volumes($m_, $pair1, $pair2)
+    {
+        $subfields = array('a','b','c','d','e','f','g','h','i','j','k','l','m','o','t','z');
+
+        $display = array();
+        $fields_ = $m_->getFields($pair1);
+        foreach ($fields_ as $field_) {
+            $link_ = $field_->getSubfield('8');
+            if ($link_) {
+                $link = $link_->getData();
+                foreach ($subfields as $sf) {
+                    $sf_ = $field_->getSubfield($sf);
+                    if ($sf_) {
+                        $sfv = $sf_->getData();
+                        $display[$link][$sf]['caption'] = $sfv;
+                    } else {
+                        $display[$link][$sf]['caption'] = '';
+                    }
+                }
+            }
+        }
+
+        $sort_data = array();
+        $fields_ = $m_->getFields($pair2);
+        foreach ($fields_ as $field_) {
+
+            // these need to be suppressed
+            $ind2 = $field_->getIndicator(2);
+            if ($ind2 == '2' || $ind2 == '3') {
+                continue;
+            }
+
+            $eight_ = $field_->getSubfield('8');
+            if ($eight_) {
+                $eight = $eight_->getData();
+                $linkSeq = explode ('.', $eight, 2);
+                $link = $linkSeq[0];
+                $seq = $linkSeq[1];
+                if (array_key_exists($link, $display)) {
+                    foreach ($subfields as $sf) {
+                        if (array_key_exists($sf, $display[$link])) {
+                           $sf_ = $field_->getSubfield($sf);
+                           if ($sf_) {
+                                $sfv = $sf_->getData();
+                                $sort_data[$link][$seq][$sf]['caption'] = $display[$link][$sf]['caption'];
+                                $sort_data[$link][$seq][$sf]['value'] = $sfv;
+                            }
+                        }
+                    }
+                }
+            }
+         }
+
+
+         $all_data = array();
+
+         $sort_data_links = array_keys($sort_data);
+         usort($sort_data_links, function($a, $b) { return strcmp($a, $b); });
+         foreach ($sort_data_links as $link) {
+             $sort_data_seqs = array_keys($sort_data[$link]);
+             usort($sort_data_seqs, function($a, $b) { return strcmp($a, $b); });
+
+             foreach ($sort_data_seqs as $seq) {
+                 $disp = '';
+
+                 $this_volume = array();
+                 $enum = array();
+
+                 $these_subfields = array();
+                 $sort_data_link_seq_sfs = array_keys($sort_data[$link][$seq]);
+                 usort($sort_data_link_seq_sfs, function($a, $b) { return strcmp($a, $b); });
+                 foreach ($sort_data_link_seq_sfs as $sf) {
+                    $these_subfields[$sf] = 1;
+                 }
+
+                 $o_caption = '';
+                 if (array_key_exists('o', $sort_data[$link][$seq])) {
+                     $o_caption = $sort_data[$link][$seq]['o']['caption'];
+                     if ($o_caption) {
+                         $o_caption = '"' . $o_caption . '" ';
+                     }
+                 }
+
+                 $chrons = array( '(year)' => 1,
+                                '(month)' => 1,
+                                '(month/month)' => 1,
+                                '(season)' => 1,
+                                '(day)' => 1,
+                              );
+
+                 $a_d_fields = array();
+                 $a_d_captions = array();
+                 $a_d_values = array();
+                 $a_d_is_chrono = -1; # empty
+                 $i = 0;
+                 foreach (['a','b','c','d'] as $a_d) {
+                    if (array_key_exists($a_d, $these_subfields)) {
+                       if (! array_key_exists('value', $sort_data[$link][$seq][$a_d])) {
+                           continue;
+                       }
+                       $value = $sort_data[$link][$seq][$a_d]['value'];
+                       if (! $value) {
+                           continue;
+                       }
+                       if (! array_key_exists('caption', $sort_data[$link][$seq][$a_d])) {
+                           continue;
+                       }
+                       $caption = $sort_data[$link][$seq][$a_d]['caption'];
+
+                       $a_d_fields[$i] = $a_d;
+                       $a_d_captions[$i] = $caption;
+                       $a_d_values[$i++] = $value;
+                       if (array_key_exists($caption, $chrons)) {
+                          $a_d_is_chrono = 1;
+                       } else {
+                          $a_d_is_chrono = 0;
+                       }
+                    }
+                 }
+
+                 $a_d_parts = array();
+                 if ($a_d_is_chrono == 1) {
+                    $a_d_parts = $this->library_has_volumes_process_chrono($a_d_captions, $a_d_values, $a_d_fields);
+                 } else if ($a_d_is_chrono == 0) {
+                    $a_d_parts = $this->library_has_volumes_process_enum($a_d_captions, $a_d_values, $a_d_fields);
+                 }
+
+                 $e_h_fields = array();
+                 $e_h_captions = array();
+                 $e_h_values = array();
+                 $e_h_is_there = -1; # empty
+                 $i = 0;
+                 foreach (['e','f','g','h'] as $e_h) {
+                    if (array_key_exists($e_h, $these_subfields)) {
+                       $e_h_is_there = 1;
+
+                       if (! array_key_exists('value', $sort_data[$link][$seq][$e_h])) {
+                           continue;
+                       }
+                       $value = $sort_data[$link][$seq][$e_h]['value'];
+                       if (! $value) {
+                           continue;
+                       }
+                       if (! array_key_exists('caption', $sort_data[$link][$seq][$e_h])) {
+                           continue;
+                       }
+                       $caption = $sort_data[$link][$seq][$e_h]['caption'];
+
+                       $e_h_fields[$i] = $e_h;
+                       $e_h_captions[$i] = $caption;
+                       $e_h_values[$i++] = $value;
+                    }
+                 }
+
+                 $e_h_parts = array();
+                 if ($e_h_is_there == 1) {
+                    $e_h_parts = $this->library_has_volumes_process_default($e_h_captions, $e_h_values, $e_h_fields);
+                 }
+
+                 $i_l_fields = array();
+                 $i_l_captions = array();
+                 $i_l_values = array();
+                 $i_l_is_chrono = -1; # empty
+                 $i = 0;
+                 foreach (['i','j','k','l'] as $i_l) {
+                    if (array_key_exists($i_l, $these_subfields)) {
+                       if (! array_key_exists('value', $sort_data[$link][$seq][$i_l])) {
+                           continue;
+                       }
+                       $value = $sort_data[$link][$seq][$i_l]['value'];
+                       if (! $value) {
+                           continue;
+                       }
+                       if (! array_key_exists('caption', $sort_data[$link][$seq][$i_l])) {
+                           continue;
+                       }
+                       $caption = $sort_data[$link][$seq][$i_l]['caption'];
+                       $i_l_fields[$i] = $i_l;
+                       $i_l_captions[$i] = $caption;
+                       $i_l_values[$i++] = $value;
+                       if (array_key_exists($caption, $chrons)) {
+                          $i_l_is_chrono = 1;
+                       } else {
+                          $i_l_is_chrono = 0;
+                       }
+                    }
+                 }
+
+                 $i_l_parts = array();
+                 if ($i_l_is_chrono == 1) {
+                    $i_l_parts = $this->library_has_volumes_process_chrono($i_l_captions, $i_l_values, $i_l_fields);
+                 } else if ($i_l_is_chrono == 0) {
+                    $i_l_parts = $this->library_has_volumes_process_enum($i_l_captions, $i_l_values, $i_l_fields);
+                 }
+
+                 $m_z_fields = array();
+                 $m_z_captions = array();
+                 $m_z_values = array();
+                 $m_z_is_there = -1; # empty
+                 $i = 0;
+                 foreach (['m','o','t','z'] as $m_z) {
+                    if (array_key_exists($m_z, $these_subfields)) {
+                       $m_z_is_there = 1;
+
+                       if (! array_key_exists('value', $sort_data[$link][$seq][$m_z])) {
+                           continue;
+                       }
+                       $value = $sort_data[$link][$seq][$m_z]['value'];
+                       if (! $value) {
+                           continue;
+                       }
+                       if (! array_key_exists('caption', $sort_data[$link][$seq][$m_z])) {
+                           continue;
+                       }
+                       $caption = $sort_data[$link][$seq][$m_z]['caption'];
+                       $m_z_fields[$i] = $m_z;
+                       $m_z_captions[$i] = $caption;
+                       $m_z_values[$i++] = $value;
+                    }
+                 }
+
+                 $m_z_parts = array();
+                 if ($m_z_is_there == 1) {
+                    $m_z_parts = $this->library_has_volumes_process_default($m_z_captions, $m_z_values, $m_z_fields);
+                 }
+
+                 $e_h_parts_str = implode (" ", $e_h_parts);
+                 if ($e_h_parts_str) {
+                     $e_h_parts_str = ' '. $e_h_parts_str;
+                 }
+                 $m_z_parts_str = implode (" ", $m_z_parts);
+                 if ($m_z_parts_str) {
+                     $m_z_parts_str = ' '. $m_z_parts_str;
+                 }
+                 if (count($a_d_parts) > 1) {
+                    if (count($i_l_parts) > 1) {
+                       $disp .= $o_caption . $a_d_parts[0] . ' (' . $i_l_parts[0] . ')' . '-' . $a_d_parts[1] . ' (' . $i_l_parts[1] . ')' . $e_h_parts_str . $m_z_parts_str;
+                    } else if (count($i_l_parts) > 1) {
+                       $disp .= $o_caption . $a_d_parts[0] . ' (' . $i_l_parts[0] . ')' . '-' . $a_d_parts[1] . ' (' . $i_l_parts[0] . ')' . $e_h_parts_str . $m_z_parts_str;
+                    } else {
+                       $disp .= $o_caption . $a_d_parts[0] . '-' . $a_d_parts[1] . $e_h_parts_str . $m_z_parts_str;
+                    }
+                 }  else if (count($a_d_parts) > 0) {
+                    if (count($i_l_parts) > 1) {
+                       $disp .= $o_caption . $a_d_parts[0] . ' (' . implode("-", $i_l_parts) . ')' . $e_h_parts_str . $m_z_parts_str;
+                    } else if (count($i_l_parts) > 0) {
+                       $disp .= $o_caption . $a_d_parts[0] . ' (' . $i_l_parts[0] . ')' . $e_h_parts_str . $m_z_parts_str;
+                    } else {
+                       $disp .= $o_caption . $a_d_parts[0] . $e_h_parts_str . $m_z_parts_str;
+                    }
+                 }
+
+                 $all_data[] = $disp;
+             }
+         }
+         return $all_data;
+    }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function getMyProfile($patron)
     {
