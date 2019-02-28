@@ -27,6 +27,14 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
             if ($record = $marc->next()) {
                 $data = $this->getMFHDData(
                     $record,
+                    '852z'
+                );
+                if ($data) {
+                    $marcDetails['textfields_Notes'] = $data;
+                }
+
+                $data = $this->getMFHDData(
+                    $record,
                     '506abcdefu3'
                 );
                 if ($data) {
@@ -49,9 +57,17 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                     $marcDetails['textfields_System Details Note'] = $data;
                 }
 
-                $data = $this->getMFHDData(
+                $data = $this->getValidatedMFHDData(
                     $record,
-                    '541abcdefhno3'
+                    '541abcdefhno3',
+                    function ($field_) { 
+                        $ind2 = $field_->getIndicator(1);
+                        if ($ind2 == '1') {
+                            return true;
+                        }
+                        return false;
+                    },
+                    null
                 );
                 if ($data) {
                     $marcDetails['textfields_Source of Material'] = $data;
@@ -488,6 +504,8 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
                     if ($sf_) {
                         $sfv = $sf_->getData();
                         $display[$link][$sf]['caption'] = $sfv;
+                    } else {
+                        $display[$link][$sf]['caption'] = '';
                     }
                 }
             }
