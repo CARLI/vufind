@@ -11,7 +11,8 @@
     $showHomeLibForm = true;
 
     // Template for use by the renderArray helper:
-    $arrTemplate = '<tr><th>%%LABEL%%:</th><td> %%VALUE%%</td></tr>';
+    $arrTemplate = '<tr><th>%%LABEL%%:</th><td>%%VALUE%%</td></tr>';
+    $arrTemplate2 = '<tr><th>%%LABEL%%</th><td>%%VALUE%%</td></tr>';
 ?>
 <div class="<?=$this->layoutClass('mainbody')?>">
   <h2><?=$this->transEsc('Your Profile')?></h2>
@@ -90,18 +91,55 @@
       echo $this->renderArray(
         $arrTemplate, $this->profile,
         [
-          $this->transEsc('Address') . ' 1' => 'address1',
-          $this->transEsc('Address') . ' 2' => 'address2',
-          $this->transEsc('Zip') => 'zip',
-          $this->transEsc('City') => 'city',
-          $this->transEsc('Country') => 'country',
-          $this->transEsc('Phone Number') => 'phone',
           $this->transEsc('Group') => 'group',
-          $this->transEsc('Expires') => 'expiration_date'
+          $this->transEsc('Account Expires') => 'expiration_date',
+          $this->transEsc('Email') => 'email',
+        ]
+      );
+    ?>
+
+  </table>
+  <table class="table table-striped">
+  <tr><th colspan="2">Permanent Address:</th></tr>
+
+    <?
+      echo $this->renderArray(
+        $arrTemplate2, $this->profile,
+        [
+          '<!-- address1 -->' => 'address1',
+          '<!-- address2 -->' => 'address2',
+          '<!-- address3 -->' => 'address3',
+          '<!-- zip -->' => 'zip',
+          '<!-- city -->' => 'city',
+          '<!-- state -->' => 'state',
+          '<!-- country -->' => 'country',
+          $this->transEsc('Phone Number') => 'phone',
+        ]
+      );
+    ?>
+
+  </table>
+<? if (array_key_exists('temp_address1', $this->profile)): ?>
+  <table class="table table-striped">
+  <tr><th colspan="2">Temporary Address:</th></tr>
+
+    <?
+      echo $this->renderArray(
+        $arrTemplate2, $this->profile,
+        [
+          '<!-- temp_address1 -->' => 'temp_address1',
+          '<!-- temp_address2 -->' => 'temp_address2',
+          '<!-- temp_address3 -->' => 'temp_address3',
+          '<!-- temp_zip -->' => 'temp_zip',
+          '<!-- temp_city -->' => 'temp_city',
+          '<!-- temp_state -->' => 'temp_state',
+          '<!-- temp_country -->' => 'temp_country',
+          $this->transEsc('Phone Number') => 'temp_phone',
         ]
       );
     ?>
   </table>
+<? endif; ?>
         </form>
 </div>
 
