@@ -14,4 +14,9 @@ $courseReservesUrl = 'https://vufind.carli.illinois.edu/vf-bra/Search/Reserves';
 
 $newItemsUrl = 'https://i-share.carli.illinois.edu/newbooks/newbooks.cgi?library=BRAdb';
 
+$loginButtonText = 'Login with your <span class="text-transform-none">BUnetID</span>';
+
+$catEstablishAccount = 'Your barcode that begins with 212 can be found on your Bradley ID card.';  
+
+
 ?>
