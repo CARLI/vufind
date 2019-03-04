@@ -115,6 +115,10 @@ public static boolean is_carli_library(String inst) {
     if (inst.equals("OTL")) {
         return true;
     }
+    // special case for OAC
+    if (inst.equals("OAC")) {
+        return true;
+    }
     if (inst.length() == 5 && inst.endsWith("db")) {
         return true;
     }
