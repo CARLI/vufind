@@ -353,6 +353,13 @@ CARLI END comment-out original table -->
        $ph_last_holdings_id = '';
   ?>
   <? foreach ($holding['items'] as $row): ?>
+
+    <? $copyShown = false; ?>
+    <? if(isset($row['number']) && $row['number']): ?>
+      <? $copyShown = true; ?>
+      <tr><th><?=$this->transEsc("Copy")?> <?=$this->escapeHtml($row['number'])?></th><td></td></tr>
+    <? endif; ?>
+
 <! CARLI BEGIN fixrequestlink !>
 <?
     if (isset($row['ILLRequestLink'])) {
@@ -417,7 +424,11 @@ CARLI END comment-out original table -->
 
     <? if (isset($row['barcode']) && $row['barcode'] != ""): ?>
       <tr vocab="http://schema.org/" typeof="Offer">
-        <th><?=$this->transEsc("Copy")?> <?=$this->escapeHtml($row['number'])?></th>
+        <? if ($copyShown): ?>
+            <th></th>
+        <? else: ?>
+            <th><?=$this->transEsc("Copy")?> <?=$this->escapeHtml($row['number'])?></th>
+        <? endif; ?>
         <td>
           <? if ($row['reserve'] == "Y"): ?>
             <link property="availability" href="http://schema.org/InStoreOnly" />
