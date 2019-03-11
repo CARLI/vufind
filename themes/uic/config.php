@@ -26,7 +26,7 @@ items</a> from other libraries.</p>
 
 $searchDropText = 'UIC Catalog Only'; 
 
-$CatEstablishAccount ='
+$catEstablishAccount ='
 <p><img src="https://library.webhost.uic.edu/carli/library-ID-sm.png" /></p>
 ';
 ?>
