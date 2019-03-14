@@ -234,6 +234,7 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
         $priorityLevel["HAT"] = 9;
         $priorityLevel["EBL"] = 8;
         $priorityLevel["OTL"] = 7;
+        $priorityLevel["OAC"] = 6;
         if (array_key_exists($agency, $priorityLevel)) {
             return $priorityLevel[$agency];
         } else {
