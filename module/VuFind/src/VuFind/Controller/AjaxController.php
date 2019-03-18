@@ -1288,21 +1288,25 @@ class AjaxController extends AbstractBase
                 }
 
 ///////////// BEGIN CARLI EDIT: /////////////////////////////////////////////////////////////
-                    $homeLibrary = $this->getUser()->home_library;
+                    list ($homeLibrary, $actualHomeLibrary) = ['', ''];
+                    if (isset($this->getUser()->home_library)) {
+                        if (preg_match('/\|/', $this->getUser()->home_library)) {
+                            list ($homeLibrary, $actualHomeLibrary) = explode('|', $this->getUser()->home_library);
+                        } else {
+                            $homeLibrary = $this->getUser()->home_library;
+                        }
+                    }
 
-                    // remember that we store homeLibrary (pickup ID) followed by '|' followed by Library ID
-                    // e.g., 353|1@UIUDB2002...
-                    list ($homeLibrary, $actualHomeLibrary) = explode('|', $homeLibrary);
-
+                    $foundMatchingDefault = '';
                     foreach ($results as &$result) {
-                        if (empty($actualHomeLibrary) || $actualHomeLibrary === "") {
-                            // backwards-compatibility for home_library having a value of only pickup location
-                            // e.g., 153 instead of 153|1@UIUDB2002...
-                            if (!empty($homeLibrary) || $homeLibrary !== "") {
-                                $result['isDefault'] = $result['id'] === $homeLibrary;
-                            }
-                        } elseif ($actualHomeLibrary === $pickupLib) {
-                            $result['isDefault'] = $result['id'] === $homeLibrary;
+                        if ($result['id'] === $homeLibrary) {
+                            $foundMatchingDefault = $result['id'];
+                            break;
+                        }
+                    }
+                    if ($foundMatchingDefault) {
+                        foreach ($results as &$result) {
+                                $result['isDefault'] = $result['id'] === $foundMatchingDefault;
                         }
                     }
 /////////////////////////////////////////////////////////////////////////////////////
