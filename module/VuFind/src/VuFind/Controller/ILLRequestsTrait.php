@@ -170,7 +170,7 @@ trait ILLRequestsTrait
         foreach ($holdingsData as $holdingData) {
            $item = array();
            $item['id'] = $holdingData['item_id'];
-           $item['name'] = $holdingData['volume'] ? $holdingData['volume'] : 'Copy ' . $holdingData['number'];
+           $item['name'] = array_key_exists('volume', $holdingData) && $holdingData['volume'] ? $holdingData['volume'] : 'Copy ' . $holdingData['number'];
            $items[] = $item;
         }
         usort($items,
@@ -214,7 +214,14 @@ trait ILLRequestsTrait
 
         // CARLI added:
         // we store 2 values in home_library: pickup ID and pickup Library (UBID)
-        list ($homeLibrary, $actualHomeLibrary) = explode('|', $this->getUser()->home_library);
+        list ($homeLibrary, $actualHomeLibrary) = ['', ''];
+        if (isset($this->getUser()->home_library)) {
+            if (preg_match('/\|/', $this->getUser()->home_library)) {
+                list ($homeLibrary, $actualHomeLibrary) = explode('|', $this->getUser()->home_library);
+            } else {
+                $homeLibrary = $this->getUser()->home_library;
+            }
+        }
         $view->homeLibrary = $homeLibrary;
         $view->actualHomeLibrary = $actualHomeLibrary;
 
