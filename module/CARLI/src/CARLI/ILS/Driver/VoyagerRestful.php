@@ -1095,7 +1095,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         }
 
         // look up system-wide default
-        $dpul = $this->getDefaultPickUpLocation($patron);
+        $dpul = $this->getDefaultPickUpLocation($patron, null, $pickupLib);
         foreach ($results as &$result) {
             $result['isDefault'] = ($dpul === $result['id']);
         }
@@ -1212,17 +1212,23 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
         return $deptList;
     }
 
-    public function getDefaultPickUpLocation($patron = false, $holdDetails = null)
+    public function getDefaultPickUpLocation($patron = false, $holdDetails = null, $pickupLibId = null)
     {
-        if ($this->defaultPickUpLocation) {
-            return $this->defaultPickUpLocation;
-        }
-
         if ($patron) {
+            $patronUbCode = $this->ws_patronHomeUbId; // default - probably not correct though
             $patronId = $this->encodeXML($patron['id']);
+            if (preg_match('/\./', $patronId)) {
+                list($patronUbCode, $patronId) = explode('.', $patronId); // this should be correct
+            }
+            $localUbId = $this->libCodeToUbCode($patronUbCode);
             $lastname = $this->encodeXML($patron['lastname']);
             $barcode = $this->encodeXML($patron['cat_username']);
-            $localUbId = $this->encodeXML($this->ws_patronHomeUbId);
+            if (preg_match('/\./', $barcode)) {
+                list($inst, $barcode) = explode('.', $barcode);
+            }
+            if ($pickupLibId == null) {
+                $pickupLibId = $localUbId;
+            }
 
             $xml = <<<EOT
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1230,7 +1236,7 @@ class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 xmlns:ser="http://www.endinfosys.com/Voyager/serviceParameters">
   <ser:parameters>
       <ser:parameter key="pickupLibId">
-          <ser:value>$localUbId</ser:value>
+          <ser:value>$pickupLibId</ser:value>
         </ser:parameter>
   </ser:parameters>
   <ser:patronIdentifier lastName="$lastname" patronHomeUbId="$localUbId"
@@ -2569,6 +2575,15 @@ EOT;
            }
        }
        return $ubcode;
+   }
+
+   function libCodeToUbCode($libcode) {
+       foreach ($this->config['ILLRequestSources'] as $source => $this_ubcode) {
+           if ($source === $libcode) {
+               return $this_ubcode;
+           }
+       }
+       return $libcode;
    }
 
     protected function getCallSlips($patron, $local = false)
