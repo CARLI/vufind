@@ -26,7 +26,28 @@ items</a> from other libraries.</p>
 
 $searchDropText = 'UIC Catalog Only'; 
 
-$catEstablishAccount ='
+$loginButtonText = 'Login with your UIC NetID';
+
+$loginLinkHelp = 'Don\'t have a UIC NetID?';
+
+
+$loginText = '
+<p>If you do not have a NetID, please provide your Library ID Number
+("Barcode") and your last name, below.
+Your Library ID Number is located in the lower right of your I-Card, marked
+"Library", starting with the digits "2819" or "2011".  If you have trouble
+logging in, please contact <a href="https://library.uic.edu/contact">UIC Librarian</a>.</p>
+
 <p><img src="https://library.webhost.uic.edu/carli/library-ID-sm.png" /></p>
 ';
+
+$catEstablishAccount ='
+<p>*To establish your account, please enter the following information.  Enter
+your Library ID Number in the "Barcode" field.
+Your Library ID Number is located in the lower right of your I-Card, marked
+"Library", starting with the digits "2819" or "2011"".  If you have trouble
+logging in, please contact <a href="ask@uic.libanswers.com">Ask UIC</a>".</p>
+<p><img src="https://library.webhost.uic.edu/carli/library-ID-sm.png" /></p>
+';
+
 ?>
