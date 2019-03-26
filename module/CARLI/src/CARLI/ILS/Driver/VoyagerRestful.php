@@ -9,16 +9,23 @@ use Zend\Validator\EmailAddress as EmailAddressValidator;
 class VoyagerRestful extends \VuFind\ILS\Driver\VoyagerRestful
 {
 
-    // BUG FIX: do *NOT* cache on location ID!!!! 
-    // Override parent and do NOT cache on location IDs because we are in a consortium (Loc IDs are not unique!)
+    // Override parent in order to use a consortially unique cache ID (Loc IDs are not unique across the consortium!)
     protected function getLocationName($id)
     {
+        static $cache = [];
+        $cacheID = $this->ws_patronHomeUbId . '_' . $id;
+
+        // Fill cache if empty:
+        if (!isset($cache[$cacheID])) {
             $sql = "SELECT NVL(LOCATION_DISPLAY_NAME, LOCATION_NAME) as location " .
                 "FROM {$this->dbName}.LOCATION WHERE LOCATION_ID=:id";
             $bind = ['id' => $id];
             $sqlStmt = $this->executeSQL($sql, $bind);
             $sqlRow = $sqlStmt->fetch(PDO::FETCH_ASSOC);
-            return utf8_encode($sqlRow['LOCATION']);
+            $cache[$cacheID] = utf8_encode($sqlRow['LOCATION']);
+        }
+
+        return $cache[$cacheID];
     }
 
     /**
