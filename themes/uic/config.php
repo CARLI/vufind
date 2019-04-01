@@ -32,11 +32,13 @@ $loginLinkHelp = 'Don\'t have a UIC NetID?';
 
 
 $loginText = '
-<p>If you do not have a NetID, please provide your Library ID Number
+<p style="margin-top:-30px;padding-bottom:39px;">This is the preferred login method for most UIC Library patrons.</p>
+<p style="font-weight:700;font-size:15.6px">Login without a NetID</p>
+<p><span style="color:red;">If you do not have a NetID,</span> please provide your Library ID Number
 ("Barcode") and your last name, below.
 Your Library ID Number is located in the lower right of your I-Card, marked
 "Library", starting with the digits "2819" or "2011".  If you have trouble
-logging in, please contact <a href="https://library.uic.edu/contact">UIC Librarian</a>.</p>
+logging in, please contact a <a href="https://library.uic.edu/contact">UIC Librarian</a>.</p>
 
 <p><img src="https://library.webhost.uic.edu/carli/library-ID-sm.png" /></p>
 ';
