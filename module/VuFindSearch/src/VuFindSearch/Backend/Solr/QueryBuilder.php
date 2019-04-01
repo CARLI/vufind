@@ -202,10 +202,10 @@ class QueryBuilder implements QueryBuilderInterface
             $libraryInstance = getenv('VUFIND_LIBRARY_DB'); // e.g., UIUdb
             if ($string) {
                 // ( (Q) NOT format:"Electronic") OR ( (Q) AND ((format:"Electronic" AND institutions:"EIUdb") OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL"))
-                $newQueryString = '((' . $string . ') NOT format:"Electronic") OR ((' . $string . ') AND ((format:"Electronic" AND institutions:"' . $libraryInstance . '")  OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL"))';
+                $newQueryString = '((' . $string . ') NOT format:"Electronic") OR ((' . $string . ') AND ((format:"Electronic" AND institutions:"' . $libraryInstance . '")  OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL" OR institutions:"OAC"))';
             } else {
                 // (NOT format:"Electronic") OR ((format:"Electronic" AND institutions:"EIUdb") OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL")
-                $newQueryString = '(NOT format:"Electronic") OR ((format:"Electronic" AND institutions:"' . $libraryInstance . '") OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL")';
+                $newQueryString = '(NOT format:"Electronic") OR ((format:"Electronic" AND institutions:"' . $libraryInstance . '") OR institutions:"HAT" OR institutions:"EBL" OR institutions:"OTL" OR institutions:"OAC")';
             }
             $string = $newQueryString;
         }
