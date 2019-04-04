@@ -171,7 +171,7 @@
 <field name="author_linked" type="textProper" indexed="true" stored="true" multiValued="true"/>
 <field name="author_meeting" type="textProper" indexed="true" stored="true" multiValued="true"/>
 <field name="title_linked" type="text" indexed="true" stored="true" multiValued="true"/>
-<field name="title_resp" type="text" indexed="true" stored="true"/>
+<field name="title_resp" type="text" indexed="true" stored="true" multiValued="true"/>
 <field name="title_uniform" type="text" indexed="true" stored="true" multiValued="true"/>
 <field name="date1" type="string" indexed="true" stored="true"/>
 <field name="publisher_name" type="textProper" indexed="true" stored="true" multiValued="true"/>
