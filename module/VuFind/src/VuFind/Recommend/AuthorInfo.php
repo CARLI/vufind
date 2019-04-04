@@ -236,7 +236,24 @@ class AuthorInfo implements RecommendInterface, TranslatorAwareInterface
             return false;
         }
         $details = json_decode($result->getBody());
-        return isset($details->WKP[0]) ? $details->WKP[0] : false;
+// CARLI EDIT: parse through all returned wikipedia URLs for English (en.)
+//             the WKP data doesn't seem to result in any matches on wikipedia (do they no longer support these searches?)
+       if (isset($details->Wikipedia))  {
+          $wikipedia_urls = $details->Wikipedia;
+          if (!is_array($details->Wikipedia)) {
+              $wikipedia_urls = array($wikipedia_urls);
+          }
+          foreach ($wikipedia_urls as $wikipedia_url) {
+              if (preg_match('/^http[s]*:\/\/en\./', $wikipedia_url)) {
+                  $chunks = explode("/", $wikipedia_url);
+                  $wikipedia_name = end($chunks);
+                  return $wikipedia_name;
+              }
+          }
+       }
+// CARLI EDIT: return false if we do not find a valid wikipedia URL above
+       return false;
+        //return isset($details->WKP[0]) ? $details->WKP[0] : false;
     }
 
     /**
@@ -264,8 +281,10 @@ class AuthorInfo implements RecommendInterface, TranslatorAwareInterface
             }
         }
 
+        // CARLI EDIT: we do not want to show wikipedia info at all if we do not get results from VIAF
+        return '';
         // No LCCN found?  Use the default normalization routine:
-        return $this->normalizeName($author);
+        //return $this->normalizeName($author);
     }
 
     /**
