@@ -270,6 +270,13 @@ class AuthorInfo implements RecommendInterface, TranslatorAwareInterface
         $auth->getParams()->setBasicSearch('"' . $author . '"', 'MainHeading');
         $results = $auth->getResults();
 
+// CARLI EDIT: attempt an AllFields search if MainHeading fails
+        if (empty($results)) {
+            $auth = $this->resultsManager->get('SolrAuth');
+            $auth->getParams()->setBasicSearch('"' . $author . '"', 'AllFields');
+            $results = $auth->getResults();
+        }
+
         // Find first useful LCCN:
         foreach ($results as $current) {
             $lccn = $current->tryMethod('getRawLCCN');
@@ -281,7 +288,7 @@ class AuthorInfo implements RecommendInterface, TranslatorAwareInterface
             }
         }
 
-        // CARLI EDIT: we do not want to show wikipedia info at all if we do not get results from VIAF
+// CARLI EDIT: we do not want to show wikipedia info at all if we do not get results from VIAF
         return '';
         // No LCCN found?  Use the default normalization routine:
         //return $this->normalizeName($author);
