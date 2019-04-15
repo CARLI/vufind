@@ -97,7 +97,7 @@ public class CreatorTools
         for (int j = 0; j < subfields.size(); j++) {
             String current = subfields.get(j).getData().trim();
             if (current.length() > 0 && isUnknownRelator(current)) {
-                logger.info("Unknown relator: " + current);
+                //logger.info("Unknown relator: " + current);
                 relators.add(current);
             }
         }
