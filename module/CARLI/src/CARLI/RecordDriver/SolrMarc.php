@@ -7,7 +7,9 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
     public function getPublishedCARLI()
     {
-        return $this->getFieldArrayWithIndicatorValue('260', ['a','b','c'], [' '], null, true);
+        $ret =                   $this->getFieldArrayWithIndicatorValue('260', ['a','b','c'], [' '], null, true);
+        $ret = array_merge($ret, $this->getFieldArrayWithIndicatorValue('264', ['a','b','c'], [' '], ['1'], true));
+        return $ret;
     }
 
     public function getPublishedMostRecentlyCARLI()
