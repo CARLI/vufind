@@ -51,9 +51,6 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
             ['helperMethod' => 'getFormatList']
         );
         $spec->setLine('Language', 'getLanguages');
-        $spec->setTemplateLine(
-            'Published', 'getPublicationDetails', 'data-publicationDetails.phtml'
-        );
         $spec->setLine(
             'Edition', 'getEdition', null,
             ['prefix' => '<span property="bookEdition">', 'suffix' => '</span>']
@@ -196,9 +193,8 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
             ['helperMethod' => 'getFormatList']
         );
         $spec->setLine('Language', 'getLanguages');
-        $spec->setTemplateLine(
-            'Published', 'getPublicationDetails', 'data-publicationDetails.phtml'
-        );
+        $spec->setLine('Published', 'getPublishedCARLI');
+        $spec->setLine('Published (Most Recently)', 'getPublishedMostRecentlyCARLI');
         $spec->setLine(
             'Edition', 'getEdition', null,
             ['prefix' => '<span property="bookEdition">', 'suffix' => '</span>']
@@ -244,7 +240,12 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('Uniform Title', 'getUniformTitle'); // CARLI added new method
         $spec->setLine('In', 'getHostItem'); // CARLI added new method
         $spec->setTemplateLine('Summary', true, 'data-summary.phtml');
-        $spec->setLine('Published', 'getDateSpan');
+        //$spec->setLine('Published', 'getDateSpan');
+        $spec->setLine('Published (Formerly)', 'getPublishedFormerlyCARLI');
+        $spec->setLine('Produced', 'getProducedCARLI');
+        $spec->setLine('Distributed', 'getDistributedCARLI');
+        $spec->setLine('Manufactured', 'getManufacturedCARLI');
+        $spec->setLine('Copyright', 'getCopyrightCARLI');
         $spec->setLine('Thesis/Dissertation', 'getDissertationNote'); // CARLI added new method
         $spec->setLine('Language Notes', 'getLanguageNotes'); // CARLI added new method
         $spec->setLine('General Notes', 'getGeneralNotes'); // CARLI edited label "Item Description" -> "General Notes"

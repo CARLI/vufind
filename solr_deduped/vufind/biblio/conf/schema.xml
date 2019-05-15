@@ -160,9 +160,22 @@
    <!-- CARLI begin -->
    <field name="location" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="other_std_num" type="string" indexed="true" stored="true" multiValued="true" />
-   <field name="conf" type="string" indexed="false" stored="true"/>   
-   <field name="cont" type="string" indexed="false" stored="true"/>
-   <field name="gpub" type="string" indexed="false" stored="true"/>   
+   <field name="conf" type="string" indexed="true" stored="true"/>   
+   <field name="cont" type="string" indexed="true" stored="true"/>
+   <field name="gpub" type="string" indexed="true" stored="true"/>   
+<field name="author_lnk" type="textProper" indexed="true" stored="true" multiValued="true" termVectors="true"/>
+<field name="author2_lnk" type="textProper" indexed="true" stored="true" multiValued="true" termVectors="true"/>
+<field name="author_corporate_lnk" type="textProper" indexed="true" stored="true" multiValued="true" termVectors="true"/>
+<field name="title_short_lnk" type="text" indexed="true" stored="true"/>
+<field name="title_sub_lnk" type="text" indexed="true" stored="true"/>
+<field name="author_linked" type="textProper" indexed="true" stored="true" multiValued="true"/>
+<field name="author_meeting" type="textProper" indexed="true" stored="true" multiValued="true"/>
+<field name="title_linked" type="text" indexed="true" stored="true" multiValued="true"/>
+<field name="title_resp" type="text" indexed="true" stored="true" multiValued="true"/>
+<field name="title_uniform" type="text" indexed="true" stored="true" multiValued="true"/>
+<field name="date1" type="string" indexed="true" stored="true"/>
+<field name="publisher_name" type="textProper" indexed="true" stored="true" multiValued="true"/>
+<field name="publisher_place" type="text" indexed="true" stored="true" multiValued="true"/>
    <!-- CARLI end -->
    <field name="callnumber-first" type="string" indexed="true" stored="true"/>
    <field name="callnumber-subject" type="string" indexed="true" stored="true"/>

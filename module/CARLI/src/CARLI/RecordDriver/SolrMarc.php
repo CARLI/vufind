@@ -5,6 +5,87 @@ namespace CARLI\RecordDriver;
 class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 {
 
+    public function getPublishedCARLI()
+    {
+        $ret =                   $this->getFieldArrayWithIndicatorValue('260', ['a','b','c'], [' '], null, true);
+        $ret = array_merge($ret, $this->getFieldArrayWithIndicatorValue('264', ['a','b','c'], [' '], ['1'], true));
+        return $ret;
+    }
+
+    public function getPublishedMostRecentlyCARLI()
+    {
+        $ret =                   $this->getFieldArrayWithIndicatorValue('260', ['a','b','c'], ['3'], null, true);
+        $ret = array_merge($ret, $this->getFieldArrayWithIndicatorValue('264', ['a','b','c'], ['3'], ['1'], true));
+        return $ret;
+    }
+
+    public function getPublishedFormerlyCARLI()
+    {
+        $ret =                   $this->getFieldArrayWithIndicatorValue('260', ['a','b','c'], ['2'], null, true);
+        $ret = array_merge($ret, $this->getFieldArrayWithIndicatorValue('264', ['a','b','c'], ['2'], ['1'], true));
+        return $ret;
+    }
+
+    public function getProducedCARLI()
+    {
+        return $this->getFieldArrayWithIndicatorValue('264', ['a','b','c'], [' ','2','3'], ['0'], true);
+    }
+
+    public function getDistributedCARLI()
+    {
+        return $this->getFieldArrayWithIndicatorValue('264', ['a','b','c'], [' ','2','3'], ['2'], true);
+    }
+
+    public function getManufacturedCARLI()
+    {
+        return $this->getFieldArrayWithIndicatorValue('264', ['a','b','c'], [' ','2','3'], ['3'], true);
+    }
+
+    public function getCopyrightCARLI()
+    {
+        return $this->getFieldArrayWithIndicatorValue('264', ['a','b','c'], [' ','2','3'], ['4'], true);
+    }
+
+
+    public function getPrimaryAuthors()
+    {
+        return $this->getFieldsAndLNK('author');
+    }
+    public function getPrimaryAuthorsRoles()
+    {
+        return $this->getFieldsAndLNK('author_role');
+    }
+    public function getSecondaryAuthors()
+    {
+        return $this->getFieldsAndLNK('author2');
+    }
+    public function getSecondaryAuthorsRoles()
+    {
+        return $this->getFieldsAndLNK('author2_role');
+    }
+    public function getCorporateAuthors()
+    {
+        return $this->getFieldsAndLNK('author_corporate');
+    }
+    public function getCorporateAuthorsRoles()
+    {
+        return $this->getFieldsAndLNK('author_corporate_role');
+    }
+    // helper method:
+    private function getFieldsAndLNK($flds) {
+        $fields =  isset($this->fields[$flds])
+            ? (array) $this->fields[$flds] : [];
+
+        $fields_lnk =  isset($this->fields[$flds . '_lnk'])
+            ? (array) $this->fields[$flds . '_lnk'] : [];
+
+        foreach ($fields_lnk as $f_l) {
+            $fields[] = $f_l;
+        }
+
+        return $fields;
+    }
+
     // CARLI overriding this property
     protected $subjectFields = [
         '600' => 'personal name',
@@ -19,6 +100,18 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         '656' => 'occupation',
         '690' => 'local' // CARLI added
     ];
+
+    public function getShortTitleLnk()
+    {
+        return isset($this->fields['title_short_lnk']) ?
+            $this->fields['title_short_lnk'] : '';
+    }
+
+    public function getSubtitleLnk()
+    {
+        return isset($this->fields['title_sub_lnk']) ?
+            $this->fields['title_sub_lnk'] : '';
+    }
 
     /**************************
 
@@ -198,6 +291,80 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
         // Still no results found?  Resort to the Solr-based method just in case!
         return parent::getSeries();
+    }
+
+    protected function getSeriesFromMARC($fieldInfo)
+    {
+        $matches = [];
+
+        // Loop through the field specification....
+        foreach ($fieldInfo as $field => $subfields) {
+            // Did we find any matching fields?
+            $series = $this->getMarcRecord()->getFields($field);
+            if (is_array($series)) {
+                foreach ($series as $currentField) {
+
+                    $currentFieldPlusLNKs = array();
+                    if ($LNKfield = $this->getLNKFields($currentField)) {
+                        $currentFieldPlusLNKs = array_merge([$currentField], $LNKfield);
+                    } else {
+                        $currentFieldPlusLNKs = [ $currentField ];
+                    }
+                    foreach ($currentFieldPlusLNKs as $currentFieldOrLNK) {
+
+                        // Can we find a name using the specified subfield list?
+                        $name = $this->getSubfieldArray($currentFieldOrLNK, $subfields);
+                        if (isset($name[0])) {
+                            $currentArray = ['name' => $name[0]];
+
+                            // Can we find a number in subfield v?  (Note that number is
+                            // always in subfield v regardless of whether we are dealing
+                            // with 440, 490, 800 or 830 -- hence the hard-coded array
+                            // rather than another parameter in $fieldInfo).
+                            $number
+                                = $this->getSubfieldArray($currentFieldOrLNK, ['v']);
+                            if (isset($number[0])) {
+                                $currentArray['number'] = $number[0];
+                            }
+
+                            // Save the current match:
+                            $matches[] = $currentArray;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $matches;
+    }
+
+    protected function getLNKFields($currentField) {
+        $results = array();
+        // pull out the vernacular, i.e., LNK data
+        if ($sf6 = $currentField->getSubfield('6')) {
+            $sf6Data = $sf6->getData();
+            if (preg_match('/\-/', $sf6Data)) {
+                $LNKfieldTag = explode('-', $sf6Data);
+                $LNKfields = $this->getMarcRecord()->getFields($LNKfieldTag[0]);
+                foreach ((is_array($LNKfields) ? $LNKfields : [ $LNKfields ]) as $LNKfield) {
+                    if ($LNKsf6 = $LNKfield->getSubfield('6')) {
+                        $LNKsf6Data = $LNKsf6->getData();
+                        if (preg_match('/\-/', $LNKsf6Data)) {
+                            $LNKfieldTag2 = explode('-', $LNKsf6Data);
+                            $currentFieldTag = $currentField->getTag();
+                            if (preg_match('/\//', $LNKfieldTag2[1])) {
+                                $LNKfieldTag2[1] = explode('/', $LNKfieldTag2[1])[0];
+                            }
+                            if ($currentFieldTag == $LNKfieldTag2[0] && 
+                                $LNKfieldTag[1] == $LNKfieldTag2[1]) {
+                                $results[] = $LNKfield;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $results;
     }
 
     public function getGeneralNotes()
@@ -465,28 +632,61 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     //////////////////////////////////////////
 
     // HELPER method
-    protected function getFieldArrayWithIndicatorValue($fieldValue, $validSubfields, $ind1Array, $ind2Array)
+    protected function getFieldArrayWithIndicatorValue($fieldValue, $validSubfields, $ind1Array, $ind2Array, $addLNKs = false)
     {
         $results = array();
 
         if ($fields = $this->getMarcRecord()->getFields($fieldValue)) {
-            foreach ($fields as $field) {
+            foreach ($fields as $currentField) {
+              
+              $doCheckIndicators = [];
 
-                $ind1Valid = false;
-                if (is_null($ind1Array)) {
-                    $ind1Valid = true;
-                } else {
-                    if (in_array($field->getIndicator(1), $ind1Array)) {
+              $currentFieldPlusLNKs = [];
+              if (! is_array($currentField)) {
+                  $currentFieldPlusLNKs = [ $currentField ];
+              } else {
+                  $currentFieldPlusLNKs = $currentField;
+              }
+
+              for ($i=0; $i<count($currentFieldPlusLNKs); $i++) {
+                  $doCheckIndicators[$i] = true;
+              }
+
+              if ($addLNKs) {
+                 if ($LNKfields = $this->getLNKFields($currentField)) {
+                     for ($j=0; $j<count($LNKfields); $j++) {
+                         $doCheckIndicators[$i + $j] = false;
+                         $currentFieldPlusLNKs[$i + $j] = $LNKfields[$j];
+                     } 
+                 }
+              } 
+
+
+              for ($i=0; $i<count($currentFieldPlusLNKs); $i++) {
+                $field = $currentFieldPlusLNKs[$i];
+                $checkIndicators = $doCheckIndicators[$i];
+
+                $ind1Valid = true;
+                if ($checkIndicators) {
+                    $ind1Valid = false;
+                    if (is_null($ind1Array)) {
                         $ind1Valid = true;
+                    } else {
+                        if (in_array($field->getIndicator(1), $ind1Array)) {
+                            $ind1Valid = true;
+                        }
                     }
                 }
 
-                $ind2Valid = false;
-                if (is_null($ind2Array)) {
-                    $ind2Valid = true;
-                } else {
-                    if (in_array($field->getIndicator(2), $ind2Array)) {
+                $ind2Valid = true;
+                if ($checkIndicators) {
+                    $ind2Valid = false;
+                    if (is_null($ind2Array)) {
                         $ind2Valid = true;
+                    } else {
+                        if (in_array($field->getIndicator(2), $ind2Array)) {
+                            $ind2Valid = true;
+                        }
                     }
                 }
 
@@ -502,7 +702,11 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
                     if (strlen($valStr) > 0) {
                         $results[] = ltrim($valStr);
                     }
+                } else {
+                    // this can only occur if it's *not* a LNK field. Invalid non-LNK fields should be skipped entirely!
+                    break;
                 }
+              }
             }
         }
 

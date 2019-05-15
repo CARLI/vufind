@@ -153,6 +153,19 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
         addSubfieldDataToSet(record, set_medium2, "538", "a");
         addSubfieldDataToSet(record, set_medium2, "690", "a");
 
+        Set set_medium3 = new LinkedHashSet();
+        addSubfieldDataToSet(record, set_medium3, "300", "a");
+        addSubfieldDataToSet(record, set_medium3, "300", "b");
+        addSubfieldDataToSet(record, set_medium3, "300", "e");
+        addSubfieldDataToSet(record, set_medium3, "305", "a");
+        addSubfieldDataToSet(record, set_medium3, "305", "b");
+        addSubfieldDataToSet(record, set_medium3, "305", "c");
+        addSubfieldDataToSet(record, set_medium3, "338", "a");
+        addSubfieldDataToSet(record, set_medium3, "344", "c");
+        addSubfieldDataToSet(record, set_medium3, "347", "b");
+        addSubfieldDataToSet(record, set_medium3, "538", "a");
+        addSubfieldDataToSet(record, set_medium3, "690", "a");
+
         Set set_gmd = new LinkedHashSet();
         addSubfieldDataToSet(record, set_gmd, "245", "h");
 
@@ -183,25 +196,25 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
         }
 
         // Blu-ray:
-        // ((Medium=vd OR GMD=video*) AND (Medium2=bluray OR Medium2="blu ray" OR Medium2="blu-ray"))
+        // ((Medium=vd OR GMD=video*) AND (Medium3=bluray OR Medium3="blu ray" OR Medium3="blu-ray"))
         // OR
-        // (RecType=g AND Medium=v* AND (Medium2=bluray OR Medium2="blu ray" OR Medium2="blu-ray"))
+        // (RecType=g AND Medium=v* AND (Medium3=bluray OR Medium3="blu ray" OR Medium3="blu-ray"))
         if (
-              ( ( itemEquals(medium, "vd") || setItemContains(set_gmd, "video") ) && ( setItemContains(set_medium2, "bluray") || setItemContains(set_medium2, "blu ray") || setItemContains(set_medium2, "blu-ray")) )
+              ( ( itemEquals(medium, "vd") || setItemContains(set_gmd, "video") ) && ( setItemContains(set_medium3, "bluray") || setItemContains(set_medium3, "blu ray") || setItemContains(set_medium3, "blu-ray")) )
               ||
-              ( itemEquals(recType, "g") && itemBeginsWith(medium, "v") && ( setItemContains(set_medium2, "bluray") || setItemContains(set_medium2, "blu ray") || setItemContains(set_medium2, "blu-ray")) )
+              ( itemEquals(recType, "g") && itemBeginsWith(medium, "v") && ( setItemContains(set_medium3, "bluray") || setItemContains(set_medium3, "blu ray") || setItemContains(set_medium3, "blu-ray")) )
         ) {
            result.add("Blu-ray");
         }
 
         // DVD:
-        // ((Medium=vd OR GMD=video*) AND Medium2=dvd*)
+        // ((Medium=vd OR GMD=video*) AND Medium3=dvd*)
         //  OR
-        // (RecType=g AND Medium=v* AND Medium2=dvd*)
+        // (RecType=g AND Medium=v* AND Medium3=dvd*)
         if (
-             ((itemEquals(medium, "vd") || setItemContains(set_gmd, "video")) && setItemContains(set_medium2, "dvd"))
+             ((itemEquals(medium, "vd") || setItemContains(set_gmd, "video")) && setItemContains(set_medium3, "dvd"))
              ||
-             (itemEquals(recType, "g") && itemBeginsWith(medium, "v") && setItemContains(set_medium2, "dvd"))
+             (itemEquals(recType, "g") && itemBeginsWith(medium, "v") && setItemContains(set_medium3, "dvd"))
         ) {
            result.add("DVD");
         }
@@ -255,7 +268,7 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
         option 3:
         <finds anything with "compact disc" OR "CD" OR "audio disc" listed in the specified fields; this has a nested AND statement only specific to option 3>
  
-        (the term "compact disc" OR "CD" OR "audio disc" appears in the 300a, 300b, 300e, 305a, 305b, 305c, 338a, 538a, or 690a)
+        (the term "compact disc" OR "CD" OR "audio disc" appears in the 300a, 300b, 300e, 305a, 305b, 305c, 338a, 347b, 538a, or 690a)
         AND
         (the term "33 1/3" OR "33 ⅓" OR "33⅓" does NOT appear in the 300a, 300b, 300e, 305a, 305b, 305c, 338a, 538a, or 690a)
  
@@ -269,7 +282,7 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
                 result.add("Audio CD");
 
             } else if (
-                    (setItemContains(set_medium2, "compact disc") || setItemContainsTokenized(set_medium2, "CD") || setItemContains(set_medium2, "audio disc") )
+                    (setItemContains(set_medium3, "compact disc") || setItemContainsTokenized(set_medium3, "CD") || setItemContains(set_medium3, "audio disc") )
                     &&
                     !( setItemContains(set_medium2, "33 1/3") || setItemContains(set_medium2, "33 ⅓") || setItemContains(set_medium2, "33⅓") ||  setItemContains(set_medium2, "33 ¹/₃") || setItemContains(set_medium2, "33¹/₃"))
             ) {
@@ -427,7 +440,7 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
        OR 338b=cd OR (300c=4/3/4 in. OR 12 cm) OR (the terms “computer laser optical disc” OR “computer optical disc” OR “computer disc” appear in 300a, 300b)
 
        AND
-       The term “CD-ROM” appears in 300a, 300b, 300e, 338$3, 538a, 690a, 753a
+       The term “CD-ROM” appears in 300a, 300b, 300e, 338$3, 347b, 538a, 690a, 753a
        ****/
 
       String _007_04 = getFirstFieldValLowerCase(record, "007[4]");
@@ -448,14 +461,15 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
       addSubfieldDataToSet(record, set_300ab, "300", "a");
       addSubfieldDataToSet(record, set_300ab, "300", "b");
 
-      Set set_300abe_3383_538a_690a_753a = new LinkedHashSet();
-      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "300", "a");
-      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "300", "b");
-      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "300", "e");
-      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "338", "3");
-      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "538", "a");
-      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "690", "a");
-      addSubfieldDataToSet(record, set_300abe_3383_538a_690a_753a, "753", "a");
+      Set set_300abe_3383_347b_538a_690a_753a = new LinkedHashSet();
+      addSubfieldDataToSet(record, set_300abe_3383_347b_538a_690a_753a, "300", "a");
+      addSubfieldDataToSet(record, set_300abe_3383_347b_538a_690a_753a, "300", "b");
+      addSubfieldDataToSet(record, set_300abe_3383_347b_538a_690a_753a, "300", "e");
+      addSubfieldDataToSet(record, set_300abe_3383_347b_538a_690a_753a, "338", "3");
+      addSubfieldDataToSet(record, set_300abe_3383_347b_538a_690a_753a, "347", "b");
+      addSubfieldDataToSet(record, set_300abe_3383_347b_538a_690a_753a, "538", "a");
+      addSubfieldDataToSet(record, set_300abe_3383_347b_538a_690a_753a, "690", "a");
+      addSubfieldDataToSet(record, set_300abe_3383_347b_538a_690a_753a, "753", "a");
 
       if (
            (
@@ -483,7 +497,7 @@ public static BeginsWithComparitor beginsWithComparitor = new BeginsWithComparit
            )
            &&
            (
-              setItemContains(set_300abe_3383_538a_690a_753a, "CD-ROM")
+              setItemContains(set_300abe_3383_347b_538a_690a_753a, "CD-ROM")
            )
 
         ) {
