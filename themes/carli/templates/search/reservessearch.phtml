@@ -43,6 +43,7 @@
 
     <? if ($recordTotal > 0): ?>
       <div class="pull-right flip">
+<?=$this->render('search/controls/limit.phtml')?>
         <?=$this->render('search/controls/sort.phtml')?>
       </div>
     <? endif; ?>
