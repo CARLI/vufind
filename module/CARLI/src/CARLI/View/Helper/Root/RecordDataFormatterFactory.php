@@ -240,7 +240,7 @@ class RecordDataFormatterFactory extends \VuFind\View\Helper\Root\RecordDataForm
         $spec->setLine('Uniform Title', 'getUniformTitle'); // CARLI added new method
         $spec->setLine('In', 'getHostItem'); // CARLI added new method
         $spec->setTemplateLine('Summary', true, 'data-summary.phtml');
-        //$spec->setLine('Published', 'getDateSpan');
+        $spec->setLine('Dates of Publication', 'getDateSpan');
         $spec->setLine('Published (Formerly)', 'getPublishedFormerlyCARLI');
         $spec->setLine('Produced', 'getProducedCARLI');
         $spec->setLine('Distributed', 'getDistributedCARLI');
